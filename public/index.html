@@ -1036,8 +1036,52 @@
     const pitchPreview = document.getElementById('pitchPreview');
     const btnSavePitch = document.getElementById('btnSavePitch');
 
+    // Ponte automática para o motor WhatsApp (Baileys local ou Túnel HTTPS registrado na Cloudflare)
+    window.__SENDER_BASE_URL__ = '';
+    const _origFetch = window.fetch.bind(window);
+    window.fetch = async function(input, init) {
+      if (typeof input === 'string' && window.__SENDER_BASE_URL__) {
+        if (
+          input.startsWith('/api/sender') ||
+          input.startsWith('/api/direct-messages') ||
+          input.startsWith('/api/leads/verify-whatsapp')
+        ) {
+          return _origFetch(window.__SENDER_BASE_URL__ + input, init);
+        }
+      }
+      return _origFetch(input, init);
+    };
+
+    async function resolveSenderBackendBridge() {
+      if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+        window.__SENDER_BASE_URL__ = '';
+        return;
+      }
+      try {
+        const ctrl = new AbortController();
+        const t = setTimeout(() => ctrl.abort(), 1800);
+        const r = await _origFetch('http://localhost:3000/api/sender/status', { signal: ctrl.signal });
+        clearTimeout(t);
+        if (r.ok) {
+          window.__SENDER_BASE_URL__ = 'http://localhost:3000';
+          return;
+        }
+      } catch {}
+
+      try {
+        const r = await _origFetch('/api/bridge/status');
+        if (r.ok) {
+          const d = await r.json();
+          if (d.bridgeUrl) {
+            window.__SENDER_BASE_URL__ = d.bridgeUrl.replace(/\/$/, '');
+          }
+        }
+      } catch {}
+    }
+
     // Inicialização
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
+      await resolveSenderBackendBridge();
       checkBackendStatus();
       setupEventListeners();
       updatePitchPreview();
@@ -2903,8 +2947,17 @@
     }
 
     function connectSenderSse() {
+      // Fallback de sincronização periódica para ambientes Serverless / Túnel
+      setInterval(() => {
+        const paneSender = document.getElementById('tabPaneSender');
+        if (paneSender && !paneSender.classList.contains('hidden')) {
+          fetchSenderStatus();
+        }
+      }, 4000);
+
       try {
-        const evtSource = new EventSource('/api/sender/stream');
+        const sseUrl = (window.__SENDER_BASE_URL__ || '') + '/api/sender/stream';
+        const evtSource = new EventSource(sseUrl);
 
         evtSource.addEventListener('init', (e) => {
           const data = JSON.parse(e.data);

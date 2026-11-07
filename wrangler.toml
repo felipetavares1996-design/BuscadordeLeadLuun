@@ -1,0 +1,11 @@
+name = "buscadordeleadluun"
+main = "worker.js"
+compatibility_date = "2024-11-01"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+
+[[kv_namespaces]]
+binding = "LEADS_KV"
+id = "0c6a2a1df7c542e5b071d984182b2847"
