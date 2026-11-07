@@ -1,0 +1,7 @@
+{
+  "settings": {
+    "delayMinSeconds": 6,
+    "delayMaxSeconds": 12
+  },
+  "messages": []
+}

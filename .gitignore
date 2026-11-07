@@ -1,0 +1,7 @@
+node_modules/
+.env
+.DS_Store
+*.log
+auth_info_baileys/
+uploads_sender/
+

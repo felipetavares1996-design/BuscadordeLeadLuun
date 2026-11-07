@@ -1,0 +1,3381 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>iFood Lead Hunter Pro - Prospecção Gastronômica Brasil</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              red: '#EA1D2C', // Cor clássica do ecossistema iFood
+              redDark: '#C71421',
+              emerald: '#10B981',
+              cyan: '#06B6D4',
+              gold: '#F59E0B'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+    .glass-card {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(51, 65, 85, 0.45);
+    }
+    .glass-card:hover {
+      border-color: rgba(99, 102, 241, 0.35);
+    }
+    .badge-glow-emerald {
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.25);
+    }
+    .badge-glow-red {
+      box-shadow: 0 0 15px rgba(234, 29, 44, 0.3);
+    }
+  </style>
+</head>
+<body class="bg-[#0b0f19] text-slate-100 min-h-screen font-sans selection:bg-brand-red selection:text-white antialiased">
+
+  <!-- Header / Navigation -->
+  <header class="sticky top-0 z-40 border-b border-slate-800/80 bg-[#0b0f19]/90 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-18 flex items-center justify-between py-3.5">
+      <!-- Logo & Title -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-red to-rose-500 flex items-center justify-center shadow-lg shadow-brand-red/30 text-white font-black text-xl">
+          <i class="fa-solid fa-utensils"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="font-extrabold text-lg sm:text-xl tracking-tight text-white flex items-center gap-2">
+              iFood <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-red to-orange-400">Hunter Pro</span>
+            </h1>
+            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-brand-red/10 border border-brand-red/30 text-brand-red">
+              🇧🇷 Brasil Todo
+            </span>
+          </div>
+          <p class="text-xs text-slate-400 font-medium">Prospecção Nacional de Leads Gastronômicos (5.570 Municípios) para Consultoria & Otimização iFood</p>
+        </div>
+      </div>
+
+      <!-- Right controls & Status -->
+      <div class="flex items-center gap-3">
+        <!-- WhatsApp Status Pill -->
+        <div id="waHeaderStatusBadge" class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-xs font-semibold text-slate-400 cursor-pointer" title="Clique para abrir a aba Sender WhatsApp">
+          <span id="waHeaderDot" class="w-2 h-2 rounded-full bg-rose-500"></span>
+          <span id="waHeaderText">WhatsApp Desconectado</span>
+        </div>
+
+        <!-- Backend Status Badge -->
+        <div id="apiStatusBadge" class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-xs font-medium text-slate-300">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>Google Places API Conectada</span>
+        </div>
+
+        <!-- Pitch Config Button -->
+        <button id="btnOpenPitchModal" class="px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-2 transition border border-slate-700 hover:border-slate-600 shadow-sm">
+          <i class="fa-solid fa-wand-magic-sparkles text-amber-400"></i>
+          <span>Personalizar Pitch</span>
+        </button>
+
+        <!-- CSV Export Button -->
+        <button id="btnExportCSV" disabled class="px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 disabled:text-slate-500 disabled:border-slate-800 disabled:cursor-not-allowed text-white text-xs font-bold flex items-center gap-2 transition shadow-md shadow-emerald-950/50 border border-emerald-500/50">
+          <i class="fa-solid fa-file-excel"></i>
+          <span>Exportar CSV</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Navigation Tabs (Buscador + Sender 1 a 1) -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-slate-800/70 bg-slate-950/50">
+      <nav class="flex items-center gap-2 py-2 overflow-x-auto">
+        <button type="button" id="mainTabSearch" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 transition bg-brand-red text-white shadow-md shadow-brand-red/20">
+          <i class="fa-solid fa-magnifying-glass-location"></i>
+          <span>Buscador de Leads (Google)</span>
+        </button>
+
+        <button type="button" id="mainTabSender" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2.5 transition bg-slate-900/90 hover:bg-slate-800 text-slate-300 border border-slate-800">
+          <i class="fa-brands fa-whatsapp text-emerald-400 text-base"></i>
+          <span>Sender WhatsApp (Disparo 1 a 1)</span>
+          <span id="tabSenderCounterBadge" class="px-2 py-0.5 rounded-full text-[11px] font-mono bg-slate-800 text-emerald-400 border border-slate-700">0 / 0 Enviados</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- ABA 1: BUSCADOR DE LEADS -->
+    <div id="tabPaneSearch" class="space-y-6">
+
+    <!-- Search & Filters Container -->
+    <section class="glass-card rounded-2xl p-5 sm:p-6 shadow-2xl relative overflow-hidden">
+      <!-- Background subtle gradient accent -->
+      <div class="absolute -right-20 -top-20 w-80 h-80 bg-brand-red/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -left-20 -bottom-20 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="relative z-10 space-y-5">
+        <!-- Main Search Bar -->
+        <form id="searchForm" class="flex flex-col sm:flex-row gap-2.5">
+          <div class="relative flex-1">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-400">
+              <i class="fa-solid fa-magnifying-glass text-base"></i>
+            </div>
+            <input 
+              type="text" 
+              id="searchInput" 
+              value="Hamburguerias em Pinheiros SP"
+              placeholder="Ex.: Pizzarias em Savassi Belo Horizonte MG, Hamburguerias em Curitiba PR, Marmitarias em Moema SP..." 
+              class="w-full pl-11 pr-24 py-3.5 bg-slate-900/90 border border-slate-700/80 rounded-xl text-sm sm:text-base text-white placeholder-slate-500 focus:outline-none focus:border-brand-red focus:ring-2 focus:ring-brand-red/20 transition shadow-inner font-medium"
+              required
+            >
+            <button 
+              type="button" 
+              id="btnClearSearch" 
+              class="absolute inset-y-0 right-2 px-3 flex items-center text-xs font-medium text-slate-400 hover:text-white transition"
+              title="Limpar campo"
+            >
+              <i class="fa-solid fa-xmark text-sm"></i>
+            </button>
+          </div>
+
+          <button 
+            type="submit" 
+            id="btnSearchSubmit"
+            class="px-7 py-3.5 rounded-xl bg-gradient-to-r from-brand-red to-rose-600 hover:from-brand-redDark hover:to-rose-700 text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2.5 transition shadow-lg shadow-brand-red/25 active:scale-[0.98]"
+          >
+            <span id="searchBtnIcon"><i class="fa-solid fa-bolt"></i></span>
+            <span id="searchBtnText">Buscar Leads</span>
+          </button>
+        </form>
+
+        <!-- Quick Filters: Niches & Regions -->
+        <div class="space-y-3.5 pt-2 border-t border-slate-800/80">
+          
+          <!-- Nichos -->
+          <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5 min-w-[90px]">
+              <i class="fa-solid fa-burger text-brand-red"></i> Nicho:
+            </span>
+            <div class="flex flex-wrap gap-1.5" id="nicheContainer">
+              <button type="button" class="niche-chip px-3 py-1 rounded-lg text-xs font-medium transition bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60 active:scale-95" data-niche="Hamburguerias">🍔 Hamburguerias</button>
+              <button type="button" class="niche-chip px-3 py-1 rounded-lg text-xs font-medium transition bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60 active:scale-95" data-niche="Pizzarias">🍕 Pizzarias</button>
+              <button type="button" class="niche-chip px-3 py-1 rounded-lg text-xs font-medium transition bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60 active:scale-95" data-niche="Lanchonetes">🥪 Lanchonetes</button>
+              <button type="button" class="niche-chip px-3 py-1 rounded-lg text-xs font-medium transition bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60 active:scale-95" data-niche="Marmitarias">🍱 Marmitarias / PF</button>
+              <button type="button" class="niche-chip px-3 py-1 rounded-lg text-xs font-medium transition bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60 active:scale-95" data-niche="Restaurantes Japoneses">🍣 Japoneses</button>
+              <button type="button" class="niche-chip px-3 py-1 rounded-lg text-xs font-medium transition bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60 active:scale-95" data-niche="Açaiterias e Docerias">🍨 Açaí & Sobremesas</button>
+              <button type="button" class="niche-chip px-3 py-1 rounded-lg text-xs font-medium transition bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60 active:scale-95" data-niche="Restaurantes de Comida Caseira">🍲 Comida Brasileira</button>
+              <button type="button" class="niche-chip px-3 py-1 rounded-lg text-xs font-medium transition bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60 active:scale-95" data-niche="Churrascarias e Espetinhos">🥩 Churrascarias</button>
+              <button type="button" class="niche-chip px-3 py-1 rounded-lg text-xs font-medium transition bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60 active:scale-95" data-niche="Padarias e Confeitarias">🥐 Padarias & Doces</button>
+            </div>
+          </div>
+
+          <!-- Atalhos de Regiões / Capitais & Polos do Brasil -->
+          <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5 min-w-[90px]">
+              <i class="fa-solid fa-location-dot text-cyan-400"></i> Região:
+            </span>
+            <div class="flex flex-wrap gap-1.5" id="regionContainer">
+              <!-- SP e Bairros -->
+              <button type="button" class="region-chip px-2.5 py-1 rounded-lg text-xs font-medium transition bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60" data-region="São Paulo - SP">São Paulo - SP</button>
+              <button type="button" class="region-chip px-2.5 py-1 rounded-lg text-xs font-medium transition bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60" data-region="Pinheiros SP">Pinheiros</button>
+              <button type="button" class="region-chip px-2.5 py-1 rounded-lg text-xs font-medium transition bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60" data-region="Moema SP">Moema</button>
+              <button type="button" class="region-chip px-2.5 py-1 rounded-lg text-xs font-medium transition bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60" data-region="Itaim Bibi SP">Itaim Bibi</button>
+              <button type="button" class="region-chip px-2.5 py-1 rounded-lg text-xs font-medium transition bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60" data-region="Tatuapé SP">Tatuapé</button>
+              <button type="button" class="region-chip px-2.5 py-1 rounded-lg text-xs font-medium transition bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60" data-region="Campinas - SP">Campinas - SP</button>
+              <!-- Principais Capitais do Brasil -->
+              <button type="button" class="region-chip px-2.5 py-1 rounded-lg text-xs font-medium transition bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60" data-region="Rio de Janeiro - RJ">Rio de Janeiro - RJ</button>
+              <button type="button" class="region-chip px-2.5 py-1 rounded-lg text-xs font-medium transition bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60" data-region="Belo Horizonte - MG">Belo Horizonte - MG</button>
+              <button type="button" class="region-chip px-2.5 py-1 rounded-lg text-xs font-medium transition bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60" data-region="Curitiba - PR">Curitiba - PR</button>
+              <button type="button" class="region-chip px-2.5 py-1 rounded-lg text-xs font-medium transition bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60" data-region="Porto Alegre - RS">Porto Alegre - RS</button>
+              <button type="button" class="region-chip px-2.5 py-1 rounded-lg text-xs font-medium transition bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60" data-region="Brasília - DF">Brasília - DF</button>
+              <button type="button" class="region-chip px-2.5 py-1 rounded-lg text-xs font-medium transition bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60" data-region="Salvador - BA">Salvador - BA</button>
+              <button type="button" class="region-chip px-2.5 py-1 rounded-lg text-xs font-medium transition bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60" data-region="Recife - PE">Recife - PE</button>
+              <button type="button" class="region-chip px-2.5 py-1 rounded-lg text-xs font-medium transition bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60" data-region="Fortaleza - CE">Fortaleza - CE</button>
+              <button type="button" class="region-chip px-2.5 py-1 rounded-lg text-xs font-medium transition bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60" data-region="Goiânia - GO">Goiânia - GO</button>
+              <button type="button" class="region-chip px-2.5 py-1 rounded-lg text-xs font-medium transition bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60" data-region="Florianópolis - SC">Florianópolis - SC</button>
+            </div>
+          </div>
+
+          <!-- Digitar Região / Selecionar Estado (UF) e Município (5.570 cidades do Brasil - IBGE) -->
+          <div class="flex flex-col lg:flex-row items-stretch lg:items-center gap-2 pt-2 border-t border-slate-800/60">
+            <span class="text-xs font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-1.5 min-w-[90px] shrink-0">
+              <i class="fa-solid fa-map-location-dot"></i> Digitar:
+            </span>
+
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 flex-1">
+              <!-- Seletor de Estado (27 UFs do Brasil) -->
+              <div class="sm:col-span-3">
+                <select
+                  id="selectBrazilUf"
+                  class="w-full px-3 py-2 bg-slate-900/95 border border-slate-700/80 rounded-xl text-xs text-slate-200 font-semibold focus:outline-none focus:border-cyan-500 cursor-pointer"
+                  title="Filtrar municípios por Estado (UF)"
+                >
+                  <option value="ALL">🇧🇷 Todos os Estados (27 UFs)</option>
+                  <option value="AC">AC - Acre</option>
+                  <option value="AL">AL - Alagoas</option>
+                  <option value="AP">AP - Amapá</option>
+                  <option value="AM">AM - Amazonas</option>
+                  <option value="BA">BA - Bahia</option>
+                  <option value="CE">CE - Ceará</option>
+                  <option value="DF">DF - Distrito Federal</option>
+                  <option value="ES">ES - Espírito Santo</option>
+                  <option value="GO">GO - Goiás</option>
+                  <option value="MA">MA - Maranhão</option>
+                  <option value="MT">MT - Mato Grosso</option>
+                  <option value="MS">MS - Mato Grosso do Sul</option>
+                  <option value="MG">MG - Minas Gerais</option>
+                  <option value="PA">PA - Pará</option>
+                  <option value="PB">PB - Paraíba</option>
+                  <option value="PR">PR - Paraná</option>
+                  <option value="PE">PE - Pernambuco</option>
+                  <option value="PI">PI - Piauí</option>
+                  <option value="RJ">RJ - Rio de Janeiro</option>
+                  <option value="RN">RN - Rio Grande do Norte</option>
+                  <option value="RS">RS - Rio Grande do Sul</option>
+                  <option value="RO">RO - Rondônia</option>
+                  <option value="RR">RR - Roraima</option>
+                  <option value="SC">SC - Santa Catarina</option>
+                  <option value="SP">SP - São Paulo</option>
+                  <option value="SE">SE - Sergipe</option>
+                  <option value="TO">TO - Tocantins</option>
+                </select>
+              </div>
+
+              <!-- Autocomplete com todos os 5.570 municípios do Brasil (IBGE) -->
+              <div class="sm:col-span-4 relative">
+                <input
+                  type="text"
+                  id="customCityInput"
+                  list="brazilMunicipalitiesList"
+                  placeholder="Cidade / Município (5.570 cidades)..."
+                  class="w-full px-3 py-2 bg-slate-900/95 border border-slate-700/80 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 font-medium"
+                >
+                <datalist id="brazilMunicipalitiesList"></datalist>
+              </div>
+
+              <!-- Campo Livre para digitar Bairro / Região / Zona / Localidade -->
+              <div class="sm:col-span-3 relative">
+                <input
+                  type="text"
+                  id="customRegionInput"
+                  placeholder="Digite o Bairro ou Região (ex: Savassi, Centro, Zona Sul)..."
+                  class="w-full px-3 py-2 bg-slate-900/95 border border-slate-700/80 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 font-medium"
+                >
+              </div>
+
+              <!-- Botão Aplicar Região e Buscar -->
+              <div class="sm:col-span-2 flex">
+                <button
+                  type="button"
+                  id="btnApplyCustomRegion"
+                  class="w-full px-3 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 transition shadow-md shadow-cyan-950/50 active:scale-95"
+                  title="Aplicar região digitada e buscar leads"
+                >
+                  <i class="fa-solid fa-location-crosshairs"></i>
+                  <span>Buscar Região</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Metrics Bar (Shows dynamically when leads are fetched) -->
+    <section id="metricsBar" class="hidden grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+      <div class="glass-card rounded-xl p-4 flex items-center justify-between">
+        <div>
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Total Leads</span>
+          <p id="metricTotal" class="text-2xl font-extrabold text-white">0</p>
+        </div>
+        <div class="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center text-lg">
+          <i class="fa-solid fa-list-check"></i>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-xl p-4 flex items-center justify-between border-brand-red/30 bg-slate-900/90 badge-glow-red">
+        <div>
+          <span class="text-xs font-bold text-rose-400 uppercase tracking-wide flex items-center gap-1">
+            <i class="fa-solid fa-fire"></i> Alta Oportunidade
+          </span>
+          <p id="metricOpportunity" class="text-2xl font-black text-white">0</p>
+        </div>
+        <div class="w-10 h-10 rounded-xl bg-brand-red/20 border border-brand-red/30 text-brand-red flex items-center justify-center text-lg">
+          <i class="fa-solid fa-bullseye"></i>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-xl p-4 flex items-center justify-between">
+        <div>
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Com WhatsApp</span>
+          <p id="metricWithPhone" class="text-2xl font-extrabold text-emerald-400">0</p>
+        </div>
+        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg">
+          <i class="fa-brands fa-whatsapp"></i>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-xl p-4 flex items-center justify-between">
+        <div>
+          <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Média das Notas</span>
+          <p id="metricAvgRating" class="text-2xl font-extrabold text-amber-400">0.0</p>
+        </div>
+        <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-lg">
+          <i class="fa-solid fa-star"></i>
+        </div>
+      </div>
+    </section>
+
+    <!-- Results Control & Filtering Header -->
+    <section id="resultsSectionHeader" class="hidden flex flex-col md:flex-row md:items-center justify-between gap-4 py-2">
+      <div class="flex flex-wrap items-center gap-3">
+        <label class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs font-semibold text-slate-300 cursor-pointer hover:border-slate-700 select-none">
+          <input type="checkbox" id="chkSelectAllLeads" class="w-3.5 h-3.5 rounded accent-brand-red cursor-pointer">
+          <span id="lblSelectAllLeads">Selecionar Todos</span>
+        </label>
+        <h2 class="text-lg font-bold text-white flex items-center gap-2">
+          <span>Estabelecimentos</span>
+          <span id="resultsCountBadge" class="px-2.5 py-0.5 rounded-full bg-slate-800 text-xs font-bold text-slate-300 border border-slate-700">0</span>
+        </h2>
+        <span id="activeSearchQuery" class="text-xs text-slate-400 truncate max-w-xs italic"></span>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <!-- Quick Filters -->
+        <div class="flex flex-wrap items-center bg-slate-900 border border-slate-800 rounded-xl p-1 text-xs">
+          <button type="button" class="filter-tab px-2.5 py-1.5 rounded-lg font-semibold bg-brand-red text-white transition" data-filter="all">Todos</button>
+          <button type="button" class="filter-tab px-2.5 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition" data-filter="opportunity">🔥 Alta Oportunidade</button>
+          <button type="button" class="filter-tab px-2.5 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition" data-filter="phone">📱 Com WhatsApp</button>
+          <button type="button" class="filter-tab px-2.5 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition" data-filter="cnpj">🏢 Com CNPJ</button>
+          <button type="button" class="filter-tab px-2.5 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition" data-filter="email">✉️ Com E-mail</button>
+        </div>
+
+        <!-- Sort Select -->
+        <select id="sortSelect" class="bg-slate-900 border border-slate-800 text-slate-300 text-xs font-medium rounded-xl px-3 py-2 focus:outline-none focus:border-slate-600 cursor-pointer">
+          <option value="default">Ordenação padrão</option>
+          <option value="rating-asc">Menor Nota (Maior urgência)</option>
+          <option value="reviews-asc">Menos Avaliações (Pouca tração)</option>
+          <option value="rating-desc">Maior Nota</option>
+          <option value="name-asc">Nome (A - Z)</option>
+        </select>
+
+        <!-- View Toggle (Grid / Table) -->
+        <div class="flex items-center bg-slate-900 border border-slate-800 rounded-xl p-1 text-xs">
+          <button type="button" id="btnViewGrid" class="p-1.5 rounded-lg bg-slate-800 text-white hover:text-white transition" title="Visualização em Cards">
+            <i class="fa-solid fa-table-cells-large px-1"></i>
+          </button>
+          <button type="button" id="btnViewTable" class="p-1.5 rounded-lg text-slate-400 hover:text-white transition" title="Visualização em Tabela">
+            <i class="fa-solid fa-table-list px-1"></i>
+          </button>
+        </div>
+
+        <!-- Verificar números no WhatsApp (Baileys) -->
+        <button type="button" id="btnVerifyWhatsApps" class="px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-emerald-400 border border-emerald-500/30 text-xs font-bold flex items-center gap-1.5 transition" title="Verifica via WhatsApp Web quais números possuem conta ativa">
+          <i class="fa-solid fa-circle-check"></i>
+          <span id="btnVerifyWhatsAppsText">Validar WhatsApps</span>
+        </button>
+
+        <!-- Enviar Selecionados / Todos para Sender 1 a 1 -->
+        <button type="button" id="btnImportLeadsToSender" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 transition shadow-md shadow-emerald-950/50">
+          <i class="fa-brands fa-whatsapp"></i>
+          <span id="btnImportLeadsText">Enviar p/ Disparo 1 a 1</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Leads Container: Grid View -->
+    <section id="leadsGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <!-- Injetado dinamicamente via JS -->
+    </section>
+
+    <!-- Leads Container: Table View -->
+    <section id="leadsTableContainer" class="hidden glass-card rounded-2xl overflow-hidden shadow-xl border border-slate-800">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs sm:text-sm">
+          <thead class="bg-slate-900/90 text-slate-400 uppercase tracking-wider text-[11px] font-bold border-b border-slate-800">
+            <tr>
+              <th class="py-3.5 px-3 w-10 text-center">#</th>
+              <th class="py-3.5 px-4">Estabelecimento & Sócios</th>
+              <th class="py-3.5 px-3">CNPJ & E-mails</th>
+              <th class="py-3.5 px-3 text-center">Avaliação Google</th>
+              <th class="py-3.5 px-3">Oportunidade iFood</th>
+              <th class="py-3.5 px-3">Todos os Telefones (Google / CNPJ / Site)</th>
+              <th class="py-3.5 px-4">Status & Notas CRM</th>
+              <th class="py-3.5 px-4 text-right">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="leadsTableBody" class="divide-y divide-slate-800/80 text-slate-300 font-medium">
+            <!-- Injetado dinamicamente -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Botão de Paginação (+20 estabelecimentos) -->
+    <div id="loadMoreContainer" class="hidden flex justify-center pt-2">
+      <button type="button" id="btnLoadMoreLeads" class="px-6 py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs sm:text-sm border border-slate-700 hover:border-brand-red/50 flex items-center gap-2 transition shadow-lg">
+        <i class="fa-solid fa-plus-circle text-brand-red"></i>
+        <span id="btnLoadMoreText">Carregar +20 estabelecimentos desta busca</span>
+      </button>
+    </div>
+
+    <!-- Loading Skeleton State -->
+    <section id="loadingState" class="hidden py-12">
+      <div class="max-w-md mx-auto text-center space-y-4">
+        <div class="inline-flex relative">
+          <div class="w-14 h-14 rounded-full border-4 border-slate-800 border-t-brand-red animate-spin"></div>
+          <div class="absolute inset-0 flex items-center justify-center text-brand-red text-base">
+            <i class="fa-solid fa-utensils"></i>
+          </div>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-white">Buscando estabelecimentos na Google Places API...</h3>
+          <p class="text-xs text-slate-400 mt-1">Minerando dados de contato, notas e calculando score de oportunidade iFood</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Empty State -->
+    <section id="emptyState" class="glass-card rounded-2xl p-12 text-center border-dashed border-2 border-slate-800 space-y-4">
+      <div class="w-16 h-16 rounded-2xl bg-slate-900 border border-slate-800 text-slate-500 flex items-center justify-center mx-auto text-2xl">
+        <i class="fa-solid fa-radar"></i>
+      </div>
+      <div class="max-w-md mx-auto space-y-2">
+        <h3 class="text-lg font-bold text-white">Nenhuma busca realizada ainda</h3>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          Selecione um nicho e uma região acima ou digite uma pesquisa personalizada para encontrar restaurantes, hamburguerias e pizzarias prontos para abordar.
+        </p>
+      </div>
+      <div class="pt-2">
+        <button type="button" id="btnQuickDemo" class="px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition border border-slate-700">
+          <i class="fa-solid fa-wand-magic-sparkles text-brand-red mr-1.5"></i> Testar com "Hamburguerias em Pinheiros SP"
+        </button>
+      </div>
+    </section>
+
+    <!-- Error State -->
+    <section id="errorState" class="hidden glass-card rounded-2xl p-8 border-rose-500/30 bg-rose-950/20 text-center space-y-3">
+      <div class="w-12 h-12 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center mx-auto text-xl">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <h3 class="text-base font-bold text-white" id="errorMessageTitle">Erro ao realizar a busca</h3>
+      <p class="text-xs text-slate-300 max-w-lg mx-auto" id="errorMessageDesc">Não foi possível conectar à Google Places API.</p>
+    </section>
+
+    </div>
+    <!-- FIM ABA 1 -->
+
+    <!-- ABA 2: SENDER WHATSAPP (DISPARO 1 A 1) -->
+    <div id="tabPaneSender" class="hidden space-y-6">
+
+      <!-- Top Grid: WhatsApp Web QR Code Connection + Cadastro de Disparo 1 a 1 -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- COLUNA ESQUERDA (5 cols): Conexão WhatsApp Web (Validação QR Code) -->
+        <div class="lg:col-span-5 glass-card rounded-2xl p-5 sm:p-6 flex flex-col justify-between border border-slate-800">
+          <div>
+            <div class="flex items-center justify-between pb-4 border-b border-slate-800">
+              <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 flex items-center justify-center text-lg">
+                  <i class="fa-brands fa-whatsapp"></i>
+                </div>
+                <div>
+                  <h2 class="text-sm sm:text-base font-extrabold text-white">Conexão WhatsApp Web</h2>
+                  <p class="text-[11px] text-slate-400">Validação via QR Code para Disparo 1 a 1</p>
+                </div>
+              </div>
+
+              <button type="button" id="btnRefreshWaStatus" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs transition border border-slate-700" title="Atualizar Conexão">
+                <i class="fa-solid fa-rotate"></i>
+              </button>
+            </div>
+
+            <!-- Estado: Desconectado / Aguardando QR Code -->
+            <div id="waQrSection" class="py-5 flex flex-col items-center text-center space-y-4">
+              <div class="relative w-56 h-56 rounded-2xl bg-white p-3 shadow-2xl flex items-center justify-center overflow-hidden border-4 border-emerald-500/30">
+                <img id="waQrImage" src="" alt="QR Code WhatsApp" class="hidden w-full h-full object-contain">
+                <div id="waQrLoading" class="flex flex-col items-center justify-center text-slate-700 space-y-2.5 px-4">
+                  <div class="w-10 h-10 rounded-full border-4 border-slate-200 border-t-emerald-600 animate-spin"></div>
+                  <p id="waQrStatusText" class="text-xs font-bold text-slate-700">Gerando QR Code do WhatsApp...</p>
+                </div>
+              </div>
+
+              <div class="w-full bg-slate-900/90 border border-slate-800 rounded-xl p-3.5 text-left text-xs text-slate-300 space-y-1.5">
+                <p><strong class="text-emerald-400">1.</strong> Abra o <strong>WhatsApp</strong> no seu celular</p>
+                <p><strong class="text-emerald-400">2.</strong> Toque em <strong>Aparelhos Conectados</strong> &gt; <strong>Conectar um aparelho</strong></p>
+                <p><strong class="text-emerald-400">3.</strong> Aponte a câmera para o <strong>QR Code</strong> acima</p>
+              </div>
+            </div>
+
+            <!-- Estado: Conectado -->
+            <div id="waConnectedSection" class="hidden py-6 space-y-5">
+              <div class="p-4 rounded-2xl bg-emerald-950/30 border border-emerald-500/30 flex items-center gap-4">
+                <div class="w-14 h-14 rounded-2xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-400 flex items-center justify-center text-2xl font-black">
+                  <i class="fa-brands fa-whatsapp"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 mb-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    Sessão Autenticada
+                  </span>
+                  <h3 id="waConnectedName" class="text-base font-extrabold text-white truncate">WhatsApp Conectado</h3>
+                  <p id="waConnectedPhone" class="text-xs font-mono text-emerald-400">+55 ...</p>
+                </div>
+              </div>
+
+              <div class="p-3.5 rounded-xl bg-slate-900/80 border border-slate-800 text-xs text-slate-300 space-y-1">
+                <div class="flex items-center justify-between">
+                  <span class="text-slate-400">Modo de Disparo:</span>
+                  <span class="font-bold text-white">1 a 1 (Individual no Privado)</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-slate-400">Mídias Suportadas:</span>
+                  <span class="font-bold text-cyan-400">Texto, PDF, PNG, JPG, WEBP</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-slate-400">Proteção Anti-Bloqueio:</span>
+                  <span class="font-bold text-emerald-400">Delay Humanizado (6s a 12s)</span>
+                </div>
+              </div>
+
+              <button type="button" id="btnDisconnectWa" class="w-full py-2.5 px-4 rounded-xl bg-rose-950/50 hover:bg-rose-900/60 text-rose-300 border border-rose-500/30 text-xs font-bold flex items-center justify-center gap-2 transition">
+                <i class="fa-solid fa-power-off"></i>
+                <span>Desconectar Número / Trocar Conta</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400">
+            <span>Status em tempo real</span>
+            <span id="waFooterStateLabel" class="font-mono text-amber-400">Aguardando leitura</span>
+          </div>
+        </div>
+
+        <!-- COLUNA DIREITA (7 cols): Formulário de Disparo 1 a 1 (Nome / Número / Mensagem / Arquivo PDF ou PNG/Imagem) -->
+        <div class="lg:col-span-7 glass-card rounded-2xl p-5 sm:p-6 border border-slate-800">
+          <div class="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
+            <div class="flex items-center gap-2.5">
+              <div class="w-9 h-9 rounded-xl bg-brand-red/15 border border-brand-red/30 text-brand-red flex items-center justify-center text-base">
+                <i class="fa-solid fa-paper-plane"></i>
+              </div>
+              <div>
+                <h2 class="text-sm sm:text-base font-extrabold text-white">Adicionar Disparo 1 a 1</h2>
+                <p class="text-[11px] text-slate-400">Cadastre um contato individual com mensagem e anexo (PDF, PNG ou Imagem em geral)</p>
+              </div>
+            </div>
+
+            <button type="button" id="btnFillDefaultPitch" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-semibold border border-slate-700 transition flex items-center gap-1.5">
+              <i class="fa-solid fa-wand-magic-sparkles"></i>
+              <span>Usar Pitch Padrão</span>
+            </button>
+          </div>
+
+          <form id="formAddDm" class="space-y-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              <div>
+                <label class="block text-xs font-bold text-slate-300 mb-1.5">Nome do Destinatário / Restaurante *</label>
+                <input
+                  type="text"
+                  id="dmInputName"
+                  placeholder="Ex.: Hamburgueria Artesanal SP"
+                  required
+                  class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-red"
+                >
+              </div>
+
+              <div>
+                <label class="block text-xs font-bold text-slate-300 mb-1.5">Número / WhatsApp (com DDD) *</label>
+                <input
+                  type="text"
+                  id="dmInputPhone"
+                  placeholder="Ex.: 11 99999-8888"
+                  required
+                  class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs sm:text-sm text-white font-mono placeholder-slate-500 focus:outline-none focus:border-brand-red"
+                >
+              </div>
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <label class="block text-xs font-bold text-slate-300">Mensagem Personalizada *</label>
+                <span class="text-[11px] text-slate-400">Dica: use <code class="text-amber-400 font-mono">{nome}</code> para inserir o nome automaticamente</span>
+              </div>
+              <textarea
+                id="dmInputMessage"
+                rows="4"
+                placeholder="Digite a mensagem que será enviada no WhatsApp deste contato..."
+                required
+                class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-brand-red leading-relaxed"
+              ></textarea>
+            </div>
+
+            <!-- Upload de Arquivo: PDF, PNG, JPG, WEBP ou Imagens em geral -->
+            <div>
+              <label class="block text-xs font-bold text-slate-300 mb-1.5">Anexar Arquivo (PDF, PNG, JPG ou Imagens em geral — Opcional)</label>
+              <input
+                type="file"
+                id="dmInputFile"
+                accept=".pdf,.png,.jpg,.jpeg,.webp,.gif,application/pdf,image/*"
+                class="hidden"
+              >
+
+              <!-- Dropzone quando vazio -->
+              <div
+                id="dmDropZoneEmpty"
+                class="border-2 border-dashed border-slate-700 hover:border-emerald-500/60 bg-slate-900/60 hover:bg-slate-900 rounded-xl p-4 text-center cursor-pointer transition flex flex-col items-center justify-center gap-1.5"
+              >
+                <div class="flex items-center gap-2 text-slate-300 text-sm">
+                  <i class="fa-solid fa-file-pdf text-rose-400"></i>
+                  <i class="fa-solid fa-file-image text-cyan-400"></i>
+                  <span class="text-xs font-bold">Clique para selecionar um PDF, PNG ou Imagem</span>
+                </div>
+                <span class="text-[11px] text-slate-500">Suporta .PDF, .PNG, .JPG, .JPEG, .WEBP (enviado com a mensagem como legenda)</span>
+              </div>
+
+              <!-- Card quando arquivo selecionado -->
+              <div id="dmDropZoneAttached" class="hidden p-3 rounded-xl bg-slate-900 border border-emerald-500/40 flex items-center justify-between gap-3">
+                <div class="flex items-center gap-3 min-w-0">
+                  <div id="dmAttachedPreviewIcon" class="w-10 h-10 rounded-lg bg-slate-800 flex items-center justify-center text-lg shrink-0 overflow-hidden">
+                    <i class="fa-solid fa-file-pdf text-rose-400"></i>
+                  </div>
+                  <div class="min-w-0">
+                    <p id="dmAttachedFileName" class="text-xs font-bold text-white truncate">arquivo.pdf</p>
+                    <p id="dmAttachedFileSize" class="text-[11px] text-slate-400 font-mono">0 KB</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                  <button type="button" id="btnDmChangeNewFile" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-semibold border border-slate-700">
+                    Trocar
+                  </button>
+                  <button type="button" id="btnDmRemoveNewFile" class="px-2.5 py-1 rounded-lg bg-rose-950/60 hover:bg-rose-900 text-rose-300 text-[11px] font-semibold border border-rose-500/30">
+                    Remover
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex flex-wrap items-center justify-end gap-2.5 pt-2">
+              <button
+                type="submit"
+                id="btnSubmitAddDm"
+                class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-brand-red to-rose-600 hover:from-brand-redDark hover:to-rose-700 text-white text-xs sm:text-sm font-bold flex items-center gap-2 transition shadow-lg shadow-brand-red/25"
+              >
+                <i class="fa-solid fa-plus"></i>
+                <span>Adicionar à Fila 1 a 1</span>
+              </button>
+            </div>
+          </form>
+        </div>
+
+      </div>
+
+      <!-- 4 Cards de Métricas do Disparo 1 a 1 (Estilo Sender Agily) -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+        <div class="glass-card rounded-xl p-4 flex items-center justify-between">
+          <div>
+            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Total na Fila 1 a 1</span>
+            <p id="dmMetricTotal" class="text-2xl font-extrabold text-white">0</p>
+          </div>
+          <div class="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center text-lg">
+            <i class="fa-solid fa-users"></i>
+          </div>
+        </div>
+
+        <div class="glass-card rounded-xl p-4 flex items-center justify-between border-emerald-500/30">
+          <div>
+            <span class="text-xs font-bold text-emerald-400 uppercase tracking-wide">Enviados com Sucesso</span>
+            <p id="dmMetricSent" class="text-2xl font-black text-emerald-400">0</p>
+          </div>
+          <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg">
+            <i class="fa-solid fa-check-double"></i>
+          </div>
+        </div>
+
+        <div class="glass-card rounded-xl p-4 flex items-center justify-between">
+          <div>
+            <span class="text-xs font-semibold text-amber-400 uppercase tracking-wide">Pendentes de Envio</span>
+            <p id="dmMetricPending" class="text-2xl font-extrabold text-amber-400">0</p>
+          </div>
+          <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-lg">
+            <i class="fa-solid fa-hourglass-half"></i>
+          </div>
+        </div>
+
+        <div class="glass-card rounded-xl p-4 flex items-center justify-between">
+          <div>
+            <span class="text-xs font-semibold text-rose-400 uppercase tracking-wide">Falhas / Erros</span>
+            <p id="dmMetricFailed" class="text-2xl font-extrabold text-rose-400">0</p>
+          </div>
+          <div class="w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 flex items-center justify-center text-lg">
+            <i class="fa-solid fa-circle-exclamation"></i>
+          </div>
+        </div>
+      </div>
+
+      <!-- Painel Principal da Fila de Disparos 1 a 1 -->
+      <section class="glass-card rounded-2xl overflow-hidden shadow-xl border border-slate-800">
+        <!-- Cabeçalho de Ações em Lote -->
+        <div class="p-5 border-b border-slate-800 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div>
+            <h3 class="text-base font-extrabold text-white flex items-center gap-2">
+              <i class="fa-brands fa-whatsapp text-emerald-400"></i>
+              <span>Disparos 1 a 1 (Mensagens Diretas no Privado)</span>
+            </h3>
+            <p class="text-xs text-slate-400 mt-0.5">
+              Envio individualizado com suporte a PDF, PNG e imagens e intervalo de segurança anti-bloqueio
+            </p>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2">
+            <button type="button" id="btnDmStartBatch" class="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-2 transition shadow-lg shadow-emerald-950/50">
+              <i class="fa-solid fa-play"></i>
+              <span>Iniciar Disparo 1 a 1</span>
+            </button>
+
+            <button type="button" id="btnDmPauseBatch" class="hidden px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold flex items-center gap-2 transition">
+              <i class="fa-solid fa-pause"></i>
+              <span>Pausar Disparo</span>
+            </button>
+
+            <button type="button" id="btnDmResetStatus" class="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-1.5 border border-slate-700 transition">
+              <i class="fa-solid fa-rotate-left"></i>
+              <span>Resetar Status</span>
+            </button>
+
+            <button type="button" id="btnDmClearAll" class="px-3.5 py-2 rounded-xl bg-rose-950/40 hover:bg-rose-900/50 text-rose-300 text-xs font-semibold flex items-center gap-1.5 border border-rose-500/30 transition">
+              <i class="fa-solid fa-trash-can"></i>
+              <span>Limpar Fila</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Barra de Progresso do Lote & Contador Regressivo Anti-Ban -->
+        <div id="dmBatchProgressArea" class="hidden px-5 py-3.5 bg-slate-900/95 border-b border-slate-800 space-y-2">
+          <div class="flex items-center justify-between text-xs">
+            <span id="dmProgressText" class="font-bold text-emerald-400">Preparando disparo 1 a 1...</span>
+            <span id="dmCountdownBadge" class="px-2.5 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 font-mono text-[11px]">
+              ⏱️ Intervalo: --
+            </span>
+          </div>
+          <div class="w-full h-2 bg-slate-800 rounded-full overflow-hidden">
+            <div id="dmProgressBar" class="h-full bg-gradient-to-r from-emerald-500 to-cyan-400 transition-all duration-300" style="width: 0%;"></div>
+          </div>
+        </div>
+
+        <!-- Barra de Busca da Tabela 1 a 1 -->
+        <div class="px-5 py-3 bg-slate-950/40 border-b border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="relative flex-1 max-w-md">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+            <input
+              type="text"
+              id="dmSearchInput"
+              placeholder="Buscar contato por nome, número ou mensagem..."
+              class="w-full pl-9 pr-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-slate-600"
+            >
+          </div>
+
+          <div class="flex items-center gap-2 text-xs text-slate-400">
+            <span class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 font-mono text-[11px]">
+              ⏱️ Delay Anti-Ban: <strong class="text-emerald-400">6s a 12s</strong>
+            </span>
+          </div>
+        </div>
+
+        <!-- Input oculto para anexar PDF/PNG/Imagem direto na linha -->
+        <input type="file" id="dmRowFileInput" accept=".pdf,.png,.jpg,.jpeg,.webp,.gif,application/pdf,image/*" class="hidden">
+
+        <!-- Tabela de Disparos 1 a 1 -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs sm:text-sm">
+            <thead class="bg-slate-900/90 text-slate-400 uppercase tracking-wider text-[11px] font-bold border-b border-slate-800">
+              <tr>
+                <th class="py-3.5 px-4 w-10 text-center">#</th>
+                <th class="py-3.5 px-4">Nome</th>
+                <th class="py-3.5 px-3">Número (WhatsApp)</th>
+                <th class="py-3.5 px-4">Mensagem</th>
+                <th class="py-3.5 px-3">Arquivo (PDF / PNG / Imagem)</th>
+                <th class="py-3.5 px-3">Status</th>
+                <th class="py-3.5 px-4 text-right">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="dmTableBody" class="divide-y divide-slate-800/80 text-slate-300 font-medium">
+              <!-- Renderizado via JS -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+    </div>
+    <!-- FIM ABA 2 -->
+
+  </main>
+
+  <!-- Modal: Editar Contato do Disparo 1 a 1 -->
+  <div id="editDmModal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="glass-card max-w-xl w-full rounded-2xl p-6 shadow-2xl border border-slate-700 space-y-5">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm font-bold">
+            <i class="fa-solid fa-pen-to-square"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-base text-white">Editar Disparo 1 a 1</h3>
+            <p class="text-xs text-slate-400">Altere o nome, número, mensagem ou arquivo anexado</p>
+          </div>
+        </div>
+        <button type="button" id="btnCloseEditDmModal" class="text-slate-400 hover:text-white p-1 transition">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <input type="hidden" id="editDmId">
+
+      <div class="space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Nome:</label>
+            <input type="text" id="editDmName" class="w-full px-3.5 py-2 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-brand-red">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-300 mb-1">Número / WhatsApp:</label>
+            <input type="text" id="editDmPhone" class="w-full px-3.5 py-2 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white font-mono focus:outline-none focus:border-brand-red">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1">Mensagem:</label>
+          <textarea id="editDmMessage" rows="5" class="w-full p-3 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white leading-relaxed focus:outline-none focus:border-brand-red"></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Arquivo Anexado (PDF, PNG ou Imagem):</label>
+          <input type="file" id="editDmFileInput" accept=".pdf,.png,.jpg,.jpeg,.webp,.gif,application/pdf,image/*" class="hidden">
+
+          <div id="editDmEmptyZone" class="border-2 border-dashed border-slate-700 hover:border-emerald-500/60 bg-slate-900/60 rounded-xl p-4 text-center cursor-pointer transition">
+            <span class="text-xs font-bold text-slate-300">Clique para anexar um PDF, PNG ou Imagem a este contato</span>
+          </div>
+
+          <div id="editDmAttachedZone" class="hidden p-3 rounded-xl bg-slate-900 border border-emerald-500/40 flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5 min-w-0">
+              <i id="editDmFileIcon" class="fa-solid fa-file-pdf text-rose-400 text-lg"></i>
+              <div class="min-w-0">
+                <p id="editDmFileName" class="text-xs font-bold text-white truncate">arquivo.pdf</p>
+                <p id="editDmFileSize" class="text-[11px] text-slate-400 font-mono">0 KB</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <button type="button" id="btnEditDmChangeFile" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-[11px] font-semibold border border-slate-700">Trocar</button>
+              <button type="button" id="btnEditDmRemoveFile" class="px-2.5 py-1 rounded-lg bg-rose-950/60 hover:bg-rose-900 text-rose-300 text-[11px] font-semibold border border-rose-500/30">Remover</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-800">
+        <button type="button" id="btnCancelEditDm" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold">Cancelar</button>
+        <button type="button" id="btnSaveEditDm" class="px-5 py-2 rounded-xl bg-brand-red hover:bg-brand-redDark text-white text-xs font-bold">Salvar Alterações</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pitch Customization Modal -->
+  <div id="pitchModal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="glass-card max-w-xl w-full rounded-2xl p-6 shadow-2xl border border-slate-700 relative animate-in fade-in zoom-in-95 duration-200 space-y-5">
+      
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center text-sm font-bold">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+          </div>
+          <div>
+            <h3 class="font-bold text-base text-white">Configurar Modelo de Pitch</h3>
+            <p class="text-xs text-slate-400">Personalize a abordagem para copiar com 1 clique</p>
+          </div>
+        </div>
+        <button id="btnClosePitchModal" class="text-slate-400 hover:text-white p-1 transition">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Seu Nome / Nome do Consultor:</label>
+          <input type="text" id="consultantNameInput" value="Felipe" class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-sm text-white focus:outline-none focus:border-brand-red">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Selecione o Ângulo da Abordagem:</label>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            <button type="button" class="pitch-type-btn p-3 rounded-xl border text-left transition text-xs font-medium bg-slate-800/90 border-brand-red text-white" data-type="general">
+              <span class="block font-bold text-brand-red mb-0.5">🚀 Escala Geral</span>
+              Alavancagem de vendas, fotos conversivas e selo Super Restaurante.
+            </button>
+            <button type="button" class="pitch-type-btn p-3 rounded-xl border text-left transition text-xs font-medium bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200" data-type="reputation">
+              <span class="block font-bold text-amber-400 mb-0.5">⭐ Recuperação de Nota</span>
+              Foco em combater cancelamentos e recuperar notas baixas.
+            </button>
+            <button type="button" class="pitch-type-btn p-3 rounded-xl border text-left transition text-xs font-medium bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200" data-type="menu">
+              <span class="block font-bold text-cyan-400 mb-0.5">📋 Engenharia de Cardápio</span>
+              Otimização de itens de maior margem e combos no delivery.
+            </button>
+            <button type="button" class="pitch-type-btn p-3 rounded-xl border text-left transition text-xs font-medium bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200" data-type="launch">
+              <span class="block font-bold text-emerald-400 mb-0.5">🌱 Começando no iFood</span>
+              Orientação completa para novos negócios gastronômicos.
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Pré-visualização do Pitch:</label>
+          <textarea id="pitchPreview" rows="5" class="w-full p-3 bg-slate-950 border border-slate-800 rounded-xl text-xs text-slate-300 font-mono leading-relaxed focus:outline-none" readonly></textarea>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-800">
+        <button id="btnSavePitch" class="px-5 py-2.5 rounded-xl bg-brand-red hover:bg-brand-redDark text-white text-xs font-bold transition">
+          Salvar Preferências
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 space-y-2 pointer-events-none"></div>
+
+  <!-- JavaScript Application Logic -->
+  <script>
+    // State management
+    const state = {
+      rawLeads: [],
+      filteredLeads: [],
+      selectedLeadIds: new Set(),
+      nextPageToken: null,
+      activeFilter: 'all', // 'all', 'opportunity', 'phone', 'cnpj', 'email'
+      activeSort: 'default',
+      currentView: 'grid', // 'grid', 'table'
+      consultantName: localStorage.getItem('leadfood_consultant_name') || 'Felipe',
+      pitchType: localStorage.getItem('leadfood_pitch_type') || 'general',
+      savedLeadStatuses: JSON.parse(localStorage.getItem('leadfood_lead_statuses') || '{}'),
+      lastQuery: ''
+    };
+
+    // DOM Elements
+    const searchForm = document.getElementById('searchForm');
+    const searchInput = document.getElementById('searchInput');
+    const btnClearSearch = document.getElementById('btnClearSearch');
+    const btnSearchSubmit = document.getElementById('btnSearchSubmit');
+    const searchBtnIcon = document.getElementById('searchBtnIcon');
+    const searchBtnText = document.getElementById('searchBtnText');
+    const metricsBar = document.getElementById('metricsBar');
+    const resultsSectionHeader = document.getElementById('resultsSectionHeader');
+    const leadsGrid = document.getElementById('leadsGrid');
+    const leadsTableContainer = document.getElementById('leadsTableContainer');
+    const leadsTableBody = document.getElementById('leadsTableBody');
+    const loadingState = document.getElementById('loadingState');
+    const emptyState = document.getElementById('emptyState');
+    const errorState = document.getElementById('errorState');
+    const btnExportCSV = document.getElementById('btnExportCSV');
+    const sortSelect = document.getElementById('sortSelect');
+    const btnViewGrid = document.getElementById('btnViewGrid');
+    const btnViewTable = document.getElementById('btnViewTable');
+    const btnQuickDemo = document.getElementById('btnQuickDemo');
+    const chkSelectAllLeads = document.getElementById('chkSelectAllLeads');
+    const btnVerifyWhatsApps = document.getElementById('btnVerifyWhatsApps');
+    const loadMoreContainer = document.getElementById('loadMoreContainer');
+    const btnLoadMoreLeads = document.getElementById('btnLoadMoreLeads');
+    const selectBrazilUf = document.getElementById('selectBrazilUf');
+    const customCityInput = document.getElementById('customCityInput');
+    const customRegionInput = document.getElementById('customRegionInput');
+    const btnApplyCustomRegion = document.getElementById('btnApplyCustomRegion');
+    const brazilMunicipalitiesList = document.getElementById('brazilMunicipalitiesList');
+
+    // Pitch Modal Elements
+    const btnOpenPitchModal = document.getElementById('btnOpenPitchModal');
+    const btnClosePitchModal = document.getElementById('btnClosePitchModal');
+    const pitchModal = document.getElementById('pitchModal');
+    const consultantNameInput = document.getElementById('consultantNameInput');
+    const pitchPreview = document.getElementById('pitchPreview');
+    const btnSavePitch = document.getElementById('btnSavePitch');
+
+    // Inicialização
+    document.addEventListener('DOMContentLoaded', () => {
+      checkBackendStatus();
+      setupEventListeners();
+      updatePitchPreview();
+      initSenderModule();
+      loadSavedLeadsOnStartup();
+      loadBrazilMunicipalities('ALL');
+    });
+
+    // Carrega os 5.570 municípios do Brasil (ou filtrados por UF) via IBGE no autocomplete
+    async function loadBrazilMunicipalities(uf = 'ALL') {
+      if (!brazilMunicipalitiesList) return;
+      try {
+        const res = await fetch(`/api/brazil/municipalities?uf=${encodeURIComponent(uf)}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        if (Array.isArray(data.municipalities)) {
+          const optionsHtml = data.municipalities
+            .map(m => `<option value="${escapeHtml(m.label)}"></option>`)
+            .join('');
+          brazilMunicipalitiesList.innerHTML = optionsHtml;
+        }
+      } catch (err) {
+        console.warn('Não foi possível carregar lista de municípios do IBGE:', err);
+      }
+    }
+
+    // Constrói a string de região combinando Bairro/Região digitada + Cidade/Município + UF
+    function buildCustomRegionString() {
+      const uf = selectBrazilUf && selectBrazilUf.value !== 'ALL' ? selectBrazilUf.value.trim() : '';
+      const city = customCityInput ? customCityInput.value.trim() : '';
+      const neighborhood = customRegionInput ? customRegionInput.value.trim() : '';
+
+      const parts = [];
+      if (neighborhood) parts.push(neighborhood);
+      if (city) {
+        parts.push(city);
+      } else if (uf && neighborhood && !new RegExp(`\\b${uf}\\b`, 'i').test(neighborhood)) {
+        parts.push(uf);
+      } else if (uf && !neighborhood) {
+        parts.push(`Estado ${uf}`);
+      }
+
+      return parts.join(', ').trim();
+    }
+
+    // Extrai o nicho atual do campo de busca principal
+    function getCurrentNicheFromSearchInput() {
+      const currentText = (searchInput.value || '').trim();
+      const parts = currentText.split(/\s+em\s+/i);
+      if (parts[0] && parts[0].trim().length > 0) {
+        return parts[0].trim();
+      }
+      return 'Restaurantes';
+    }
+
+    // Aplica a região/cidade digitada no campo de busca e opcionalmente dispara a pesquisa
+    function applyCustomRegionAndSearch(triggerSearch = true) {
+      const customRegion = buildCustomRegionString();
+      if (!customRegion) {
+        if (triggerSearch) {
+          showToast('Digite um bairro/região ou selecione uma cidade/município do Brasil.', 'warning');
+          if (customRegionInput) customRegionInput.focus();
+        }
+        return;
+      }
+
+      const niche = getCurrentNicheFromSearchInput();
+      searchInput.value = `${niche} em ${customRegion}`;
+
+      // Desmarca os chips fixos de região para indicar que a região personalizada está ativa
+      document.querySelectorAll('.region-chip').forEach(b => {
+        b.classList.remove('bg-brand-red', 'text-white', 'border-brand-red');
+        b.classList.add('bg-slate-800/80', 'text-slate-300');
+      });
+
+      if (triggerSearch) {
+        executeSearch(searchInput.value, null);
+      }
+    }
+
+    // Carrega automaticamente os leads já persistidos para exibir os cards com telefones e e-mails imediatamente
+    async function loadSavedLeadsOnStartup() {
+      try {
+        const res = await fetch('/api/leads');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (Array.isArray(data.leads) && data.leads.length > 0 && state.rawLeads.length === 0) {
+          state.rawLeads = data.leads;
+          data.leads.forEach(l => {
+            if (l.status) state.savedLeadStatuses[l.id] = l.status;
+          });
+          applyFiltersAndSort();
+          updateMetrics();
+          document.getElementById('activeSearchQuery').textContent = `Leads Salvos (${data.leads.length} estabelecimentos)`;
+          btnExportCSV.disabled = false;
+          hideFeedbackStates();
+        }
+      } catch (err) {
+        console.warn('Não foi possível carregar leads salvos inicialmente:', err);
+      }
+    }
+
+    // Check backend status
+    async function checkBackendStatus() {
+      try {
+        const res = await fetch('/api/status');
+        const data = await res.json();
+        const badge = document.getElementById('apiStatusBadge');
+        if (data.hasApiKey) {
+          badge.innerHTML = `
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span class="text-emerald-400 font-semibold">Google Places API Ativa</span>
+          `;
+        } else {
+          badge.innerHTML = `
+            <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+            <span class="text-amber-400 font-semibold">Chave de API Ausente no .env</span>
+          `;
+        }
+      } catch (err) {
+        console.warn('Servidor offline ou sem rota status');
+      }
+    }
+
+    // Extrai primeiro nome do sócio principal para saudação personalizada
+    function getLeadFirstPartnerName(lead) {
+      if (!lead || !Array.isArray(lead.socios) || lead.socios.length === 0) return '';
+      const firstSocio = String(lead.socios[0] || '').trim();
+      if (!firstSocio) return '';
+      return firstSocio.split(/\s+/)[0];
+    }
+
+    // Gerador de Pitch de acordo com tipo, consultor e sócio (QSA)
+    function generatePitchText(leadName, customConsultant, customType, partnerFirstName = '') {
+      const name = customConsultant || state.consultantName;
+      const type = customType || state.pitchType;
+      const place = leadName || '[Nome do Restaurante]';
+      const greeting = partnerFirstName
+        ? `Olá, *${partnerFirstName}* (equipe do *${place}*)!`
+        : `Olá, equipe do *${place}*!`;
+
+      switch (type) {
+        case 'reputation':
+          return `${greeting} Tudo bem? Me chamo ${name} e sou especialista em recuperação de reputação e crescimento operacional no iFood.\n\nNotei seu estabelecimento no Google e verifiquei pontos críticos onde restaurantes perdem até 35% das vendas (atrasos operacionais, notas baixas e avaliações não respondidas no app).\n\nTeria 5 minutos para conversarmos sobre como blindar suas notas e transformar clientes insatisfeitos em compradores fiéis?`;
+        
+        case 'menu':
+          return `${greeting} Como estão? Me chamo ${name} e trabalho com Engenharia de Cardápio e Posicionamento de Delivery no iFood.\n\nAnalisando o mercado gastronômico da sua região, identificamos que pequenos ajustes nas fotos, descrições dos combos e precificação psicológica aumentam o ticket médio em até 28% no iFood.\n\nPosso te enviar um diagnóstico gratuito de 3 pontos para turbinar seu cardápio esta semana?`;
+
+        case 'launch':
+          return `${greeting} Parabéns pelo espaço! Me chamo ${name} e presto consultoria de aceleração para marcas gastronômicas no iFood em todo o Brasil.\n\nAjudamos restaurantes a decolar os primeiros 100 pedidos com velocidade máxima, ativando as melhores campanhas e cupons estratégicos sem queimar sua margem de lucro.\n\nVamos bater um papo rápido de 5 minutos sobre seu plano de delivery?`;
+
+        case 'general':
+        default:
+          return `${greeting} Tudo bem? Me chamo ${name} e sou especialista em crescimento de vendas e otimização operacional para restaurantes no iFood.\n\nNotei seu estabelecimento no Google e percebi oportunidades imediatas para aumentar seu volume de pedidos diários (otimização de cardápio com fotos conversivas, estratégias para conquistar o selo Super Restaurante e redução de cancelamentos).\n\nVocê teria 5 minutinhos para eu te mostrar 3 pontos que podem alavancar o faturamento do delivery de vocês ainda este mês?`;
+      }
+    }
+
+    function updatePitchPreview() {
+      pitchPreview.value = generatePitchText('Restaurante Exemplo', consultantNameInput.value, state.pitchType, 'Marcos');
+    }
+
+    function updateSelectionUiCount() {
+      const count = state.selectedLeadIds.size;
+      const btnText = document.getElementById('btnImportLeadsText');
+      const lblSelectAll = document.getElementById('lblSelectAllLeads');
+      if (btnText) {
+        btnText.textContent = count > 0 ? `Enviar Selecionados (${count}) p/ 1 a 1` : 'Enviar p/ Disparo 1 a 1';
+      }
+      if (lblSelectAll) {
+        lblSelectAll.textContent = count > 0 ? `Selecionados (${count})` : 'Selecionar Todos';
+      }
+      if (chkSelectAllLeads) {
+        chkSelectAllLeads.checked =
+          state.filteredLeads.length > 0 &&
+          state.filteredLeads.every(l => state.selectedLeadIds.has(l.id));
+      }
+    }
+
+    // Configurar ouvintes de eventos
+    function setupEventListeners() {
+      // Clear search
+      btnClearSearch.addEventListener('click', () => {
+        searchInput.value = '';
+        searchInput.focus();
+      });
+
+      // Quick Demo button
+      btnQuickDemo.addEventListener('click', () => {
+        searchInput.value = 'Hamburguerias em Pinheiros SP';
+        searchForm.dispatchEvent(new Event('submit'));
+      });
+
+      // Search form submit
+      searchForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const query = searchInput.value.trim();
+        if (!query) return;
+        await executeSearch(query, null);
+      });
+
+      // Paginação (+20 estabelecimentos)
+      if (btnLoadMoreLeads) {
+        btnLoadMoreLeads.addEventListener('click', async () => {
+          if (!state.nextPageToken || !state.lastQuery) return;
+          await executeSearch(state.lastQuery, state.nextPageToken);
+        });
+      }
+
+      // Selecionar Todos
+      if (chkSelectAllLeads) {
+        chkSelectAllLeads.addEventListener('change', (e) => {
+          if (e.target.checked) {
+            state.filteredLeads.forEach(l => state.selectedLeadIds.add(l.id));
+          } else {
+            state.filteredLeads.forEach(l => state.selectedLeadIds.delete(l.id));
+          }
+          updateSelectionUiCount();
+          renderLeads();
+        });
+      }
+
+      // Validar WhatsApps via Baileys
+      if (btnVerifyWhatsApps) {
+        btnVerifyWhatsApps.addEventListener('click', verifyDisplayedLeadsWhatsApp);
+      }
+
+      // Chips de Nicho (usa a região digitada se preenchida ou a região atual do input)
+      document.querySelectorAll('.niche-chip').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const niche = btn.getAttribute('data-niche');
+          const typedCustomRegion = buildCustomRegionString();
+          const currentText = searchInput.value;
+          const matchRegion = currentText.match(/\s+em\s+(.+)/i);
+          const region = typedCustomRegion || (matchRegion ? matchRegion[1].trim() : 'São Paulo - SP');
+          
+          searchInput.value = `${niche} em ${region}`;
+          highlightActiveChips(btn, '.niche-chip');
+          executeSearch(searchInput.value, null);
+        });
+      });
+
+      // Chips de Região (Atalhos Rápidos)
+      document.querySelectorAll('.region-chip').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const region = btn.getAttribute('data-region');
+          const niche = getCurrentNicheFromSearchInput();
+
+          // Sincroniza visualmente com o campo de região digitada
+          if (customRegionInput) customRegionInput.value = region;
+          if (customCityInput) customCityInput.value = '';
+
+          searchInput.value = `${niche} em ${region}`;
+          highlightActiveChips(btn, '.region-chip');
+          executeSearch(searchInput.value, null);
+        });
+      });
+
+      // Seletor de Estado (UF) - carrega todos os municípios do Estado via IBGE
+      if (selectBrazilUf) {
+        selectBrazilUf.addEventListener('change', async () => {
+          const uf = selectBrazilUf.value;
+          if (customCityInput) {
+            customCityInput.value = '';
+            customCityInput.placeholder =
+              uf === 'ALL'
+                ? 'Cidade / Município (5.570 cidades)...'
+                : `Cidade / Município de ${uf} (digite ou escolha)...`;
+          }
+          await loadBrazilMunicipalities(uf);
+          const built = buildCustomRegionString();
+          if (built) {
+            searchInput.value = `${getCurrentNicheFromSearchInput()} em ${built}`;
+          }
+        });
+      }
+
+      // Campo de Cidade/Município (5.570 cidades) e Campo de Digitar Região/Bairro
+      if (customCityInput) {
+        customCityInput.addEventListener('input', () => {
+          const built = buildCustomRegionString();
+          if (built) {
+            searchInput.value = `${getCurrentNicheFromSearchInput()} em ${built}`;
+          }
+        });
+        customCityInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            applyCustomRegionAndSearch(true);
+          }
+        });
+      }
+
+      if (customRegionInput) {
+        customRegionInput.addEventListener('input', () => {
+          const built = buildCustomRegionString();
+          if (built) {
+            searchInput.value = `${getCurrentNicheFromSearchInput()} em ${built}`;
+          }
+        });
+        customRegionInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            applyCustomRegionAndSearch(true);
+          }
+        });
+      }
+
+      if (btnApplyCustomRegion) {
+        btnApplyCustomRegion.addEventListener('click', () => {
+          applyCustomRegionAndSearch(true);
+        });
+      }
+
+      // Quick filter tabs (All, Opportunity, Phone)
+      document.querySelectorAll('.filter-tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.filter-tab').forEach(b => {
+            b.classList.remove('bg-brand-red', 'text-white');
+            b.classList.add('text-slate-400');
+          });
+          btn.classList.add('bg-brand-red', 'text-white');
+          btn.classList.remove('text-slate-400');
+
+          state.activeFilter = btn.getAttribute('data-filter');
+          applyFiltersAndSort();
+        });
+      });
+
+      // Sort Select
+      sortSelect.addEventListener('change', () => {
+        state.activeSort = sortSelect.value;
+        applyFiltersAndSort();
+      });
+
+      // View switcher
+      btnViewGrid.addEventListener('click', () => {
+        state.currentView = 'grid';
+        btnViewGrid.classList.add('bg-slate-800', 'text-white');
+        btnViewTable.classList.remove('bg-slate-800', 'text-white');
+        btnViewTable.classList.add('text-slate-400');
+        renderLeads();
+      });
+
+      btnViewTable.addEventListener('click', () => {
+        state.currentView = 'table';
+        btnViewTable.classList.add('bg-slate-800', 'text-white');
+        btnViewGrid.classList.remove('bg-slate-800', 'text-white');
+        btnViewGrid.classList.add('text-slate-400');
+        renderLeads();
+      });
+
+      // CSV Export
+      btnExportCSV.addEventListener('click', exportToCSV);
+
+      // Modal de Pitch
+      btnOpenPitchModal.addEventListener('click', () => {
+        consultantNameInput.value = state.consultantName;
+        updatePitchTypeSelectionUI();
+        updatePitchPreview();
+        pitchModal.classList.remove('hidden');
+      });
+
+      btnClosePitchModal.addEventListener('click', () => {
+        pitchModal.classList.add('hidden');
+      });
+
+      pitchModal.addEventListener('click', (e) => {
+        if (e.target === pitchModal) pitchModal.classList.add('hidden');
+      });
+
+      consultantNameInput.addEventListener('input', updatePitchPreview);
+
+      document.querySelectorAll('.pitch-type-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.pitchType = btn.getAttribute('data-type');
+          updatePitchTypeSelectionUI();
+          updatePitchPreview();
+        });
+      });
+
+      btnSavePitch.addEventListener('click', () => {
+        state.consultantName = consultantNameInput.value.trim() || 'Felipe';
+        localStorage.setItem('leadfood_consultant_name', state.consultantName);
+        localStorage.setItem('leadfood_pitch_type', state.pitchType);
+        pitchModal.classList.add('hidden');
+        showToast('Modelo de pitch atualizado com sucesso!', 'success');
+        renderLeads();
+      });
+    }
+
+    function updatePitchTypeSelectionUI() {
+      document.querySelectorAll('.pitch-type-btn').forEach(btn => {
+        const type = btn.getAttribute('data-type');
+        if (type === state.pitchType) {
+          btn.classList.add('border-brand-red', 'bg-slate-800/90', 'text-white');
+          btn.classList.remove('border-slate-800', 'bg-slate-900', 'text-slate-400');
+        } else {
+          btn.classList.remove('border-brand-red', 'bg-slate-800/90', 'text-white');
+          btn.classList.add('border-slate-800', 'bg-slate-900', 'text-slate-400');
+        }
+      });
+    }
+
+    function highlightActiveChips(activeBtn, selector) {
+      document.querySelectorAll(selector).forEach(b => {
+        b.classList.remove('bg-brand-red', 'text-white', 'border-brand-red');
+        b.classList.add('bg-slate-800/80', 'text-slate-300');
+      });
+      activeBtn.classList.remove('bg-slate-800/80', 'text-slate-300');
+      activeBtn.classList.add('bg-brand-red', 'text-white', 'border-brand-red');
+    }
+
+    // Valida números no WhatsApp via Baileys
+    async function verifyDisplayedLeadsWhatsApp() {
+      if (state.filteredLeads.length === 0) {
+        showToast('Nenhum lead na tela para validar.', 'warning');
+        return;
+      }
+
+      const btnText = document.getElementById('btnVerifyWhatsAppsText');
+      if (btnVerifyWhatsApps) btnVerifyWhatsApps.disabled = true;
+      if (btnText) btnText.textContent = 'Validando...';
+
+      try {
+        const leadIds = state.filteredLeads.map(l => l.id);
+        const res = await fetch('/api/leads/verify-whatsapp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ leadIds })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          showToast(data.error || 'Falha ao validar WhatsApps.', 'warning');
+          return;
+        }
+
+        if (Array.isArray(data.leads)) {
+          const updatedMap = new Map(data.leads.map(l => [l.id, l]));
+          state.rawLeads = state.rawLeads.map(l => updatedMap.get(l.id) || l);
+          applyFiltersAndSort();
+        }
+        showToast(`${data.verifiedCount} números verificados no WhatsApp com sucesso!`, 'success');
+      } catch (err) {
+        showToast('Erro ao validar WhatsApps: ' + err.message, 'error');
+      } finally {
+        if (btnVerifyWhatsApps) btnVerifyWhatsApps.disabled = false;
+        if (btnText) btnText.textContent = 'Validar WhatsApps';
+      }
+    }
+
+    // Executar busca na API backend (suporta paginação via pageToken)
+    async function executeSearch(query, pageToken = null) {
+      const isLoadMore = Boolean(pageToken);
+      state.lastQuery = query;
+
+      if (!isLoadMore) {
+        state.selectedLeadIds.clear();
+        updateSelectionUiCount();
+        setLoading(true);
+      } else if (btnLoadMoreLeads) {
+        btnLoadMoreLeads.disabled = true;
+        document.getElementById('btnLoadMoreText').textContent = 'Carregando +20 estabelecimentos...';
+      }
+
+      try {
+        const response = await fetch('/api/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query, pageToken })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || 'Falha ao buscar estabelecimentos no Google Places.');
+        }
+
+        const fetchedLeads = data.leads || [];
+        state.nextPageToken = data.nextPageToken || null;
+
+        if (isLoadMore) {
+          const existingIds = new Set(state.rawLeads.map(l => l.id));
+          for (const item of fetchedLeads) {
+            if (!existingIds.has(item.id)) {
+              state.rawLeads.push(item);
+            }
+          }
+        } else {
+          state.rawLeads = fetchedLeads;
+        }
+
+        state.rawLeads.forEach(l => {
+          if (l.status) state.savedLeadStatuses[l.id] = l.status;
+        });
+
+        applyFiltersAndSort();
+        updateMetrics();
+
+        if (loadMoreContainer) {
+          if (state.nextPageToken) {
+            loadMoreContainer.classList.remove('hidden');
+          } else {
+            loadMoreContainer.classList.add('hidden');
+          }
+        }
+
+        document.getElementById('activeSearchQuery').textContent = `Resultados para: "${query}"`;
+        btnExportCSV.disabled = state.rawLeads.length === 0;
+
+        if (state.rawLeads.length === 0) {
+          showEmptyState('Nenhum estabelecimento encontrado', `Não encontramos estabelecimentos com a busca "${query}". Tente ajustar os termos ou o bairro.`);
+        } else {
+          hideFeedbackStates();
+          showToast(
+            isLoadMore
+              ? `+${fetchedLeads.length} leads carregados (Total: ${state.rawLeads.length})!`
+              : `${state.rawLeads.length} leads gastronômicos encontrados!`,
+            'success'
+          );
+        }
+
+      } catch (err) {
+        console.error('Erro na requisição:', err);
+        showErrorState(err.message);
+      } finally {
+        if (!isLoadMore) {
+          setLoading(false);
+        } else if (btnLoadMoreLeads) {
+          btnLoadMoreLeads.disabled = false;
+          document.getElementById('btnLoadMoreText').textContent = 'Carregar +20 estabelecimentos desta busca';
+        }
+      }
+    }
+
+    // Filtrar e Ordenar Leads
+    function applyFiltersAndSort() {
+      let result = [...state.rawLeads];
+
+      // Filtro rápido
+      if (state.activeFilter === 'opportunity') {
+        result = result.filter(l => l.isHighOpportunity);
+      } else if (state.activeFilter === 'phone') {
+        result = result.filter(l => (l.phone && l.phone.trim().length > 0) || (Array.isArray(l.allPhones) && l.allPhones.length > 0));
+      } else if (state.activeFilter === 'cnpj') {
+        result = result.filter(l => l.cnpj && l.cnpj.trim().length > 0);
+      } else if (state.activeFilter === 'email') {
+        result = result.filter(l => (l.email && l.email.trim().length > 0) || (Array.isArray(l.allEmails) && l.allEmails.length > 0));
+      }
+
+      // Ordenação
+      switch (state.activeSort) {
+        case 'rating-asc':
+          result.sort((a, b) => (a.rating ?? 5) - (b.rating ?? 5));
+          break;
+        case 'reviews-asc':
+          result.sort((a, b) => a.userRatingCount - b.userRatingCount);
+          break;
+        case 'rating-desc':
+          result.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
+          break;
+        case 'name-asc':
+          result.sort((a, b) => a.name.localeCompare(b.name));
+          break;
+        case 'default':
+        default:
+          break;
+      }
+
+      state.filteredLeads = result;
+      document.getElementById('resultsCountBadge').textContent = `${result.length} de ${state.rawLeads.length}`;
+      updateSelectionUiCount();
+      renderLeads();
+    }
+
+    // Atualizar Métricas
+    function updateMetrics() {
+      if (state.rawLeads.length === 0) {
+        metricsBar.classList.add('hidden');
+        resultsSectionHeader.classList.add('hidden');
+        return;
+      }
+
+      metricsBar.classList.remove('hidden');
+      resultsSectionHeader.classList.remove('hidden');
+
+      const total = state.rawLeads.length;
+      const opportunities = state.rawLeads.filter(l => l.isHighOpportunity).length;
+      const withPhone = state.rawLeads.filter(l => (l.phone && l.phone.trim().length > 0) || (Array.isArray(l.allPhones) && l.allPhones.length > 0)).length;
+
+      const ratedLeads = state.rawLeads.filter(l => typeof l.rating === 'number');
+      const avg = ratedLeads.length > 0
+        ? (ratedLeads.reduce((acc, l) => acc + l.rating, 0) / ratedLeads.length).toFixed(1)
+        : '0.0';
+
+      document.getElementById('metricTotal').textContent = total;
+      document.getElementById('metricOpportunity').textContent = opportunities;
+      document.getElementById('metricWithPhone').textContent = withPhone;
+      document.getElementById('metricAvgRating').textContent = avg;
+    }
+
+    // Renderizar Leads no DOM
+    function renderLeads() {
+      if (state.filteredLeads.length === 0 && state.rawLeads.length > 0) {
+        leadsGrid.innerHTML = `
+          <div class="col-span-full py-12 text-center text-slate-400 glass-card rounded-2xl p-6">
+            <i class="fa-solid fa-filter-circle-xmark text-3xl mb-3 text-slate-500"></i>
+            <p class="font-bold text-white text-base">Nenhum estabelecimento corresponde a este filtro específico.</p>
+            <p class="text-xs text-slate-400 mt-1">Alterne para a aba "Todos" para ver todos os estabelecimentos encontrados.</p>
+          </div>
+        `;
+        leadsTableContainer.classList.add('hidden');
+        leadsGrid.classList.remove('hidden');
+        return;
+      }
+
+      if (state.currentView === 'grid') {
+        leadsTableContainer.classList.add('hidden');
+        leadsGrid.classList.remove('hidden');
+        renderGridView();
+      } else {
+        leadsGrid.classList.add('hidden');
+        leadsTableContainer.classList.remove('hidden');
+        renderTableView();
+      }
+    }
+
+    // Helper para renderizar badge de origem do telefone (Google, CNPJ, Site) + Status de WhatsApp
+    function renderPhoneSourceBadge(source = '', hasWhatsApp = null) {
+      const s = String(source || 'Google');
+      let badgeColor = 'bg-emerald-950/80 text-emerald-300 border-emerald-500/30';
+      if (s.includes('CNPJ') && s.includes('Google')) {
+        badgeColor = 'bg-cyan-950/80 text-cyan-300 border-cyan-500/40';
+      } else if (s.includes('CNPJ')) {
+        badgeColor = 'bg-purple-950/80 text-purple-300 border-purple-500/40';
+      } else if (s.includes('Site')) {
+        badgeColor = 'bg-blue-950/80 text-blue-300 border-blue-500/40';
+      }
+
+      let waVerifiedBadge = '';
+      if (hasWhatsApp === true) {
+        waVerifiedBadge = `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40" title="Conta de WhatsApp validada"><i class="fa-solid fa-check"></i> Zap</span>`;
+      } else if (hasWhatsApp === false) {
+        waVerifiedBadge = `<span class="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-slate-800 text-slate-500 border border-slate-700" title="Número sem WhatsApp ativo">Fixo s/ Zap</span>`;
+      }
+
+      return `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider border ${badgeColor}">${escapeHtml(s)}</span>${waVerifiedBadge}`;
+    }
+
+    // Helper para obter lista de telefones estruturada do lead
+    function getLeadPhonesList(lead) {
+      if (Array.isArray(lead.allPhones) && lead.allPhones.length > 0) {
+        return lead.allPhones;
+      }
+      if (lead.phone && lead.phone.trim()) {
+        return [{
+          phone: lead.phone,
+          waNumber: lead.waNumber || '',
+          isMobile: true,
+          source: 'Google'
+        }];
+      }
+      return [];
+    }
+
+    // Helper para obter lista de todos os e-mails únicos do lead
+    function getLeadEmailsList(lead) {
+      const set = new Set();
+      if (lead.email && lead.email.trim()) {
+        set.add(lead.email.trim().toLowerCase());
+      }
+      if (Array.isArray(lead.allEmails)) {
+        lead.allEmails.forEach(em => {
+          if (em && String(em).trim()) set.add(String(em).trim().toLowerCase());
+        });
+      }
+      return Array.from(set);
+    }
+
+    // Renderizar Modo Grade / Cards
+    function renderGridView() {
+      leadsGrid.innerHTML = '';
+
+      state.filteredLeads.forEach(lead => {
+        const leadStatus = lead.status || state.savedLeadStatuses[lead.id] || 'pending';
+        const isSelected = state.selectedLeadIds.has(lead.id);
+        const phonesList = getLeadPhonesList(lead);
+        const emailsList = getLeadEmailsList(lead);
+        const sociosList = Array.isArray(lead.socios) ? lead.socios : [];
+        const partnerFirstName = getLeadFirstPartnerName(lead);
+        const hasPhone = Boolean((lead.phone && lead.phone.trim()) || phonesList.length > 0);
+        const waNumber = lead.waNumber || (phonesList[0] && phonesList[0].waNumber) || '';
+        const personalizedPitch = generatePitchText(lead.name, null, null, partnerFirstName);
+        const encodedPitch = encodeURIComponent(personalizedPitch);
+        const waLink = waNumber ? `https://wa.me/${waNumber}?text=${encodedPitch}` : '#';
+
+        const ratingVal = lead.rating !== null ? lead.rating.toFixed(1) : 'S/N';
+        const starsHtml = renderStars(lead.rating);
+
+        const phonesHtml = phonesList.length > 0
+          ? phonesList.map(p => {
+              const pWaLink = p.waNumber ? `https://wa.me/${p.waNumber}?text=${encodedPitch}` : null;
+              return `
+                <div class="flex items-center justify-between gap-1.5 py-1 px-2 rounded-lg bg-slate-950/60 border border-slate-800/70">
+                  <div class="flex flex-wrap items-center gap-1.5 min-w-0">
+                    <i class="fa-solid fa-phone text-emerald-400 w-3.5 text-center text-[11px]"></i>
+                    <span class="font-mono text-emerald-400 font-semibold text-xs truncate">${escapeHtml(p.phone)}</span>
+                    ${renderPhoneSourceBadge(p.source, p.hasWhatsApp)}
+                  </div>
+                  <div class="flex items-center gap-1 shrink-0">
+                    ${pWaLink ? `
+                      <a href="${pWaLink}" target="_blank" rel="noopener noreferrer" class="text-emerald-400 hover:text-emerald-300 p-1" title="Chamar no WhatsApp (${escapeHtml(p.phone)})">
+                        <i class="fa-brands fa-whatsapp"></i>
+                      </a>
+                    ` : ''}
+                    <button type="button" class="btn-copy-phone text-slate-400 hover:text-white p-1" data-phone="${escapeHtml(p.phone)}" title="Copiar número">
+                      <i class="fa-regular fa-copy"></i>
+                    </button>
+                  </div>
+                </div>
+              `;
+            }).join('')
+          : `
+            <div class="flex items-center gap-2 text-slate-500 italic py-0.5">
+              <i class="fa-solid fa-phone text-slate-600 w-4 text-center"></i>
+              <span>Nenhum telefone localizado</span>
+            </div>
+          `;
+
+        const emailsHtml = emailsList.length > 0
+          ? emailsList.map(em => `
+              <div class="flex items-center justify-between gap-1.5 py-1 px-2 rounded-lg bg-slate-950/60 border border-slate-800/70">
+                <div class="flex items-center gap-2 min-w-0">
+                  <i class="fa-solid fa-envelope text-amber-400 w-3.5 text-center text-[11px]"></i>
+                  <a href="mailto:${escapeHtml(em)}" class="font-mono text-amber-300 hover:underline font-semibold text-xs truncate" title="${escapeHtml(em)}">
+                    ${escapeHtml(em)}
+                  </a>
+                </div>
+                <button type="button" class="btn-copy-email text-slate-400 hover:text-white p-1 shrink-0" data-email="${escapeHtml(em)}" title="Copiar E-mail">
+                  <i class="fa-regular fa-copy"></i>
+                </button>
+              </div>
+            `).join('')
+          : `
+            <div class="flex items-center gap-2 text-slate-500 italic py-0.5">
+              <i class="fa-solid fa-envelope text-slate-600 w-4 text-center"></i>
+              <span>E-mail não localizado</span>
+            </div>
+          `;
+
+        const card = document.createElement('div');
+        card.className = `glass-card rounded-2xl p-5 flex flex-col justify-between transition-all duration-200 hover:-translate-y-1 shadow-lg relative group border ${
+          isSelected
+            ? 'border-emerald-500/70 ring-1 ring-emerald-500/30'
+            : lead.isHighOpportunity
+            ? 'border-brand-red/40 bg-gradient-to-b from-slate-900/90 to-brand-red/5'
+            : 'border-slate-800'
+        }`;
+
+        card.innerHTML = `
+          <div>
+            <!-- Top Badges + Checkbox Selection -->
+            <div class="flex items-start justify-between gap-2 mb-3">
+              <div class="flex flex-wrap items-center gap-2">
+                <input
+                  type="checkbox"
+                  class="chk-select-lead w-4 h-4 rounded accent-brand-red cursor-pointer"
+                  data-id="${escapeHtml(lead.id)}"
+                  ${isSelected ? 'checked' : ''}
+                  title="Selecionar este cliente para disparo"
+                >
+                ${lead.isHighOpportunity ? `
+                  <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-black tracking-wide uppercase bg-brand-red/20 text-brand-red border border-brand-red/40 badge-glow-red">
+                    <i class="fa-solid fa-fire text-brand-red animate-pulse"></i> Alta Oportunidade
+                  </span>
+                ` : `
+                  <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-semibold bg-slate-800 text-slate-300 border border-slate-700">
+                    <i class="fa-solid fa-shield-halved text-emerald-400"></i> Perfil Consolidado
+                  </span>
+                `}
+                ${lead.menuPlatform ? `
+                  <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-indigo-950/80 text-indigo-300 border border-indigo-500/30">
+                    <i class="fa-solid fa-mobile-screen"></i> ${escapeHtml(lead.menuPlatform)}
+                  </span>
+                ` : ''}
+              </div>
+
+              <!-- Status Selector -->
+              <select class="lead-status-select bg-slate-900 border border-slate-700 text-[11px] font-semibold rounded-lg px-2 py-0.5 text-slate-300 focus:outline-none" data-id="${lead.id}">
+                <option value="pending" ${leadStatus === 'pending' ? 'selected' : ''}>⏳ Pendente</option>
+                <option value="contacted" ${leadStatus === 'contacted' ? 'selected' : ''}>💬 Contatado</option>
+                <option value="replied" ${leadStatus === 'replied' ? 'selected' : ''}>🔥 Respondeu</option>
+                <option value="closed" ${leadStatus === 'closed' ? 'selected' : ''}>✅ Fechado</option>
+              </select>
+            </div>
+
+            <!-- Business Name & Sócios (QSA) -->
+            <h3 class="text-base font-extrabold text-white tracking-tight leading-snug group-hover:text-brand-red transition">
+              ${escapeHtml(lead.name)}
+            </h3>
+            ${lead.razaoSocial ? `
+              <p class="text-[10px] text-slate-400 font-medium truncate mt-0.5" title="Razão Social: ${escapeHtml(lead.razaoSocial)}">
+                <i class="fa-solid fa-building text-slate-500 mr-1"></i>${escapeHtml(lead.razaoSocial)}
+              </p>
+            ` : ''}
+            ${sociosList.length > 0 ? `
+              <p class="text-[11px] text-cyan-300 font-semibold truncate mt-0.5" title="Sócio(s) na Receita Federal: ${escapeHtml(sociosList.join(', '))}">
+                <i class="fa-solid fa-user-tie text-cyan-400 mr-1"></i>Sócio(s): ${escapeHtml(sociosList.join(', '))}
+              </p>
+            ` : ''}
+
+            <!-- Rating & Reviews -->
+            <div class="flex items-center gap-2 mt-2">
+              <div class="flex items-center gap-1 text-amber-400 text-xs">
+                ${starsHtml}
+              </div>
+              <span class="text-xs font-bold text-white">${ratingVal}</span>
+              <span class="text-xs text-slate-400">(${lead.userRatingCount} avaliações)</span>
+            </div>
+
+            <!-- Opportunity Insight Reason -->
+            <div class="mt-3 p-2.5 rounded-xl bg-slate-950/60 border border-slate-800/80 text-xs text-slate-300">
+              <span class="font-bold text-slate-400 block text-[10px] uppercase tracking-wider mb-0.5">Diagnóstico iFood:</span>
+              <p class="text-[11px] leading-relaxed text-slate-200">
+                ${escapeHtml(lead.opportunityReason)}
+              </p>
+            </div>
+
+            <!-- Contact (All Phones), Emails, CNPJ & Address -->
+            <div class="mt-3 space-y-2 text-xs">
+              <!-- Todos os Telefones (Google + CNPJ + Site) -->
+              <div class="space-y-1">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                  Telefones (${phonesList.length}):
+                </span>
+                ${phonesHtml}
+              </div>
+
+              <!-- Todos os E-mails (Site + CNPJ) -->
+              <div class="space-y-1">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">
+                  E-mails (${emailsList.length}):
+                </span>
+                ${emailsHtml}
+              </div>
+
+              <!-- CNPJ -->
+              <div class="flex items-center gap-2 text-slate-300 pt-0.5">
+                <i class="fa-solid fa-id-card text-slate-500 w-4 text-center"></i>
+                <span class="font-mono ${lead.cnpj ? 'text-cyan-400 font-semibold' : 'text-slate-500 italic'}">
+                  ${lead.cnpj ? `CNPJ: ${escapeHtml(lead.cnpj)}` : 'CNPJ não localizado'}
+                </span>
+                <div class="ml-auto flex items-center gap-1">
+                  ${lead.cnpj ? `
+                    <button type="button" class="btn-copy-cnpj text-slate-400 hover:text-white p-1" data-cnpj="${escapeHtml(lead.cnpj)}" title="Copiar CNPJ">
+                      <i class="fa-regular fa-copy"></i>
+                    </button>
+                  ` : ''}
+                  <button type="button" class="btn-reenrich-lead text-slate-400 hover:text-cyan-400 p-1" data-id="${escapeHtml(lead.id)}" title="Re-escanear CNPJ, Sócios, Telefones e E-mails deste lead">
+                    <i class="fa-solid fa-rotate"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Endereço -->
+              <div class="flex items-start gap-2 text-slate-400">
+                <i class="fa-solid fa-location-dot text-slate-500 w-4 text-center mt-0.5"></i>
+                <span class="line-clamp-2 text-[11px] leading-relaxed">${escapeHtml(lead.address)}</span>
+              </div>
+
+              <!-- Mini-CRM: Bloco de Anotações Rápidas -->
+              <div class="pt-1">
+                <input
+                  type="text"
+                  class="lead-notes-input w-full px-2.5 py-1.5 rounded-lg bg-slate-950/70 border border-slate-800 text-[11px] text-slate-200 placeholder-slate-500 focus:outline-none focus:border-brand-red"
+                  data-id="${escapeHtml(lead.id)}"
+                  placeholder="📝 Adicionar nota rápida CRM (ex: falar com gerente terça)..."
+                  value="${escapeHtml(lead.notes || '')}"
+                >
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="mt-4 pt-3 border-t border-slate-800/80 space-y-2">
+            
+            <div class="grid grid-cols-2 gap-2">
+              <!-- Botão WhatsApp -->
+              <a 
+                href="${waLink}" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                class="px-3 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition text-center shadow-md ${
+                  hasPhone 
+                    ? 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-emerald-950/50' 
+                    : 'bg-slate-800/80 text-slate-500 pointer-events-none cursor-not-allowed border border-slate-800'
+                }"
+              >
+                <i class="fa-brands fa-whatsapp text-sm"></i>
+                <span>WhatsApp</span>
+              </a>
+
+              <!-- Botão Copiar Pitch -->
+              <button 
+                type="button" 
+                class="btn-copy-pitch px-3 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition text-center bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 hover:border-slate-600 active:scale-95"
+                data-pitch="${encodeURIComponent(personalizedPitch)}"
+                data-name="${escapeHtml(lead.name)}"
+              >
+                <i class="fa-solid fa-copy text-amber-400"></i>
+                <span>Copiar Pitch</span>
+              </button>
+            </div>
+
+            ${hasPhone ? `
+              <button
+                type="button"
+                class="btn-add-to-sender w-full px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition bg-slate-900 hover:bg-slate-800 text-emerald-400 border border-emerald-500/30"
+                data-lead-id="${escapeHtml(lead.id)}"
+                data-name="${escapeHtml(lead.name)}"
+                data-socio="${escapeHtml(partnerFirstName)}"
+                data-phone="${escapeHtml(lead.phone || (phonesList[0] && phonesList[0].phone) || '')}"
+                data-pitch="${encodeURIComponent(personalizedPitch)}"
+              >
+                <i class="fa-solid fa-paper-plane text-xs"></i>
+                <span>Adicionar ao Disparo 1 a 1 ${phonesList.length > 1 ? `(${phonesList.length} nºs)` : ''}</span>
+              </button>
+            ` : ''}
+
+            <!-- Links Extras: Maps, Instagram, iFood & Website -->
+            <div class="flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-400 pt-1">
+              <div class="flex items-center gap-2.5">
+                <a href="${lead.mapsUri}" target="_blank" rel="noopener noreferrer" class="hover:text-blue-400 flex items-center gap-1 transition">
+                  <i class="fa-solid fa-map-location-dot text-blue-400"></i> Maps
+                </a>
+
+                ${lead.instagramUrl ? `
+                  <a href="${escapeHtml(lead.instagramUrl)}" target="_blank" rel="noopener noreferrer" class="hover:text-pink-400 text-pink-400/90 flex items-center gap-1 transition font-semibold" title="Abrir Instagram">
+                    <i class="fa-brands fa-instagram"></i> Instagram
+                  </a>
+                ` : ''}
+
+                ${lead.ifoodUrl ? `
+                  <a href="${escapeHtml(lead.ifoodUrl)}" target="_blank" rel="noopener noreferrer" class="hover:text-brand-red text-brand-red flex items-center gap-1 transition font-semibold" title="Abrir Loja no iFood">
+                    <i class="fa-solid fa-bag-shopping"></i> Loja iFood
+                  </a>
+                ` : ''}
+              </div>
+
+              ${lead.website ? `
+                <a href="${lead.website}" target="_blank" rel="noopener noreferrer" class="hover:text-slate-200 flex items-center gap-1 truncate max-w-[120px] transition">
+                  <i class="fa-solid fa-globe text-slate-400"></i> Website
+                </a>
+              ` : `
+                <span class="text-slate-600 italic">Sem website</span>
+              `}
+            </div>
+
+          </div>
+        `;
+
+        leadsGrid.appendChild(card);
+      });
+
+      attachCardActionEvents();
+    }
+
+    // Renderizar Modo Tabela
+    function renderTableView() {
+      leadsTableBody.innerHTML = '';
+
+      state.filteredLeads.forEach(lead => {
+        const leadStatus = lead.status || state.savedLeadStatuses[lead.id] || 'pending';
+        const isSelected = state.selectedLeadIds.has(lead.id);
+        const phonesList = getLeadPhonesList(lead);
+        const emailsList = getLeadEmailsList(lead);
+        const sociosList = Array.isArray(lead.socios) ? lead.socios : [];
+        const partnerFirstName = getLeadFirstPartnerName(lead);
+        const hasPhone = Boolean((lead.phone && lead.phone.trim()) || phonesList.length > 0);
+        const waNumber = lead.waNumber || (phonesList[0] && phonesList[0].waNumber) || '';
+        const personalizedPitch = generatePitchText(lead.name, null, null, partnerFirstName);
+        const encodedPitch = encodeURIComponent(personalizedPitch);
+        const waLink = waNumber ? `https://wa.me/${waNumber}?text=${encodedPitch}` : '#';
+        const ratingVal = lead.rating !== null ? lead.rating.toFixed(1) : 'S/N';
+
+        const tablePhonesHtml = phonesList.length > 0
+          ? `<div class="space-y-1">
+              ${phonesList.map(p => `
+                <div class="flex flex-wrap items-center gap-1.5">
+                  <span class="text-emerald-400 text-xs font-semibold font-mono">${escapeHtml(p.phone)}</span>
+                  ${renderPhoneSourceBadge(p.source, p.hasWhatsApp)}
+                  <button type="button" class="btn-copy-phone text-slate-400 hover:text-white p-0.5 text-[10px]" data-phone="${escapeHtml(p.phone)}" title="Copiar telefone">
+                    <i class="fa-regular fa-copy"></i>
+                  </button>
+                </div>
+              `).join('')}
+            </div>`
+          : `<span class="text-slate-500 italic text-xs">Não informado</span>`;
+
+        const row = document.createElement('tr');
+        row.className = `hover:bg-slate-900/60 transition ${isSelected ? 'bg-emerald-950/20' : ''}`;
+        row.innerHTML = `
+          <td class="py-3.5 px-3 text-center">
+            <input
+              type="checkbox"
+              class="chk-select-lead w-4 h-4 rounded accent-brand-red cursor-pointer"
+              data-id="${escapeHtml(lead.id)}"
+              ${isSelected ? 'checked' : ''}
+            >
+          </td>
+          <td class="py-3.5 px-4">
+            <div class="font-bold text-white">${escapeHtml(lead.name)}</div>
+            ${lead.razaoSocial ? `<div class="text-[10px] text-slate-400 truncate max-w-[220px]">${escapeHtml(lead.razaoSocial)}</div>` : ''}
+            ${sociosList.length > 0 ? `<div class="text-[10px] text-cyan-300 font-semibold truncate max-w-[220px]"><i class="fa-solid fa-user-tie mr-1"></i>${escapeHtml(sociosList.join(', '))}</div>` : ''}
+            <div class="text-[11px] text-slate-500 truncate max-w-[220px]">${escapeHtml(lead.address)}</div>
+          </td>
+          <td class="py-3.5 px-3">
+            <div class="font-mono">
+              ${lead.cnpj ? `
+                <span class="text-cyan-400 text-xs font-semibold">${escapeHtml(lead.cnpj)}</span>
+                <button type="button" class="btn-copy-cnpj text-slate-400 hover:text-white ml-1 text-[10px]" data-cnpj="${escapeHtml(lead.cnpj)}" title="Copiar CNPJ">
+                  <i class="fa-regular fa-copy"></i>
+                </button>
+              ` : `
+                <span class="text-slate-500 italic text-xs">CNPJ não localizado</span>
+              `}
+            </div>
+            <div class="mt-1 space-y-0.5">
+              ${emailsList.length > 0 ? emailsList.map(em => `
+                <div>
+                  <span class="text-amber-300 text-[11px] font-mono font-semibold">${escapeHtml(em)}</span>
+                  <button type="button" class="btn-copy-email text-slate-400 hover:text-white ml-1 text-[10px]" data-email="${escapeHtml(em)}" title="Copiar E-mail">
+                    <i class="fa-regular fa-copy"></i>
+                  </button>
+                </div>
+              `).join('') : `
+                <span class="text-slate-600 italic text-[11px]">Sem e-mail</span>
+              `}
+            </div>
+          </td>
+          <td class="py-3.5 px-3 text-center">
+            <span class="inline-flex items-center gap-1 font-bold text-amber-400 text-xs">
+              <i class="fa-solid fa-star"></i> ${ratingVal}
+            </span>
+            <div class="text-[10px] text-slate-400">${lead.userRatingCount} reviews</div>
+          </td>
+          <td class="py-3.5 px-3">
+            ${lead.isHighOpportunity ? `
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-bold bg-brand-red/20 text-brand-red border border-brand-red/40">
+                <i class="fa-solid fa-fire"></i> Alta Oportunidade
+              </span>
+            ` : `
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-800 text-slate-300">
+                Consolidado
+              </span>
+            `}
+            <div class="text-[10px] text-slate-400 line-clamp-1 max-w-[180px] mt-0.5">${escapeHtml(lead.opportunityReason)}</div>
+          </td>
+          <td class="py-3.5 px-3">
+            ${tablePhonesHtml}
+          </td>
+          <td class="py-3.5 px-4 text-xs space-y-1.5">
+            <select class="lead-status-select bg-slate-900 border border-slate-700 text-[11px] font-semibold rounded-lg px-2 py-1 text-slate-300 w-full" data-id="${lead.id}">
+              <option value="pending" ${leadStatus === 'pending' ? 'selected' : ''}>⏳ Pendente</option>
+              <option value="contacted" ${leadStatus === 'contacted' ? 'selected' : ''}>💬 Contatado</option>
+              <option value="replied" ${leadStatus === 'replied' ? 'selected' : ''}>🔥 Respondeu</option>
+              <option value="closed" ${leadStatus === 'closed' ? 'selected' : ''}>✅ Fechado</option>
+            </select>
+            <input
+              type="text"
+              class="lead-notes-input w-full px-2 py-1 rounded bg-slate-950 border border-slate-800 text-[10px] text-slate-200 placeholder-slate-500"
+              data-id="${escapeHtml(lead.id)}"
+              placeholder="Nota CRM..."
+              value="${escapeHtml(lead.notes || '')}"
+            >
+          </td>
+          <td class="py-3.5 px-4 text-right">
+            <div class="flex items-center justify-end gap-1.5">
+              ${hasPhone ? `
+                <a href="${waLink}" target="_blank" rel="noopener noreferrer" class="p-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition shadow" title="Abrir WhatsApp">
+                  <i class="fa-brands fa-whatsapp text-sm"></i>
+                </a>
+              ` : `
+                <button disabled class="p-2 rounded-lg bg-slate-800 text-slate-600 text-xs cursor-not-allowed">
+                  <i class="fa-brands fa-whatsapp text-sm"></i>
+                </button>
+              `}
+
+              <button type="button" class="btn-copy-pitch p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs font-bold border border-slate-700 transition" data-pitch="${encodeURIComponent(personalizedPitch)}" data-name="${escapeHtml(lead.name)}" title="Copiar Pitch">
+                <i class="fa-solid fa-copy"></i>
+              </button>
+
+              <a href="${lead.mapsUri}" target="_blank" rel="noopener noreferrer" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-blue-400 text-xs font-bold border border-slate-700 transition" title="Ver no Maps">
+                <i class="fa-solid fa-map-location-dot"></i>
+              </a>
+            </div>
+          </td>
+        `;
+
+        leadsTableBody.appendChild(row);
+      });
+
+      attachCardActionEvents();
+    }
+
+    // Attach event listeners for dynamic card elements
+    function attachCardActionEvents() {
+      // Checkboxes de seleção individual
+      document.querySelectorAll('.chk-select-lead').forEach(chk => {
+        chk.addEventListener('change', (e) => {
+          const id = e.target.getAttribute('data-id');
+          if (e.target.checked) {
+            state.selectedLeadIds.add(id);
+          } else {
+            state.selectedLeadIds.delete(id);
+          }
+          updateSelectionUiCount();
+        });
+      });
+
+      // Copiar Pitch
+      document.querySelectorAll('.btn-copy-pitch').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const rawPitch = decodeURIComponent(btn.getAttribute('data-pitch'));
+          const leadName = btn.getAttribute('data-name');
+          try {
+            await navigator.clipboard.writeText(rawPitch);
+            showToast(`Pitch para "${leadName}" copiado!`, 'success');
+          } catch (err) {
+            fallbackCopyText(rawPitch);
+            showToast(`Pitch copiado!`, 'success');
+          }
+        });
+      });
+
+      // Copiar Telefone
+      document.querySelectorAll('.btn-copy-phone').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const phone = btn.getAttribute('data-phone');
+          try {
+            await navigator.clipboard.writeText(phone);
+            showToast(`Telefone ${phone} copiado!`, 'info');
+          } catch (err) {
+            fallbackCopyText(phone);
+            showToast(`Telefone copiado!`, 'info');
+          }
+        });
+      });
+
+      // Copiar CNPJ
+      document.querySelectorAll('.btn-copy-cnpj').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const cnpj = btn.getAttribute('data-cnpj');
+          try {
+            await navigator.clipboard.writeText(cnpj);
+            showToast(`CNPJ ${cnpj} copiado!`, 'info');
+          } catch (err) {
+            fallbackCopyText(cnpj);
+            showToast(`CNPJ copiado!`, 'info');
+          }
+        });
+      });
+
+      // Copiar E-mail
+      document.querySelectorAll('.btn-copy-email').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const email = btn.getAttribute('data-email');
+          try {
+            await navigator.clipboard.writeText(email);
+            showToast(`E-mail ${email} copiado!`, 'info');
+          } catch (err) {
+            fallbackCopyText(email);
+            showToast(`E-mail copiado!`, 'info');
+          }
+        });
+      });
+
+      // Re-escanear / Atualizar enriquecimento de um card individual
+      document.querySelectorAll('.btn-reenrich-lead').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const id = btn.getAttribute('data-id');
+          const icon = btn.querySelector('i');
+          if (icon) icon.classList.add('animate-spin');
+          try {
+            const res = await fetch(`/api/leads/${encodeURIComponent(id)}/enrich`, { method: 'POST' });
+            const data = await res.json();
+            if (data.success && data.lead) {
+              state.rawLeads = state.rawLeads.map(l => (l.id === id ? data.lead : l));
+              applyFiltersAndSort();
+              showToast(`Dados de "${data.lead.name}" atualizados!`, 'success');
+            } else {
+              showToast(data.error || 'Erro ao atualizar lead.', 'warning');
+            }
+          } catch (err) {
+            showToast('Falha ao atualizar dados do lead.', 'error');
+          } finally {
+            if (icon) icon.classList.remove('animate-spin');
+          }
+        });
+      });
+
+      // Salvar status do lead (Banco Local + LocalStorage)
+      document.querySelectorAll('.lead-status-select').forEach(select => {
+        select.addEventListener('change', async () => {
+          const leadId = select.getAttribute('data-id');
+          const newStatus = select.value;
+          state.savedLeadStatuses[leadId] = newStatus;
+          localStorage.setItem('leadfood_lead_statuses', JSON.stringify(state.savedLeadStatuses));
+
+          const leadObj = state.rawLeads.find(l => l.id === leadId);
+          if (leadObj) leadObj.status = newStatus;
+
+          try {
+            await fetch(`/api/leads/${encodeURIComponent(leadId)}`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ status: newStatus })
+            });
+          } catch {
+            // ignore
+          }
+          showToast('Status CRM do lead salvo!', 'info');
+        });
+      });
+
+      // Salvar notas CRM do lead no blur/change
+      document.querySelectorAll('.lead-notes-input').forEach(input => {
+        input.addEventListener('change', async () => {
+          const leadId = input.getAttribute('data-id');
+          const notes = input.value;
+          const leadObj = state.rawLeads.find(l => l.id === leadId);
+          if (leadObj) leadObj.notes = notes;
+
+          try {
+            await fetch(`/api/leads/${encodeURIComponent(leadId)}`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ notes })
+            });
+            showToast('Anotação CRM salva!', 'info');
+          } catch {
+            // ignore
+          }
+        });
+      });
+
+      // Adicionar lead individual (incluindo todos os seus números do CNPJ/Site) ao Disparo 1 a 1
+      document.querySelectorAll('.btn-add-to-sender').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const leadId = btn.getAttribute('data-lead-id');
+          const name = btn.getAttribute('data-name');
+          const socio = btn.getAttribute('data-socio') || '';
+          const fallbackPhone = btn.getAttribute('data-phone');
+          const message = decodeURIComponent(btn.getAttribute('data-pitch') || '');
+
+          const leadObj = state.rawLeads.find(l => l.id === leadId);
+          const phonesList = leadObj
+            ? getLeadPhonesList(leadObj).filter(p => p.hasWhatsApp !== false)
+            : [{ phone: fallbackPhone, source: 'Google' }];
+
+          const contacts = phonesList.map((p, idx) => ({
+            name: idx === 0 ? name : `${name} (${p.source || 'Extra'})`,
+            socio,
+            phone: p.phone,
+            message
+          }));
+
+          try {
+            const res = await fetch('/api/direct-messages/bulk-import', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ contacts })
+            });
+            const data = await res.json();
+            if (data.success) {
+              showToast(`"${name}" (${contacts.length} número(s)) adicionado à fila de Disparo 1 a 1!`, 'success');
+              fetchDirectMessages();
+            } else {
+              showToast(data.error || 'Erro ao adicionar contato.', 'error');
+            }
+          } catch (err) {
+            showToast('Erro ao adicionar ao Disparo 1 a 1.', 'error');
+          }
+        });
+      });
+    }
+
+    // Exportar CSV com UTF-8 BOM
+    function exportToCSV() {
+      if (state.filteredLeads.length === 0) {
+        showToast('Nenhum lead disponível para exportação.', 'warning');
+        return;
+      }
+
+      const headers = [
+        'Nome do Estabelecimento',
+        'Razão Social (CNPJ)',
+        'Sócios / Administradores (QSA)',
+        'CNPJ',
+        'E-mails',
+        'Telefone Principal',
+        'Todos os Telefones (Google / CNPJ / Site)',
+        'Link WhatsApp',
+        'Instagram',
+        'Loja iFood',
+        'Plataforma Cardápio',
+        'Endereço Completo',
+        'Nota Google',
+        'Total Avaliações',
+        'Alta Oportunidade',
+        'Motivo Oportunidade',
+        'Website',
+        'Link Google Maps',
+        'Status Prospecção',
+        'Notas CRM'
+      ];
+
+      const csvRows = [];
+      csvRows.push(headers.map(h => `"${h.replace(/"/g, '""')}"`).join(';'));
+
+      state.filteredLeads.forEach(lead => {
+        const status = lead.status || state.savedLeadStatuses[lead.id] || 'Pendente';
+        const waLink = lead.waNumber ? `https://wa.me/${lead.waNumber}` : '';
+        const isOpp = lead.isHighOpportunity ? 'Sim' : 'Não';
+        const phonesList = getLeadPhonesList(lead);
+        const emailsList = getLeadEmailsList(lead);
+        const sociosList = Array.isArray(lead.socios) ? lead.socios : [];
+        const allPhonesStr = phonesList.map(p => `${p.phone} [${p.source}]`).join(' | ');
+
+        const row = [
+          lead.name || '',
+          lead.razaoSocial || '',
+          sociosList.join(' | '),
+          lead.cnpj || '',
+          emailsList.join(' | '),
+          lead.phone || '',
+          allPhonesStr,
+          waLink,
+          lead.instagramUrl || '',
+          lead.ifoodUrl || '',
+          lead.menuPlatform || '',
+          lead.address || '',
+          lead.rating !== null ? lead.rating.toString().replace('.', ',') : '',
+          lead.userRatingCount || 0,
+          isOpp,
+          lead.opportunityReason || '',
+          lead.website || '',
+          lead.mapsUri || '',
+          status,
+          lead.notes || ''
+        ];
+
+        csvRows.push(row.map(val => `"${String(val).replace(/"/g, '""')}"`).join(';'));
+      });
+
+      // UTF-8 BOM (\uFEFF) para garantir abertura correta no Excel sem corromper acentos
+      const csvContent = '\uFEFF' + csvRows.join('\r\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+
+      const dateStr = new Date().toISOString().split('T')[0];
+      const sanitizedQuery = (state.lastQuery || 'leads_sp').replace(/[^a-zA-Z0-9]/g, '_').toLowerCase();
+      link.setAttribute('href', url);
+      link.setAttribute('download', `leads_ifood_${sanitizedQuery}_${dateStr}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      showToast(`Exportados ${state.filteredLeads.length} leads com sucesso em CSV!`, 'success');
+    }
+
+    // Helpers UI
+    function renderStars(rating) {
+      if (typeof rating !== 'number') return '<span class="text-slate-600 text-[10px]">Sem nota</span>';
+      const fullStars = Math.floor(rating);
+      const hasHalf = rating - fullStars >= 0.5;
+      let stars = '';
+
+      for (let i = 0; i < fullStars; i++) {
+        stars += '<i class="fa-solid fa-star"></i>';
+      }
+      if (hasHalf) {
+        stars += '<i class="fa-solid fa-star-half-stroke"></i>';
+      }
+      const emptyStars = 5 - fullStars - (hasHalf ? 1 : 0);
+      for (let i = 0; i < emptyStars; i++) {
+        stars += '<i class="fa-regular fa-star text-slate-600"></i>';
+      }
+      return stars;
+    }
+
+    function setLoading(isLoading) {
+      if (isLoading) {
+        loadingState.classList.remove('hidden');
+        emptyState.classList.add('hidden');
+        errorState.classList.add('hidden');
+        leadsGrid.innerHTML = '';
+        leadsTableContainer.classList.add('hidden');
+        btnSearchSubmit.disabled = true;
+        searchBtnIcon.innerHTML = '<i class="fa-solid fa-spinner animate-spin"></i>';
+        searchBtnText.textContent = 'Buscando...';
+      } else {
+        loadingState.classList.add('hidden');
+        btnSearchSubmit.disabled = false;
+        searchBtnIcon.innerHTML = '<i class="fa-solid fa-bolt"></i>';
+        searchBtnText.textContent = 'Buscar Leads';
+      }
+    }
+
+    function showEmptyState(title, desc) {
+      emptyState.classList.remove('hidden');
+      errorState.classList.add('hidden');
+      emptyState.querySelector('h3').textContent = title;
+      emptyState.querySelector('p').textContent = desc;
+    }
+
+    function showErrorState(msg) {
+      errorState.classList.remove('hidden');
+      emptyState.classList.add('hidden');
+      document.getElementById('errorMessageDesc').textContent = msg;
+      showToast(msg, 'error');
+    }
+
+    function hideFeedbackStates() {
+      emptyState.classList.add('hidden');
+      errorState.classList.add('hidden');
+      loadingState.classList.add('hidden');
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      
+      let borderCol = 'border-slate-700';
+      let icon = '<i class="fa-solid fa-circle-info text-blue-400"></i>';
+      
+      if (type === 'success') {
+        borderCol = 'border-emerald-500/50 bg-emerald-950/80 text-emerald-200';
+        icon = '<i class="fa-solid fa-circle-check text-emerald-400"></i>';
+      } else if (type === 'error') {
+        borderCol = 'border-rose-500/50 bg-rose-950/80 text-rose-200';
+        icon = '<i class="fa-solid fa-triangle-exclamation text-rose-400"></i>';
+      } else if (type === 'warning') {
+        borderCol = 'border-amber-500/50 bg-amber-950/80 text-amber-200';
+        icon = '<i class="fa-solid fa-bell text-amber-400"></i>';
+      } else {
+        borderCol = 'border-blue-500/50 bg-slate-900/90 text-slate-200';
+      }
+
+      toast.className = `flex items-center gap-2.5 px-4 py-3 rounded-xl shadow-2xl border text-xs font-semibold backdrop-blur-md transition-all duration-300 translate-y-2 opacity-0 pointer-events-auto ${borderCol}`;
+      toast.innerHTML = `${icon}<span>${escapeHtml(message)}</span>`;
+
+      container.appendChild(toast);
+
+      // Animate In
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      });
+
+      // Animate Out
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    function fallbackCopyText(text) {
+      const textArea = document.createElement('textarea');
+      textArea.value = text;
+      textArea.style.top = '0';
+      textArea.style.left = '0';
+      textArea.style.position = 'fixed';
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {
+        console.error('Fallback copy falhou', err);
+      }
+      document.body.removeChild(textArea);
+    }
+
+    function escapeHtml(string) {
+      if (!string) return '';
+      return String(string)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // =========================================================================
+    // SENDER WHATSAPP (QR CODE & DISPARO 1 A 1) MODULE
+    // =========================================================================
+    const senderState = {
+      waStatus: 'disconnected',
+      waUser: null,
+      qrDataUrl: null,
+      messages: [],
+      stats: { total: 0, sent: 0, pending: 0, failed: 0, isBatchRunning: false },
+      searchQuery: '',
+      pendingNewAttachment: null, // { fileName, fileBase64, mimeType, size }
+      uploadingRowId: null
+    };
+
+    function switchMainTab(targetTab) {
+      const btnSearch = document.getElementById('mainTabSearch');
+      const btnSender = document.getElementById('mainTabSender');
+      const paneSearch = document.getElementById('tabPaneSearch');
+      const paneSender = document.getElementById('tabPaneSender');
+
+      if (targetTab === 'sender') {
+        paneSearch.classList.add('hidden');
+        paneSender.classList.remove('hidden');
+
+        btnSender.classList.add('bg-brand-red', 'text-white', 'shadow-md', 'shadow-brand-red/20');
+        btnSender.classList.remove('bg-slate-900/90', 'text-slate-300', 'border', 'border-slate-800');
+
+        btnSearch.classList.remove('bg-brand-red', 'text-white', 'shadow-md', 'shadow-brand-red/20');
+        btnSearch.classList.add('bg-slate-900/90', 'text-slate-300', 'border', 'border-slate-800');
+
+        fetchSenderStatus();
+        fetchDirectMessages();
+      } else {
+        paneSender.classList.add('hidden');
+        paneSearch.classList.remove('hidden');
+
+        btnSearch.classList.add('bg-brand-red', 'text-white', 'shadow-md', 'shadow-brand-red/20');
+        btnSearch.classList.remove('bg-slate-900/90', 'text-slate-300', 'border', 'border-slate-800');
+
+        btnSender.classList.remove('bg-brand-red', 'text-white', 'shadow-md', 'shadow-brand-red/20');
+        btnSender.classList.add('bg-slate-900/90', 'text-slate-300', 'border', 'border-slate-800');
+      }
+    }
+
+    function initSenderModule() {
+      // Abas principais
+      const btnSearch = document.getElementById('mainTabSearch');
+      const btnSender = document.getElementById('mainTabSender');
+      const waHeaderBadge = document.getElementById('waHeaderStatusBadge');
+
+      if (btnSearch) btnSearch.addEventListener('click', () => switchMainTab('search'));
+      if (btnSender) btnSender.addEventListener('click', () => switchMainTab('sender'));
+      if (waHeaderBadge) waHeaderBadge.addEventListener('click', () => switchMainTab('sender'));
+
+      // Botão importar leads selecionados ou todos da busca (incluindo números extras do CNPJ/Site) para o Sender 1 a 1
+      const btnImportLeads = document.getElementById('btnImportLeadsToSender');
+      if (btnImportLeads) {
+        btnImportLeads.addEventListener('click', async () => {
+          const contacts = [];
+          const targetLeads = state.selectedLeadIds.size > 0
+            ? state.filteredLeads.filter(l => state.selectedLeadIds.has(l.id))
+            : state.filteredLeads;
+
+          targetLeads.forEach(l => {
+            const phonesList = getLeadPhonesList(l);
+            const socioName = getLeadFirstPartnerName(l);
+            phonesList.forEach((p, idx) => {
+              if (p.hasWhatsApp === false) return;
+              if (p.phone && p.phone.trim()) {
+                contacts.push({
+                  name: idx === 0 ? l.name : `${l.name} (${p.source || 'Extra'})`,
+                  phone: p.phone,
+                  socio: socioName,
+                  message: generatePitchText(l.name, null, null, socioName)
+                });
+              }
+            });
+          });
+
+          if (contacts.length === 0) {
+            showToast('Nenhum lead com telefone válido disponível na seleção atual.', 'warning');
+            return;
+          }
+
+          try {
+            const res = await fetch('/api/direct-messages/bulk-import', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ contacts })
+            });
+            const data = await res.json();
+            if (data.success) {
+              showToast(`${data.addedCount} número(s) importados para a fila de Disparo 1 a 1!`, 'success');
+              await fetchDirectMessages();
+              switchMainTab('sender');
+            }
+          } catch (err) {
+            showToast('Erro ao importar leads para o Sender.', 'error');
+          }
+        });
+      }
+
+      // Botão preencher com pitch padrão no formulário 1 a 1
+      const btnFillPitch = document.getElementById('btnFillDefaultPitch');
+      if (btnFillPitch) {
+        btnFillPitch.addEventListener('click', () => {
+          const nameVal = document.getElementById('dmInputName').value.trim() || '{nome}';
+          document.getElementById('dmInputMessage').value = generatePitchText(nameVal);
+          showToast('Pitch padrão preenchido!', 'info');
+        });
+      }
+
+      // Preenche mensagem inicial com Pitch usando {nome}
+      const dmInputMessage = document.getElementById('dmInputMessage');
+      if (dmInputMessage && !dmInputMessage.value) {
+        dmInputMessage.value = generatePitchText('{nome}');
+      }
+
+      // Upload no formulário de novo disparo 1 a 1 (PDF, PNG, JPG, Imagens)
+      const dmInputFile = document.getElementById('dmInputFile');
+      const dmDropZoneEmpty = document.getElementById('dmDropZoneEmpty');
+      const btnDmChangeNewFile = document.getElementById('btnDmChangeNewFile');
+      const btnDmRemoveNewFile = document.getElementById('btnDmRemoveNewFile');
+
+      if (dmDropZoneEmpty && dmInputFile) {
+        dmDropZoneEmpty.addEventListener('click', () => dmInputFile.click());
+      }
+      if (btnDmChangeNewFile && dmInputFile) {
+        btnDmChangeNewFile.addEventListener('click', () => dmInputFile.click());
+      }
+      if (dmInputFile) {
+        dmInputFile.addEventListener('change', (e) => {
+          const file = e.target.files?.[0];
+          if (!file) return;
+          readSelectedAttachment(file, (att) => {
+            senderState.pendingNewAttachment = att;
+            renderNewAttachmentPreview();
+          });
+        });
+      }
+      if (btnDmRemoveNewFile) {
+        btnDmRemoveNewFile.addEventListener('click', () => {
+          senderState.pendingNewAttachment = null;
+          if (dmInputFile) dmInputFile.value = '';
+          renderNewAttachmentPreview();
+        });
+      }
+
+      // Submissão do formulário Adicionar Disparo 1 a 1
+      const formAddDm = document.getElementById('formAddDm');
+      if (formAddDm) {
+        formAddDm.addEventListener('submit', async (e) => {
+          e.preventDefault();
+          const name = document.getElementById('dmInputName').value.trim();
+          const phone = document.getElementById('dmInputPhone').value.trim();
+          const message = document.getElementById('dmInputMessage').value.trim();
+
+          if (!name || !phone || !message) {
+            showToast('Preencha Nome, Número e Mensagem.', 'warning');
+            return;
+          }
+
+          const payload = { name, phone, message };
+          if (senderState.pendingNewAttachment) {
+            payload.fileName = senderState.pendingNewAttachment.fileName;
+            payload.fileBase64 = senderState.pendingNewAttachment.fileBase64;
+            payload.mimeType = senderState.pendingNewAttachment.mimeType;
+          }
+
+          const btnSubmit = document.getElementById('btnSubmitAddDm');
+          btnSubmit.disabled = true;
+          try {
+            const res = await fetch('/api/direct-messages', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if (data.success) {
+              document.getElementById('dmInputName').value = '';
+              document.getElementById('dmInputPhone').value = '';
+              senderState.pendingNewAttachment = null;
+              if (dmInputFile) dmInputFile.value = '';
+              renderNewAttachmentPreview();
+              showToast(`Contato "${name}" adicionado ao Disparo 1 a 1!`, 'success');
+              fetchDirectMessages();
+            } else {
+              showToast(data.error || 'Erro ao adicionar contato.', 'error');
+            }
+          } catch (err) {
+            showToast('Erro ao salvar contato: ' + err.message, 'error');
+          } finally {
+            btnSubmit.disabled = false;
+          }
+        });
+      }
+
+      // Controles WhatsApp QR Code / Disconnect
+      const btnRefreshWa = document.getElementById('btnRefreshWaStatus');
+      if (btnRefreshWa) {
+        btnRefreshWa.addEventListener('click', async () => {
+          showToast('Atualizando conexão do WhatsApp...', 'info');
+          await fetchSenderStatus();
+        });
+      }
+
+      const btnDisconnectWa = document.getElementById('btnDisconnectWa');
+      if (btnDisconnectWa) {
+        btnDisconnectWa.addEventListener('click', async () => {
+          if (!confirm('Deseja desconectar a sessão atual do WhatsApp e gerar um novo QR Code?')) return;
+          try {
+            await fetch('/api/sender/disconnect', { method: 'POST' });
+            showToast('WhatsApp desconectado. Gerando novo QR Code...', 'info');
+            setTimeout(fetchSenderStatus, 1500);
+          } catch (err) {
+            showToast('Erro ao desconectar.', 'error');
+          }
+        });
+      }
+
+      // Controles de Lote 1 a 1 (Iniciar, Pausar, Resetar, Limpar)
+      const btnStartBatch = document.getElementById('btnDmStartBatch');
+      if (btnStartBatch) {
+        btnStartBatch.addEventListener('click', async () => {
+          try {
+            const res = await fetch('/api/direct-messages/start-batch', { method: 'POST' });
+            const data = await res.json();
+            if (!res.ok || data.error) {
+              showToast(data.error || 'Erro ao iniciar disparo.', 'error');
+              return;
+            }
+            if (data.noPending) {
+              showToast('Nenhum contato pendente! Use "Resetar Status" se quiser reenviar.', 'warning');
+              return;
+            }
+            showToast(`Disparo 1 a 1 iniciado para ${data.total} contato(s)!`, 'success');
+            fetchDirectMessages();
+          } catch (err) {
+            showToast('Erro ao iniciar lote: ' + err.message, 'error');
+          }
+        });
+      }
+
+      const btnPauseBatch = document.getElementById('btnDmPauseBatch');
+      if (btnPauseBatch) {
+        btnPauseBatch.addEventListener('click', async () => {
+          await fetch('/api/direct-messages/pause-batch', { method: 'POST' });
+          showToast('Disparo 1 a 1 pausado.', 'warning');
+          fetchDirectMessages();
+        });
+      }
+
+      const btnResetStatus = document.getElementById('btnDmResetStatus');
+      if (btnResetStatus) {
+        btnResetStatus.addEventListener('click', async () => {
+          await fetch('/api/direct-messages/reset-status', { method: 'POST' });
+          showToast('Todos os status foram resetados para Pendente!', 'info');
+          fetchDirectMessages();
+        });
+      }
+
+      const btnClearAll = document.getElementById('btnDmClearAll');
+      if (btnClearAll) {
+        btnClearAll.addEventListener('click', async () => {
+          if (senderState.messages.length === 0) return;
+          if (!confirm('Tem certeza que deseja remover TODOS os contatos da fila 1 a 1?')) return;
+          await fetch('/api/direct-messages', { method: 'DELETE' });
+          showToast('Fila de Disparo 1 a 1 limpa.', 'info');
+          fetchDirectMessages();
+        });
+      }
+
+      // Busca na tabela 1 a 1
+      const dmSearchInput = document.getElementById('dmSearchInput');
+      if (dmSearchInput) {
+        dmSearchInput.addEventListener('input', (e) => {
+          senderState.searchQuery = e.target.value;
+          renderDmTable();
+        });
+      }
+
+      // Upload de arquivo direto na linha da tabela
+      const dmRowFileInput = document.getElementById('dmRowFileInput');
+      if (dmRowFileInput) {
+        dmRowFileInput.addEventListener('change', (e) => {
+          const file = e.target.files?.[0];
+          const targetId = senderState.uploadingRowId;
+          if (!file || !targetId) return;
+
+          readSelectedAttachment(file, async (att) => {
+            try {
+              showToast(`Anexando "${att.fileName}"...`, 'info');
+              const res = await fetch(`/api/direct-messages/${targetId}/attachment`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(att)
+              });
+              const data = await res.json();
+              if (data.success) {
+                showToast(`Arquivo "${att.fileName}" anexado com sucesso!`, 'success');
+                fetchDirectMessages();
+              } else {
+                showToast(data.error || 'Erro ao anexar arquivo.', 'error');
+              }
+            } catch (err) {
+              showToast('Erro no upload: ' + err.message, 'error');
+            } finally {
+              senderState.uploadingRowId = null;
+              dmRowFileInput.value = '';
+            }
+          });
+        });
+      }
+
+      // Modal de Edição 1 a 1
+      setupEditDmModalEvents();
+
+      // Inicia SSE + Status inicial
+      connectSenderSse();
+      fetchSenderStatus();
+      fetchDirectMessages();
+    }
+
+    function readSelectedAttachment(file, callback) {
+      const allowedExts = ['.pdf', '.png', '.jpg', '.jpeg', '.webp', '.gif'];
+      const ext = '.' + (file.name.split('.').pop() || '').toLowerCase();
+      const isAllowed = file.type.startsWith('image/') || file.type === 'application/pdf' || allowedExts.includes(ext);
+
+      if (!isAllowed) {
+        showToast('Selecione um arquivo PDF, PNG, JPG ou Imagem válida.', 'warning');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        callback({
+          fileName: file.name,
+          fileBase64: reader.result,
+          mimeType: file.type || (ext === '.pdf' ? 'application/pdf' : 'image/png'),
+          size: file.size
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function renderNewAttachmentPreview() {
+      const emptyZone = document.getElementById('dmDropZoneEmpty');
+      const attachedZone = document.getElementById('dmDropZoneAttached');
+      const nameEl = document.getElementById('dmAttachedFileName');
+      const sizeEl = document.getElementById('dmAttachedFileSize');
+      const iconBox = document.getElementById('dmAttachedPreviewIcon');
+
+      const att = senderState.pendingNewAttachment;
+      if (!att) {
+        emptyZone.classList.remove('hidden');
+        attachedZone.classList.add('hidden');
+        return;
+      }
+
+      emptyZone.classList.add('hidden');
+      attachedZone.classList.remove('hidden');
+      nameEl.textContent = att.fileName;
+      sizeEl.textContent = `${Math.max(1, Math.round(att.size / 1024))} KB`;
+
+      if (att.mimeType && att.mimeType.startsWith('image/')) {
+        iconBox.innerHTML = `<img src="${att.fileBase64}" alt="Preview" class="w-full h-full object-cover">`;
+      } else {
+        iconBox.innerHTML = `<i class="fa-solid fa-file-pdf text-rose-400 text-lg"></i>`;
+      }
+    }
+
+    function connectSenderSse() {
+      try {
+        const evtSource = new EventSource('/api/sender/stream');
+
+        evtSource.addEventListener('init', (e) => {
+          const data = JSON.parse(e.data);
+          if (data.whatsapp) updateWaUiState(data.whatsapp, data.qrDataUrl);
+          if (data.stats) {
+            senderState.stats = data.stats;
+            renderDmStats();
+          }
+        });
+
+        evtSource.addEventListener('whatsapp_status', (e) => {
+          const statusObj = JSON.parse(e.data);
+          updateWaUiState(statusObj, senderState.qrDataUrl);
+          if (statusObj.status === 'connected') {
+            showToast('WhatsApp conectado com sucesso!', 'success');
+          }
+        });
+
+        evtSource.addEventListener('qr_update', (e) => {
+          const data = JSON.parse(e.data);
+          senderState.qrDataUrl = data.qrDataUrl;
+          updateWaUiState({ status: 'qr_ready', hasQr: true }, data.qrDataUrl);
+        });
+
+        evtSource.addEventListener('dm_message_status', () => {
+          fetchDirectMessages();
+        });
+
+        evtSource.addEventListener('dm_stats_update', (e) => {
+          senderState.stats = JSON.parse(e.data);
+          renderDmStats();
+        });
+
+        evtSource.addEventListener('dm_batch_progress', (e) => {
+          const data = JSON.parse(e.data);
+          const progressArea = document.getElementById('dmBatchProgressArea');
+          const progressText = document.getElementById('dmProgressText');
+          const progressBar = document.getElementById('dmProgressBar');
+          if (progressArea) progressArea.classList.remove('hidden');
+          if (progressText) {
+            progressText.textContent = `Disparando 1 a 1 para ${data.item?.name || 'contato'} (${data.current} de ${data.total})...`;
+          }
+          if (progressBar && data.total > 0) {
+            progressBar.style.width = `${Math.round((data.current / data.total) * 100)}%`;
+          }
+        });
+
+        evtSource.addEventListener('dm_delay_countdown', (e) => {
+          const data = JSON.parse(e.data);
+          const badge = document.getElementById('dmCountdownBadge');
+          if (badge) {
+            badge.textContent = `⏱️ Próximo (${data.nextContact || 'contato'}) em ${data.seconds}s`;
+          }
+        });
+
+        evtSource.addEventListener('dm_batch_end', (e) => {
+          senderState.stats = JSON.parse(e.data);
+          renderDmStats();
+          fetchDirectMessages();
+          showToast('Disparo 1 a 1 em lote concluído!', 'success');
+        });
+
+        evtSource.addEventListener('lead_contacted', (e) => {
+          try {
+            const data = JSON.parse(e.data);
+            if (Array.isArray(data.leadIds) && data.leadIds.length > 0) {
+              data.leadIds.forEach(lid => {
+                setLeadStatus(lid, 'contacted');
+                const leadObj = state.rawLeads.find(l => l.id === lid);
+                if (leadObj) leadObj.status = 'contacted';
+              });
+              updateMetrics();
+              renderCurrentView();
+            }
+          } catch (err) {}
+        });
+      } catch (err) {
+        console.warn('SSE indisponível:', err);
+      }
+    }
+
+    async function fetchSenderStatus() {
+      try {
+        const res = await fetch('/api/sender/status');
+        const data = await res.json();
+        senderState.qrDataUrl = data.qrDataUrl || null;
+        if (data.whatsapp) updateWaUiState(data.whatsapp, data.qrDataUrl);
+        if (data.stats) {
+          senderState.stats = data.stats;
+          renderDmStats();
+        }
+      } catch (err) {
+        console.warn('Erro ao buscar status do Sender:', err);
+      }
+    }
+
+    function updateWaUiState(waObj, qrDataUrl) {
+      senderState.waStatus = waObj.status || 'disconnected';
+      senderState.waUser = waObj.user || null;
+      if (qrDataUrl !== undefined) senderState.qrDataUrl = qrDataUrl;
+
+      const qrSection = document.getElementById('waQrSection');
+      const connectedSection = document.getElementById('waConnectedSection');
+      const qrImg = document.getElementById('waQrImage');
+      const qrLoading = document.getElementById('waQrLoading');
+      const qrStatusText = document.getElementById('waQrStatusText');
+      const footerLabel = document.getElementById('waFooterStateLabel');
+
+      // Header badge
+      const headerDot = document.getElementById('waHeaderDot');
+      const headerText = document.getElementById('waHeaderText');
+
+      if (senderState.waStatus === 'connected') {
+        qrSection.classList.add('hidden');
+        connectedSection.classList.remove('hidden');
+
+        document.getElementById('waConnectedName').textContent = senderState.waUser?.name || 'WhatsApp Conectado';
+        document.getElementById('waConnectedPhone').textContent = senderState.waUser?.phone ? `+${senderState.waUser.phone}` : 'Sessão Ativa';
+        footerLabel.textContent = 'Conectado e Pronto';
+        footerLabel.className = 'font-mono text-emerald-400 font-bold';
+
+        if (headerDot && headerText) {
+          headerDot.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+          headerText.textContent = `WhatsApp Conectado (${senderState.waUser?.phone ? '+' + senderState.waUser.phone : 'OK'})`;
+          headerText.className = 'text-emerald-400';
+        }
+      } else {
+        connectedSection.classList.add('hidden');
+        qrSection.classList.remove('hidden');
+
+        if (senderState.qrDataUrl) {
+          qrImg.src = senderState.qrDataUrl;
+          qrImg.classList.remove('hidden');
+          qrLoading.classList.add('hidden');
+          footerLabel.textContent = 'QR Code pronto para leitura';
+          footerLabel.className = 'font-mono text-amber-400';
+        } else {
+          qrImg.classList.add('hidden');
+          qrLoading.classList.remove('hidden');
+          qrStatusText.textContent = senderState.waStatus === 'connecting'
+            ? 'Iniciando WhatsApp Web e gerando QR Code...'
+            : 'Aguardando geração do QR Code...';
+          footerLabel.textContent = 'Conectando ao servidor...';
+          footerLabel.className = 'font-mono text-slate-400';
+        }
+
+        if (headerDot && headerText) {
+          headerDot.className = senderState.qrDataUrl
+            ? 'w-2 h-2 rounded-full bg-amber-400 animate-ping'
+            : 'w-2 h-2 rounded-full bg-rose-500';
+          headerText.textContent = senderState.qrDataUrl ? 'Ler QR Code WhatsApp' : 'WhatsApp Desconectado';
+          headerText.className = senderState.qrDataUrl ? 'text-amber-400' : 'text-slate-400';
+        }
+      }
+    }
+
+    async function fetchDirectMessages() {
+      try {
+        const res = await fetch('/api/direct-messages');
+        const data = await res.json();
+        senderState.messages = data.messages || [];
+        senderState.stats = data.stats || senderState.stats;
+        renderDmStats();
+        renderDmTable();
+      } catch (err) {
+        console.error('Erro ao carregar fila 1 a 1:', err);
+      }
+    }
+
+    function renderDmStats() {
+      const s = senderState.stats || {};
+      const total = s.total ?? senderState.messages.length;
+      const sent = s.sent ?? 0;
+      const pending = s.pending ?? 0;
+      const failed = s.failed ?? 0;
+
+      document.getElementById('dmMetricTotal').textContent = total;
+      document.getElementById('dmMetricSent').textContent = sent;
+      document.getElementById('dmMetricPending').textContent = pending;
+      document.getElementById('dmMetricFailed').textContent = failed;
+
+      const tabBadge = document.getElementById('tabSenderCounterBadge');
+      if (tabBadge) {
+        tabBadge.textContent = `${sent} / ${total} Enviados`;
+      }
+
+      const btnStart = document.getElementById('btnDmStartBatch');
+      const btnPause = document.getElementById('btnDmPauseBatch');
+      const progressArea = document.getElementById('dmBatchProgressArea');
+
+      if (s.isBatchRunning && !s.isPaused) {
+        btnStart.classList.add('hidden');
+        btnPause.classList.remove('hidden');
+        progressArea.classList.remove('hidden');
+      } else {
+        btnStart.classList.remove('hidden');
+        btnPause.classList.add('hidden');
+        if (!s.isBatchRunning && pending > 0) {
+          progressArea.classList.add('hidden');
+        }
+      }
+    }
+
+    function renderDmTable() {
+      const tbody = document.getElementById('dmTableBody');
+      if (!tbody) return;
+
+      const q = (senderState.searchQuery || '').toLowerCase().trim();
+      const filtered = senderState.messages.filter(m => {
+        if (!q) return true;
+        return (
+          (m.name || '').toLowerCase().includes(q) ||
+          (m.phone || '').toLowerCase().includes(q) ||
+          (m.message || '').toLowerCase().includes(q)
+        );
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" class="py-10 px-4 text-center text-slate-400">
+              <i class="fa-regular fa-paper-plane text-2xl mb-2 text-slate-500 block"></i>
+              <span class="font-bold text-slate-300">Nenhum contato na fila de Disparo 1 a 1.</span>
+              <p class="text-xs text-slate-500 mt-1">Cadastre um contato no formulário acima ou importe os leads encontrados no Buscador.</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map((m, idx) => {
+        let statusHtml = `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">⏳ Pendente</span>`;
+        if (m.status === 'sending') {
+          statusHtml = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30"><i class="fa-solid fa-spinner animate-spin"></i> Enviando...</span>`;
+        } else if (m.status === 'sent') {
+          statusHtml = `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" title="Enviado em ${escapeHtml(m.sentAt || '')}">✅ Enviado</span>`;
+        } else if (m.status === 'failed') {
+          statusHtml = `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30" title="${escapeHtml(m.error || 'Falha no envio')}">❌ Falhou</span>`;
+        }
+
+        let attachmentHtml = '';
+        if (m.attachment && m.attachment.fileName) {
+          const isImg = m.attachment.fileType === 'image' || (m.attachment.mimeType || '').startsWith('image/');
+          const iconHtml = isImg
+            ? `<i class="fa-solid fa-file-image text-cyan-400"></i>`
+            : `<i class="fa-solid fa-file-pdf text-rose-400"></i>`;
+
+          attachmentHtml = `
+            <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 max-w-[190px]">
+              ${iconHtml}
+              <span class="text-[11px] text-slate-200 truncate" title="${escapeHtml(m.attachment.fileName)}">${escapeHtml(m.attachment.fileName)}</span>
+              <button type="button" onclick="window.removeDmAttachment('${m.id}')" class="text-slate-400 hover:text-rose-400 font-bold ml-1" title="Remover anexo">&times;</button>
+            </div>
+          `;
+        } else {
+          attachmentHtml = `
+            <button type="button" onclick="window.triggerDmRowUpload('${m.id}')" class="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700 text-[11px] font-semibold inline-flex items-center gap-1.5 transition">
+              <i class="fa-solid fa-paperclip text-emerald-400"></i>
+              <span>Anexar PDF / Imagem</span>
+            </button>
+          `;
+        }
+
+        return `
+          <tr class="hover:bg-slate-900/60 transition">
+            <td class="py-3.5 px-4 text-center text-xs text-slate-500 font-mono">${idx + 1}</td>
+            <td class="py-3.5 px-4 font-bold text-white">${escapeHtml(m.name)}</td>
+            <td class="py-3.5 px-3 font-mono text-emerald-400 text-xs">${escapeHtml(m.phone)}</td>
+            <td class="py-3.5 px-4">
+              <div class="text-xs text-slate-300 line-clamp-2 max-w-xs" title="${escapeHtml(m.message)}">
+                ${escapeHtml(m.message)}
+              </div>
+            </td>
+            <td class="py-3.5 px-3">${attachmentHtml}</td>
+            <td class="py-3.5 px-3">${statusHtml}</td>
+            <td class="py-3.5 px-4 text-right">
+              <div class="flex items-center justify-end gap-1.5">
+                <button type="button" onclick="window.sendDmSingle('${m.id}')" class="p-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition shadow" title="Disparar 1 a 1 Agora">
+                  <i class="fa-solid fa-paper-plane"></i>
+                </button>
+                <button type="button" onclick="window.openEditDmModal('${m.id}')" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs border border-slate-700 transition" title="Editar contato / mensagem / anexo">
+                  <i class="fa-solid fa-pen"></i>
+                </button>
+                <button type="button" onclick="window.deleteDm('${m.id}')" class="p-2 rounded-lg bg-slate-800 hover:bg-rose-950 text-rose-400 text-xs border border-slate-700 transition" title="Excluir">
+                  <i class="fa-solid fa-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Ações globais da tabela 1 a 1
+    window.triggerDmRowUpload = function(id) {
+      senderState.uploadingRowId = id;
+      const input = document.getElementById('dmRowFileInput');
+      if (input) {
+        input.value = '';
+        input.click();
+      }
+    };
+
+    window.removeDmAttachment = async function(id) {
+      try {
+        const res = await fetch(`/api/direct-messages/${id}/attachment`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) {
+          showToast('Arquivo removido do contato.', 'info');
+          fetchDirectMessages();
+        }
+      } catch (err) {
+        showToast('Erro ao remover arquivo.', 'error');
+      }
+    };
+
+    window.sendDmSingle = async function(id) {
+      const item = senderState.messages.find(m => m.id === id);
+      if (!item) return;
+
+      showToast(`Enviando disparo 1 a 1 para "${item.name}"...`, 'info');
+      item.status = 'sending';
+      renderDmTable();
+
+      try {
+        const res = await fetch(`/api/direct-messages/send-single/${id}`, { method: 'POST' });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          showToast(`Mensagem enviada com sucesso para "${item.name}"!`, 'success');
+        } else {
+          showToast(data.error || 'Falha ao enviar mensagem.', 'error');
+        }
+      } catch (err) {
+        showToast('Erro ao disparar: ' + err.message, 'error');
+      } finally {
+        fetchDirectMessages();
+      }
+    };
+
+    window.deleteDm = async function(id) {
+      try {
+        await fetch(`/api/direct-messages/${id}`, { method: 'DELETE' });
+        showToast('Contato removido da fila 1 a 1.', 'info');
+        fetchDirectMessages();
+      } catch (err) {
+        showToast('Erro ao remover contato.', 'error');
+      }
+    };
+
+    window.openEditDmModal = function(id) {
+      const item = senderState.messages.find(m => m.id === id);
+      if (!item) return;
+
+      document.getElementById('editDmId').value = item.id;
+      document.getElementById('editDmName').value = item.name || '';
+      document.getElementById('editDmPhone').value = item.phone || '';
+      document.getElementById('editDmMessage').value = item.message || '';
+
+      renderEditModalAttachmentState(item.attachment);
+      document.getElementById('editDmModal').classList.remove('hidden');
+    };
+
+    function renderEditModalAttachmentState(att) {
+      const emptyZone = document.getElementById('editDmEmptyZone');
+      const attachedZone = document.getElementById('editDmAttachedZone');
+      const nameEl = document.getElementById('editDmFileName');
+      const sizeEl = document.getElementById('editDmFileSize');
+      const iconEl = document.getElementById('editDmFileIcon');
+
+      if (att && att.fileName) {
+        emptyZone.classList.add('hidden');
+        attachedZone.classList.remove('hidden');
+        nameEl.textContent = att.fileName;
+        sizeEl.textContent = att.size ? `${Math.max(1, Math.round(att.size / 1024))} KB` : 'Anexado';
+        const isImg = att.fileType === 'image' || (att.mimeType || '').startsWith('image/');
+        iconEl.className = isImg ? 'fa-solid fa-file-image text-cyan-400 text-lg' : 'fa-solid fa-file-pdf text-rose-400 text-lg';
+      } else {
+        emptyZone.classList.remove('hidden');
+        attachedZone.classList.add('hidden');
+      }
+    }
+
+    function setupEditDmModalEvents() {
+      const modal = document.getElementById('editDmModal');
+      const btnClose = document.getElementById('btnCloseEditDmModal');
+      const btnCancel = document.getElementById('btnCancelEditDm');
+      const btnSave = document.getElementById('btnSaveEditDm');
+      const fileInput = document.getElementById('editDmFileInput');
+      const emptyZone = document.getElementById('editDmEmptyZone');
+      const btnChangeFile = document.getElementById('btnEditDmChangeFile');
+      const btnRemoveFile = document.getElementById('btnEditDmRemoveFile');
+
+      const closeModal = () => modal.classList.add('hidden');
+      if (btnClose) btnClose.addEventListener('click', closeModal);
+      if (btnCancel) btnCancel.addEventListener('click', closeModal);
+
+      if (emptyZone && fileInput) emptyZone.addEventListener('click', () => fileInput.click());
+      if (btnChangeFile && fileInput) btnChangeFile.addEventListener('click', () => fileInput.click());
+
+      if (fileInput) {
+        fileInput.addEventListener('change', (e) => {
+          const file = e.target.files?.[0];
+          const id = document.getElementById('editDmId').value;
+          if (!file || !id) return;
+
+          readSelectedAttachment(file, async (att) => {
+            try {
+              const res = await fetch(`/api/direct-messages/${id}/attachment`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(att)
+              });
+              const data = await res.json();
+              if (data.success) {
+                renderEditModalAttachmentState(data.message.attachment);
+                showToast('Arquivo atualizado!', 'success');
+                fetchDirectMessages();
+              }
+            } catch (err) {
+              showToast('Erro ao atualizar arquivo.', 'error');
+            } finally {
+              fileInput.value = '';
+            }
+          });
+        });
+      }
+
+      if (btnRemoveFile) {
+        btnRemoveFile.addEventListener('click', async () => {
+          const id = document.getElementById('editDmId').value;
+          if (!id) return;
+          const res = await fetch(`/api/direct-messages/${id}/attachment`, { method: 'DELETE' });
+          const data = await res.json();
+          if (data.success) {
+            renderEditModalAttachmentState(null);
+            showToast('Arquivo removido.', 'info');
+            fetchDirectMessages();
+          }
+        });
+      }
+
+      if (btnSave) {
+        btnSave.addEventListener('click', async () => {
+          const id = document.getElementById('editDmId').value;
+          const name = document.getElementById('editDmName').value.trim();
+          const phone = document.getElementById('editDmPhone').value.trim();
+          const message = document.getElementById('editDmMessage').value.trim();
+
+          if (!name || !phone) {
+            showToast('Nome e Número são obrigatórios.', 'warning');
+            return;
+          }
+
+          try {
+            const res = await fetch(`/api/direct-messages/${id}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ name, phone, message })
+            });
+            const data = await res.json();
+            if (data.success) {
+              closeModal();
+              showToast('Contato atualizado com sucesso!', 'success');
+              fetchDirectMessages();
+            }
+          } catch (err) {
+            showToast('Erro ao salvar alterações.', 'error');
+          }
+        });
+      }
+    }
+  </script>
+</body>
+</html>

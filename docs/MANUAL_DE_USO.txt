@@ -1,0 +1,162 @@
+================================================================================
+          IFOOD LEAD HUNTER PRO - MANUAL DE USO E GUIA COMPLETO
+       Prospecção de Leads Gastronômicos na Grande São Paulo para iFood
+================================================================================
+
+1. VISÃO GERAL DA APLICAÇÃO
+--------------------------------------------------------------------------------
+O "iFood Lead Hunter Pro" é uma plataforma completa desenvolvida sob medida
+para prospecção ativa de estabelecimentos gastronômicos (hamburguerias, 
+pizzarias, lanchonetes, restaurantes, marmitarias, etc.) em toda a Grande 
+São Paulo.
+
+O objetivo principal é encontrar restaurantes com alto potencial de compra
+para serviços de consultoria, otimização de cardápio, fotos conversivas,
+estratégias para conquistar o selo "Super Restaurante" e alavancagem de vendas 
+no iFood.
+
+A ferramenta conecta-se diretamente à versão mais moderna da Google Places API,
+garantindo dados atualizados de contato, avaliações, notas e endereços.
+
+
+================================================================================
+2. O QUE TEM NA APLICAÇÃO (FUNCIONALIDADES)
+================================================================================
+
+[+] Barra de Pesquisa Rápida:
+    - Permite digitar qualquer busca livre (Ex.: "Hamburguerias em Moema SP",
+      "Pizzarias em Santo André", "Marmitarias em Santo Amaro").
+    - Botão de limpar busca e atalho ao pressionar Enter.
+
+[+] Filtros de Nichos Gastronômicos (1 Clique):
+    - 🍔 Hamburguerias
+    - 🍕 Pizzarias
+    - 🥪 Lanchonetes & Petiscarias
+    - 🍱 Marmitarias / Prato Feito (PF)
+    - 🍣 Restaurantes Japoneses
+    - 🍨 Açaiterias e Sobremesas
+    - 🍲 Restaurantes de Comida Caseira / Bar
+
+[+] Filtros de Regiões e Cidades da Grande SP (1 Clique):
+    - Capital: Pinheiros, Vila Mariana, Santo Amaro, Moema, Itaim Bibi, 
+      Tatuapé, Santana, entre outros.
+    - Região Metropolitana: Santo André, São Bernardo do Campo, Guarulhos, 
+      Osasco, Barueri / Alphaville.
+    - Ao clicar em um Nicho e depois em uma Região, a busca é montada e 
+      executada automaticamente.
+
+[+] Painel de Métricas em Tempo Real:
+    - Total de Leads Encontrados na pesquisa atual.
+    - Quantidade de Leads com "Alta Oportunidade".
+    - Quantidade de estabelecimentos com WhatsApp / Telefone disponível.
+    - Média geral de notas dos estabelecimentos listados.
+
+[+] Algoritmo de "Alta Oportunidade" para Consultoria:
+    - Destaca automaticamente com badge de fogo 🔥 restaurantes com:
+      * Nota menor que 4.5 no Google (precisam de gestão de qualidade, combate 
+        a atrasos e reputação para virar Super Restaurante).
+      * Menos de 60 avaliações (negócios com baixa tração online que precisam 
+        escalar pedidos rapidamente).
+    - Apresenta um diagnóstico comercial pronto para cada restaurante.
+
+[+] Ações Rápidas de Contato (WhatsApp & Pitch):
+    - Botão "WhatsApp": Abre o WhatsApp Web ou Desktop direto no número do lead
+      (já com o DDI 55 do Brasil e DDD formatados), contendo uma mensagem 
+      personalizada com o nome do restaurante.
+    - Botão "Copiar Pitch": Copia com 1 clique a mensagem persuasiva para a área
+      de transferência para colar em qualquer lugar.
+
+[+] Personalizador de Pitch (Modal):
+    - Permite alterar o seu nome de consultor (padrão: Felipe).
+    - Permite escolher entre 4 ângulos comerciais diferentes:
+      1. Escala Geral (Alavancagem de vendas, fotos e Super Restaurante).
+      2. Recuperação de Nota (Foco em cancelamentos e notas baixas).
+      3. Engenharia de Cardápio (Combos, margem e precificação de delivery).
+      4. Começando no iFood (Para novos negócios e primeiros 100 pedidos).
+
+[+] Gestor de Funil de Prospecção (Salvo no Navegador):
+    - Permite marcar o status de cada lead:
+      * ⏳ Pendente
+      * 💬 Contatado
+      * 🔥 Respondeu
+      * ✅ Fechado
+    - Os status ficam gravados na memória do seu navegador (localStorage).
+
+[+] Duas Visualizações:
+    - Modo Cards: Visão rica em blocos com detalhes visuais e estrelas.
+    - Modo Tabela: Visão em linhas estilo planilha para quem gosta de rodar
+      prospecções rápidas em lote.
+
+[+] Exportação para Excel (CSV Profissional):
+    - Exporta todos os dados (Nome, Telefone, Link WhatsApp, Endereço, Nota,
+      Avaliações, Oportunidade, Site, Maps e Status).
+    - Codificado em UTF-8 com BOM (\uFEFF), garantindo que acentos e cedilhas
+      abram 100% perfeitos no Microsoft Excel sem letras estranhas.
+
+
+================================================================================
+3. PASSO A PASSO: COMO USAR NO DIA A DIA
+================================================================================
+
+PASSO 1: INICIAR A APLICAÇÃO
+----------------------------
+- Dê dois cliques no arquivo "iniciar.bat" na pasta raiz do projeto.
+- O terminal abrirá o servidor e seu navegador padrão abrirá automaticamente 
+  em: http://localhost:3000
+
+PASSO 2: CONFIGURAR SEU PITCH DE VENDAS
+---------------------------------------
+- No topo direito da tela, clique no botão "Personalizar Pitch".
+- Digite seu nome (Ex.: Felipe) e escolha o ângulo que mais gosta (Ex.: Escala Geral).
+- Clique em "Salvar Preferências". Todos os botões da tela passarão a usar essa 
+  mensagem personalizada automaticamente.
+
+PASSO 3: FAZER UMA BUSCA DE LEADS
+---------------------------------
+- Opção A (Super rápida): Clique em um botão de nicho (Ex.: "Hamburguerias") e em
+  seguida em um bairro (Ex.: "Pinheiros").
+- Opção B (Livre): Digite na barra de busca o que quiser (Ex.: "Pizzarias em 
+  Santo André SP") e clique em "Buscar Leads" (ou aperte Enter).
+
+PASSO 4: FILTRAR OS MELHORES CLIENTES
+-------------------------------------
+- Use as abas de filtro logo acima dos resultados:
+  * "Todos": Visualiza os 20 resultados trazidos pela API.
+  * "🔥 Alta Oportunidade": Mostra apenas os restaurantes com maior urgência de 
+    consultoria (notas < 4.5 ou poucas avaliações).
+  * "📱 Com WhatsApp": Remove quem não tem telefone divulgado.
+- Você também pode ordenar por: "Menor Nota (Maior urgência)" ou "Menos Avaliações".
+
+PASSO 5: ENTRAR EM CONTATO
+--------------------------
+- Clique no botão verde "WhatsApp": O link abrirá uma conversa direta no WhatsApp
+  com o restaurante, com o texto inicial persuasivo já digitado.
+- Ou clique em "Copiar Pitch": Envie pelo Instagram Direct, telefone ou e-mail.
+- Altere o status no seletor para "💬 Contatado" para não repetir contatos.
+
+PASSO 6: EXPORTAR A LISTA PARA EXCEL
+------------------------------------
+- Clique no botão verde "Exportar CSV" no topo direito.
+- Um arquivo chamado "leads_ifood_[busca]_[data].csv" será baixado.
+- Dê dois cliques no arquivo para abrir diretamente no Microsoft Excel.
+- Dica: Essa lista pode ser importada em disparadores automáticos como o 
+  "Sender Agily" para campanhas em massa!
+
+
+================================================================================
+4. ESTRUTURA DOS ARQUIVOS NA PASTA
+================================================================================
+
+c:\Users\felipe\Leads do google para A luum\
+│
+├── iniciar.bat            -> Atalho de 2 cliques para iniciar o sistema
+├── server.js              -> Servidor backend Node.js + Express + Google API
+├── package.json           -> Configurações e dependências do Node.js
+├── .env                   -> Arquivo com a chave de API e a porta 3000
+│
+├── public/                -> Interface Web do usuário
+│   └── index.html         -> Dashboard completa com Tailwind CSS e JavaScript
+│
+└── docs/                  -> Manuais e documentações
+    ├── MANUAL_DE_USO.txt  -> Este manual em texto puro
+    └── MANUAL_DE_USO.docx -> Versão formatada para o Microsoft Word
