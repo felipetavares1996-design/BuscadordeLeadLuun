@@ -11,8 +11,20 @@ const senderService = require('./services/senderService');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const GOOGLE_PLACES_API_KEY = process.env.GOOGLE_PLACES_API_KEY;
+const CLOUDFLARE_WORKER_URL =
+  process.env.CLOUDFLARE_WORKER_URL || 'https://buscadordeleadluun.felipetavares1996.workers.dev';
 
 // Middlewares
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Private-Network', 'true');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
+  next();
+});
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
@@ -43,15 +55,107 @@ function sendSseEvent(eventType, data) {
   }
 }
 
-whatsappService.on('status_change', (status) => sendSseEvent('whatsapp_status', status));
-whatsappService.on('qr', (qr) => sendSseEvent('qr_update', qr));
-senderService.on('message_status', (data) => sendSseEvent('dm_message_status', data));
+whatsappService.on('status_change', (status) => {
+  sendSseEvent('whatsapp_status', status);
+  syncWithCloudflareWorker();
+});
+whatsappService.on('qr', (qr) => {
+  sendSseEvent('qr_update', qr);
+  syncWithCloudflareWorker();
+});
+senderService.on('message_status', (data) => {
+  sendSseEvent('dm_message_status', data);
+  syncWithCloudflareWorker();
+});
 senderService.on('batch_progress', (data) => sendSseEvent('dm_batch_progress', data));
 senderService.on('delay_countdown', (data) => sendSseEvent('dm_delay_countdown', data));
-senderService.on('batch_end', (data) => sendSseEvent('dm_batch_end', data));
-senderService.on('batch_paused', (data) => sendSseEvent('dm_batch_paused', data));
-senderService.on('stats_update', (data) => sendSseEvent('dm_stats_update', data));
+senderService.on('batch_end', (data) => {
+  sendSseEvent('dm_batch_end', data);
+  syncWithCloudflareWorker();
+});
+senderService.on('batch_paused', (data) => {
+  sendSseEvent('dm_batch_paused', data);
+  syncWithCloudflareWorker();
+});
+senderService.on('stats_update', (data) => {
+  sendSseEvent('dm_stats_update', data);
+  syncWithCloudflareWorker();
+});
 senderService.on('lead_contacted', (lead) => sendSseEvent('lead_contacted', lead));
+
+// Sincronização em tempo real do QR Code, Status do WhatsApp e Fila 1 a 1 com o Cloudflare Worker
+let isCloudSyncing = false;
+async function syncWithCloudflareWorker() {
+  if (isCloudSyncing || !CLOUDFLARE_WORKER_URL) return;
+  isCloudSyncing = true;
+  try {
+    const payload = {
+      whatsapp: whatsappService.getStatus(),
+      qrDataUrl: whatsappService.currentQrDataUrl || null,
+      stats: senderService.getStats(),
+      messages: senderService.getMessages()
+    };
+
+    const res = await axios.post(`${CLOUDFLARE_WORKER_URL}/api/bridge/sync`, payload, {
+      timeout: 5000,
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+    const pendingActions = res.data?.pendingActions;
+    if (Array.isArray(pendingActions) && pendingActions.length > 0) {
+      for (const act of pendingActions) {
+        try {
+          if (act.type === 'disconnect_wa') {
+            await whatsappService.clearAuthAndRestart();
+          } else if (act.type === 'reconnect_wa') {
+            whatsappService.isInitializing = false;
+            whatsappService.init();
+          } else if (act.type === 'add_message' && act.payload) {
+            const created = senderService.addMessage(act.payload);
+            if (act.payload.fileName && act.payload.fileBase64) {
+              senderService.attachFileFromBase64(created.id, {
+                fileName: act.payload.fileName,
+                fileBase64: act.payload.fileBase64,
+                mimeType: act.payload.mimeType
+              });
+            }
+          } else if (act.type === 'bulk_import' && act.payload) {
+            senderService.bulkImportContacts(act.payload.contacts || []);
+          } else if (act.type === 'update_message' && act.payload) {
+            senderService.updateMessage(act.payload.id, act.payload.data || {});
+          } else if (act.type === 'delete_message' && act.payload) {
+            senderService.deleteMessage(act.payload.id);
+          } else if (act.type === 'clear_all') {
+            senderService.clearAll();
+          } else if (act.type === 'attach_file' && act.payload) {
+            senderService.attachFileFromBase64(act.payload.id, act.payload);
+          } else if (act.type === 'remove_file' && act.payload) {
+            senderService.removeFile(act.payload.id);
+          } else if (act.type === 'send_single' && act.payload) {
+            senderService.sendSingle(act.payload.id).catch(() => {});
+          } else if (act.type === 'start_batch') {
+            senderService.startBatchSend().catch(() => {});
+          } else if (act.type === 'pause_batch') {
+            senderService.pauseBatchSend();
+          } else if (act.type === 'reset_status') {
+            senderService.resetStatus();
+          }
+        } catch (actErr) {
+          console.warn('[Cloud Bridge] Erro ao executar ação remota:', actErr.message);
+        }
+      }
+      // Envia estado atualizado após processar ações remotas
+      isCloudSyncing = false;
+      setTimeout(syncWithCloudflareWorker, 200);
+      return;
+    }
+  } catch {
+    // silencioso em caso de oscilação de rede
+  } finally {
+    isCloudSyncing = false;
+  }
+}
+setInterval(syncWithCloudflareWorker, 2500);
 
 // Helpers para tratamento de leads
 function formatPhoneForWhatsApp(phone) {

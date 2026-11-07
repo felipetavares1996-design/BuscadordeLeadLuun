@@ -484,37 +484,77 @@ async function saveStoredLeads(env, leadsBatch) {
   }
 }
 
-async function getBridgeUrl(env) {
-  if (!env.LEADS_KV) return null;
-  try {
-    const data = await env.LEADS_KV.get('whatsapp_bridge', 'json');
-    return data?.bridgeUrl || null;
-  } catch {
-    return null;
+let memWaState = null;
+let memPendingActions = [];
+
+async function getWaLiveState(env) {
+  if (memWaState && Date.now() - (memWaState.updatedAtMs || 0) < 15000) {
+    return memWaState;
+  }
+  if (env.LEADS_KV) {
+    try {
+      const kvState = await env.LEADS_KV.get('wa_live_state', 'json');
+      if (kvState) {
+        memWaState = kvState;
+        return kvState;
+      }
+    } catch {}
+  }
+  return (
+    memWaState || {
+      whatsapp: { status: 'connecting', user: null, hasQr: false },
+      qrDataUrl: null,
+      stats: { total: 0, sent: 0, pending: 0, failed: 0, isBatchRunning: false },
+      messages: [],
+      updatedAtMs: 0
+    }
+  );
+}
+
+async function saveWaLiveState(env, stateObj) {
+  stateObj.updatedAtMs = Date.now();
+  memWaState = stateObj;
+  if (env.LEADS_KV) {
+    try {
+      await env.LEADS_KV.put('wa_live_state', JSON.stringify(stateObj));
+    } catch {}
   }
 }
 
-async function proxyToBridge(request, bridgeUrl, url) {
-  const targetUrl = `${bridgeUrl.replace(/\/$/, '')}${url.pathname}${url.search}`;
-  const init = {
-    method: request.method,
-    headers: {
-      'Content-Type': request.headers.get('Content-Type') || 'application/json',
-      'Bypass-Tunnel-Reminder': 'true'
-    }
-  };
-  if (request.method !== 'GET' && request.method !== 'HEAD') {
-    init.body = await request.text();
+async function enqueueWaAction(env, action) {
+  memPendingActions.push(action);
+  if (env.LEADS_KV) {
+    try {
+      const existing = (await env.LEADS_KV.get('wa_pending_actions', 'json')) || [];
+      existing.push(action);
+      await env.LEADS_KV.put('wa_pending_actions', JSON.stringify(existing));
+    } catch {}
   }
-  const resp = await fetchWithTimeout(targetUrl, init, 15000);
-  const body = await resp.text();
-  return new Response(body, {
-    status: resp.status,
-    headers: {
-      'Content-Type': resp.headers.get('Content-Type') || 'application/json',
-      ...corsHeaders()
+}
+
+async function drainWaActions(env) {
+  const fromMem = [...memPendingActions];
+  memPendingActions = [];
+  let fromKv = [];
+  if (env.LEADS_KV) {
+    try {
+      fromKv = (await env.LEADS_KV.get('wa_pending_actions', 'json')) || [];
+      if (fromKv.length > 0) {
+        await env.LEADS_KV.put('wa_pending_actions', JSON.stringify([]));
+      }
+    } catch {}
+  }
+  const seenIds = new Set();
+  const merged = [];
+  for (const act of [...fromMem, ...fromKv]) {
+    if (!act) continue;
+    const aid = act.actionId || JSON.stringify(act);
+    if (!seenIds.has(aid)) {
+      seenIds.add(aid);
+      merged.push(act);
     }
-  });
+  }
+  return merged;
 }
 
 export default {
@@ -525,33 +565,38 @@ export default {
       return new Response(null, { status: 204, headers: corsHeaders() });
     }
 
-    // 1. Registro da Ponte/Túnel do WhatsApp Baileys (server.js local/remoto)
-    if (url.pathname === '/api/bridge/register' && request.method === 'POST') {
+    // 1. Sincronização em tempo real do QR Code, Status do WhatsApp e Fila 1 a 1 (server.js <-> Cloudflare Worker)
+    if (url.pathname === '/api/bridge/sync' && request.method === 'POST') {
       try {
         const body = await request.json();
-        const bridgeUrl = String(body.bridgeUrl || '').trim();
-        if (bridgeUrl && env.LEADS_KV) {
-          await env.LEADS_KV.put('whatsapp_bridge', JSON.stringify({
-            bridgeUrl,
-            updatedAt: new Date().toISOString()
-          }));
-        }
-        return jsonResponse({ success: true, bridgeUrl });
+        const pendingActions = await drainWaActions(env);
+        await saveWaLiveState(env, {
+          whatsapp: body.whatsapp || { status: 'disconnected', user: null, hasQr: false },
+          qrDataUrl: body.qrDataUrl || null,
+          stats: body.stats || { total: 0, sent: 0, pending: 0, failed: 0, isBatchRunning: false },
+          messages: Array.isArray(body.messages) ? body.messages : [],
+          updatedAt: new Date().toISOString()
+        });
+        return jsonResponse({ success: true, pendingActions });
       } catch (err) {
         return jsonResponse({ success: false, error: err.message }, 400);
       }
     }
 
     if (url.pathname === '/api/bridge/status' && request.method === 'GET') {
-      const bridgeUrl = await getBridgeUrl(env);
-      return jsonResponse({ success: true, bridgeUrl });
+      const state = await getWaLiveState(env);
+      return jsonResponse({
+        success: true,
+        bridgeUrl: null,
+        hasQr: Boolean(state.qrDataUrl),
+        waStatus: state.whatsapp?.status || 'disconnected'
+      });
     }
 
     // 2. Status da API
     if (url.pathname === '/api/status' && request.method === 'GET') {
       const hasKey = Boolean(env.GOOGLE_PLACES_API_KEY && env.GOOGLE_PLACES_API_KEY.length > 10);
-      const bridgeUrl = await getBridgeUrl(env);
-      return jsonResponse({ status: 'online', hasApiKey: hasKey, bridgeUrl });
+      return jsonResponse({ status: 'online', hasApiKey: hasKey });
     }
 
     // 3. Municípios do Brasil (5.570 cidades via IBGE)
@@ -733,66 +778,200 @@ export default {
       }
     }
 
-    // 6. Rotas do WhatsApp Sender (QR Code & Disparo 1 a 1) -> Proxy para o Túnel do Servidor Baileys ou Fallback KV
-    if (
-      url.pathname.startsWith('/api/sender/') ||
-      url.pathname.startsWith('/api/direct-messages') ||
-      url.pathname === '/api/leads/verify-whatsapp'
-    ) {
-      const bridgeUrl = await getBridgeUrl(env);
-      if (bridgeUrl) {
-        try {
-          return await proxyToBridge(request, bridgeUrl, url);
-        } catch {
-          // Se o túnel estiver offline no momento, segue para o fallback abaixo
+    // 6. Rotas do WhatsApp Sender (QR Code & Disparo 1 a 1) via Cloud-Sync Bridge (server.js <-> Cloudflare KV)
+    if (url.pathname === '/api/sender/status' && request.method === 'GET') {
+      const state = await getWaLiveState(env);
+      return jsonResponse({
+        whatsapp: state.whatsapp || { status: 'connecting', user: null, hasQr: false },
+        hasQr: Boolean(state.qrDataUrl),
+        qrDataUrl: state.qrDataUrl || null,
+        stats: state.stats || { total: 0, sent: 0, pending: 0, failed: 0, isBatchRunning: false }
+      });
+    }
+
+    if (url.pathname === '/api/sender/qr' && request.method === 'GET') {
+      const state = await getWaLiveState(env);
+      return jsonResponse({
+        hasQr: Boolean(state.qrDataUrl),
+        qrDataUrl: state.qrDataUrl || null,
+        status: state.whatsapp?.status || 'connecting'
+      });
+    }
+
+    if (url.pathname === '/api/sender/stream' && request.method === 'GET') {
+      const state = await getWaLiveState(env);
+      const ssePayload = `event: init\ndata: ${JSON.stringify({
+        whatsapp: state.whatsapp || { status: 'connecting', user: null, hasQr: false },
+        qrDataUrl: state.qrDataUrl || null,
+        stats: state.stats || { total: 0, sent: 0, pending: 0, failed: 0, isBatchRunning: false }
+      })}\n\n`;
+      return new Response(ssePayload, {
+        status: 200,
+        headers: {
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          ...corsHeaders()
         }
-      }
+      });
+    }
 
-      // Fallback no KV para a fila de Direct Messages caso o servidor Baileys local esteja desligado
-      if (url.pathname === '/api/sender/status') {
-        return jsonResponse({
-          whatsapp: { status: 'disconnected', user: null, hasQr: false },
-          qrDataUrl: null,
-          bridgeOffline: true,
-          stats: { total: 0, sent: 0, pending: 0, failed: 0, isBatchRunning: false }
-        });
-      }
+    if (url.pathname === '/api/sender/disconnect' && request.method === 'POST') {
+      await enqueueWaAction(env, {
+        actionId: `act_${Date.now()}_disc`,
+        type: 'disconnect_wa'
+      });
+      return jsonResponse({ success: true, message: 'Comando enviado. Gerando novo QR Code...' });
+    }
 
-      if (url.pathname === '/api/direct-messages' && request.method === 'GET') {
-        const list = (env.LEADS_KV && (await env.LEADS_KV.get('dm_queue', 'json'))) || [];
-        return jsonResponse({
-          messages: list,
-          stats: {
-            total: list.length,
-            sent: list.filter((m) => m.status === 'sent').length,
-            pending: list.filter((m) => m.status === 'pending').length,
-            failed: list.filter((m) => m.status === 'failed').length,
-            isBatchRunning: false
-          }
-        });
-      }
+    if (url.pathname === '/api/sender/reconnect' && request.method === 'POST') {
+      await enqueueWaAction(env, {
+        actionId: `act_${Date.now()}_reconn`,
+        type: 'reconnect_wa'
+      });
+      return jsonResponse({ success: true });
+    }
 
-      if (url.pathname === '/api/direct-messages/bulk-import' && request.method === 'POST') {
+    if (url.pathname === '/api/direct-messages' && request.method === 'GET') {
+      const state = await getWaLiveState(env);
+      return jsonResponse({
+        messages: state.messages || [],
+        stats: state.stats || { total: 0, sent: 0, pending: 0, failed: 0, isBatchRunning: false }
+      });
+    }
+
+    if (url.pathname === '/api/direct-messages' && request.method === 'POST') {
+      const body = await request.json();
+      await enqueueWaAction(env, {
+        actionId: `act_${Date.now()}_add_${Math.random().toString(36).slice(2, 6)}`,
+        type: 'add_message',
+        payload: body
+      });
+      // Atualização otimista para resposta imediata na UI
+      const state = await getWaLiveState(env);
+      const norm = normalizeBrazilianPhone(body.phone || '', 'Manual');
+      const newMsg = {
+        id: `dm_${Date.now()}`,
+        name: body.name || 'Cliente',
+        phone: norm ? norm.digits : stripNonDigits(body.phone || ''),
+        message: body.message || '',
+        status: 'pending',
+        fileName: body.fileName || null,
+        createdAt: new Date().toISOString()
+      };
+      state.messages = [...(state.messages || []), newMsg];
+      state.stats = {
+        ...(state.stats || {}),
+        total: state.messages.length,
+        pending: state.messages.filter((m) => m.status === 'pending').length
+      };
+      await saveWaLiveState(env, state);
+      return jsonResponse({ success: true, message: newMsg });
+    }
+
+    if (url.pathname === '/api/direct-messages/bulk-import' && request.method === 'POST') {
+      const body = await request.json();
+      const contacts = Array.isArray(body.contacts) ? body.contacts : [];
+      await enqueueWaAction(env, {
+        actionId: `act_${Date.now()}_bulk_${Math.random().toString(36).slice(2, 6)}`,
+        type: 'bulk_import',
+        payload: { contacts }
+      });
+      return jsonResponse({ success: true, addedCount: contacts.length });
+    }
+
+    if (url.pathname === '/api/direct-messages' && request.method === 'DELETE') {
+      await enqueueWaAction(env, {
+        actionId: `act_${Date.now()}_clear`,
+        type: 'clear_all'
+      });
+      const state = await getWaLiveState(env);
+      state.messages = [];
+      state.stats = { total: 0, sent: 0, pending: 0, failed: 0, isBatchRunning: false };
+      await saveWaLiveState(env, state);
+      return jsonResponse({ success: true, cleared: true });
+    }
+
+    if (url.pathname === '/api/direct-messages/start-batch' && request.method === 'POST') {
+      const state = await getWaLiveState(env);
+      const pendingCount = (state.messages || []).filter((m) => m.status === 'pending' || m.status === 'failed').length;
+      if (pendingCount === 0) {
+        return jsonResponse({ success: true, noPending: true, total: 0 });
+      }
+      await enqueueWaAction(env, {
+        actionId: `act_${Date.now()}_start_batch`,
+        type: 'start_batch'
+      });
+      return jsonResponse({ success: true, total: pendingCount });
+    }
+
+    if (url.pathname === '/api/direct-messages/pause-batch' && request.method === 'POST') {
+      await enqueueWaAction(env, {
+        actionId: `act_${Date.now()}_pause_batch`,
+        type: 'pause_batch'
+      });
+      return jsonResponse({ success: true, paused: true });
+    }
+
+    if (url.pathname === '/api/direct-messages/reset-status' && request.method === 'POST') {
+      await enqueueWaAction(env, {
+        actionId: `act_${Date.now()}_reset`,
+        type: 'reset_status'
+      });
+      return jsonResponse({ success: true });
+    }
+
+    const sendSingleMatch = url.pathname.match(/^\/api\/direct-messages\/send-single\/([^/]+)$/);
+    if (sendSingleMatch && request.method === 'POST') {
+      const id = decodeURIComponent(sendSingleMatch[1]);
+      await enqueueWaAction(env, {
+        actionId: `act_${Date.now()}_send_${id}`,
+        type: 'send_single',
+        payload: { id }
+      });
+      return jsonResponse({ success: true, queued: true });
+    }
+
+    const dmAttachmentMatch = url.pathname.match(/^\/api\/direct-messages\/([^/]+)\/attachment$/);
+    if (dmAttachmentMatch) {
+      const id = decodeURIComponent(dmAttachmentMatch[1]);
+      if (request.method === 'POST') {
         const body = await request.json();
-        const contacts = Array.isArray(body.contacts) ? body.contacts : [];
-        const existing = (env.LEADS_KV && (await env.LEADS_KV.get('dm_queue', 'json'))) || [];
-        let addedCount = 0;
-        for (const c of contacts) {
-          const norm = normalizeBrazilianPhone(c.phone, 'Import');
-          if (!norm) continue;
-          existing.push({
-            id: `dm_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
-            name: c.name || 'Cliente',
-            phone: norm.digits,
-            socio: c.socio || '',
-            message: c.message || '',
-            status: 'pending',
-            createdAt: new Date().toISOString()
-          });
-          addedCount++;
-        }
-        if (env.LEADS_KV) await env.LEADS_KV.put('dm_queue', JSON.stringify(existing));
-        return jsonResponse({ success: true, addedCount, total: existing.length });
+        await enqueueWaAction(env, {
+          actionId: `act_${Date.now()}_att_${id}`,
+          type: 'attach_file',
+          payload: { id, ...body }
+        });
+        return jsonResponse({ success: true });
+      }
+      if (request.method === 'DELETE') {
+        await enqueueWaAction(env, {
+          actionId: `act_${Date.now()}_rmatt_${id}`,
+          type: 'remove_file',
+          payload: { id }
+        });
+        return jsonResponse({ success: true });
+      }
+    }
+
+    const dmItemMatch = url.pathname.match(/^\/api\/direct-messages\/([^/]+)$/);
+    if (dmItemMatch) {
+      const id = decodeURIComponent(dmItemMatch[1]);
+      if (request.method === 'PUT') {
+        const body = await request.json();
+        await enqueueWaAction(env, {
+          actionId: `act_${Date.now()}_upd_${id}`,
+          type: 'update_message',
+          payload: { id, data: body }
+        });
+        return jsonResponse({ success: true });
+      }
+      if (request.method === 'DELETE') {
+        await enqueueWaAction(env, {
+          actionId: `act_${Date.now()}_del_${id}`,
+          type: 'delete_message',
+          payload: { id }
+        });
+        return jsonResponse({ success: true });
       }
     }
 
@@ -810,3 +989,4 @@ export default {
     return new Response('Not Found', { status: 404 });
   }
 };
+
