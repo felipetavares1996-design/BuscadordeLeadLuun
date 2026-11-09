@@ -9,3 +9,4 @@ binding = "ASSETS"
 [[kv_namespaces]]
 binding = "LEADS_KV"
 id = "0c6a2a1df7c542e5b071d984182b2847"
+
