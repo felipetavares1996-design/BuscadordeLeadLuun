@@ -2,7 +2,9 @@ const {
   default: makeWASocket,
   useMultiFileAuthState,
   DisconnectReason,
-  fetchLatestBaileysVersion
+  fetchLatestBaileysVersion,
+  Browsers,
+  makeCacheableSignalKeyStore
 } = require('@whiskeysockets/baileys');
 const pino = require('pino');
 const qrcode = require('qrcode');
@@ -42,6 +44,7 @@ class WhatsAppService extends EventEmitter {
     this.status = 'disconnected'; // 'disconnected', 'connecting', 'qr_ready', 'connected'
     this.currentQrDataUrl = null;
     this.currentRawQr = null;
+    this.qrGeneratedAt = null;
     this.userProfile = null;
     this.reconnectTimeout = null;
     this.isInitializing = false;
@@ -52,6 +55,18 @@ class WhatsAppService extends EventEmitter {
     this.isInitializing = true;
 
     try {
+      clearTimeout(this.reconnectTimeout);
+
+      // Fecha socket anterior com segurança antes de criar um novo
+      if (this.sock) {
+        try {
+          this.sock.ev.removeAllListeners('connection.update');
+          this.sock.ev.removeAllListeners('creds.update');
+          this.sock.end(undefined);
+        } catch {}
+        this.sock = null;
+      }
+
       this.status = 'connecting';
       this.emit('status_change', { status: this.status });
       console.log('[WhatsApp Sender] Iniciando conexão com WhatsApp Web (Baileys)...');
@@ -62,15 +77,26 @@ class WhatsAppService extends EventEmitter {
 
       const { state, saveCreds } = await useMultiFileAuthState(AUTH_DIR);
       const { version, isLatest } = await fetchLatestBaileysVersion();
+      const silentLogger = pino({ level: 'silent' });
       console.log(`[WhatsApp Sender] Versão WhatsApp Web: ${version.join('.')} (Última: ${isLatest})`);
+
+      const authPayload =
+        typeof makeCacheableSignalKeyStore === 'function'
+          ? {
+              creds: state.creds,
+              keys: makeCacheableSignalKeyStore(state.keys, silentLogger)
+            }
+          : state;
 
       const sock = makeWASocket({
         version,
-        auth: state,
-        logger: pino({ level: 'silent' }),
+        auth: authPayload,
+        logger: silentLogger,
         printQRInTerminal: false,
-        browser: ['iFood Hunter Sender', 'Chrome', '1.0.0'],
+        browser: Browsers && typeof Browsers.ubuntu === 'function' ? Browsers.ubuntu('Chrome') : ['Ubuntu', 'Chrome', '20.0.04'],
         syncFullHistory: false,
+        markOnlineOnConnect: false,
+        generateHighQualityLinkPreview: false,
         connectTimeoutMs: 60000,
         defaultQueryTimeoutMs: 60000,
         keepAliveIntervalMs: 25000
@@ -85,6 +111,7 @@ class WhatsAppService extends EventEmitter {
 
         if (qr) {
           this.currentRawQr = qr;
+          this.qrGeneratedAt = Date.now();
           this.status = 'qr_ready';
           try {
             this.currentQrDataUrl = await qrcode.toDataURL(qr, {
@@ -108,35 +135,55 @@ class WhatsAppService extends EventEmitter {
             // ignore terminal qr errors
           }
 
-          this.emit('qr', { qrDataUrl: this.currentQrDataUrl, raw: qr });
+          this.emit('qr', { qrDataUrl: this.currentQrDataUrl, raw: qr, generatedAt: this.qrGeneratedAt });
           this.emit('status_change', { status: this.status, hasQr: true });
         }
 
         if (connection === 'close') {
+          const statusCode = lastDisconnect?.error?.output?.statusCode;
+          const isRestartRequired = statusCode === DisconnectReason.restartRequired || statusCode === 515;
+          const isBadSession =
+            statusCode === DisconnectReason.loggedOut ||
+            statusCode === DisconnectReason.badSession ||
+            statusCode === 401 ||
+            statusCode === 403 ||
+            statusCode === 405 ||
+            statusCode === 500;
+
+          console.warn(`[WhatsApp Sender] Conexão encerrada (Código: ${statusCode}).`);
+
+          if (isRestartRequired) {
+            // Reconexão imediata obrigatória após leitura do QR Code (Código 515) para concluir pareamento no celular
+            console.log('[WhatsApp Sender] Pareamento lido (515)! Reconectando imediatamente para concluir vínculo...');
+            clearTimeout(this.reconnectTimeout);
+            this.isInitializing = false;
+            this.reconnectTimeout = setTimeout(() => {
+              this.init();
+            }, 150);
+            return;
+          }
+
           this.status = 'disconnected';
           this.currentQrDataUrl = null;
           this.currentRawQr = null;
-
-          const statusCode = lastDisconnect?.error?.output?.statusCode;
-          const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
-
-          console.warn(`[WhatsApp Sender] Conexão encerrada (Código: ${statusCode}).`);
+          this.qrGeneratedAt = null;
           this.emit('status_change', { status: this.status });
 
-          if (shouldReconnect) {
+          if (isBadSession) {
+            console.warn('[WhatsApp Sender] Sessão inválida ou desconectada. Limpando credenciais e gerando novo QR Code...');
+            this.clearAuthAndRestart();
+          } else {
             clearTimeout(this.reconnectTimeout);
             this.reconnectTimeout = setTimeout(() => {
               this.isInitializing = false;
               this.init();
-            }, 5000);
-          } else {
-            console.warn('[WhatsApp Sender] Sessão desconectada pelo aparelho. Gerando novo QR Code...');
-            this.clearAuthAndRestart();
+            }, 1500);
           }
         } else if (connection === 'open') {
           this.status = 'connected';
           this.currentQrDataUrl = null;
           this.currentRawQr = null;
+          this.qrGeneratedAt = null;
 
           const user = sock.user;
           this.userProfile = {
@@ -157,10 +204,36 @@ class WhatsAppService extends EventEmitter {
       this.reconnectTimeout = setTimeout(() => {
         this.isInitializing = false;
         this.init();
-      }, 7000);
+      }, 3000);
     } finally {
       this.isInitializing = false;
     }
+  }
+
+  /**
+   * Gera código de pareamento de 8 dígitos para conectar via número de telefone (sem precisar da câmera).
+   * @param {string} rawPhone
+   * @returns {Promise<string>}
+   */
+  async requestPairingCode(rawPhone) {
+    let clean = String(rawPhone || '').replace(/\D/g, '');
+    if (!clean) {
+      throw new Error('Informe o número do WhatsApp com DDD.');
+    }
+    if (!clean.startsWith('55') && (clean.length === 10 || clean.length === 11)) {
+      clean = '55' + clean;
+    }
+    if (clean.length < 12 || clean.length > 13) {
+      throw new Error('Número inválido. Digite DDD + Número (ex: 11 99999-8888).');
+    }
+
+    if (!this.sock || this.status === 'connected') {
+      throw new Error('Aguarde o gerador de conexão iniciar ou desconecte a sessão atual.');
+    }
+
+    const code = await this.sock.requestPairingCode(clean);
+    const formattedCode = code && code.length === 8 ? `${code.slice(0, 4)}-${code.slice(4)}` : code;
+    return formattedCode;
   }
 
   async resolveJid(phone) {

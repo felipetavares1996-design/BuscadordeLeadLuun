@@ -85,6 +85,11 @@ senderService.on('lead_contacted', (lead) => sendSseEvent('lead_contacted', lead
 
 // Sincronização em tempo real do QR Code, Status do WhatsApp e Fila 1 a 1 com o Cloudflare Worker
 let isCloudSyncing = false;
+let currentPairingCode = null;
+whatsappService.on('status_change', (st) => {
+  if (st.status === 'connected') currentPairingCode = null;
+});
+
 async function syncWithCloudflareWorker() {
   if (isCloudSyncing || !CLOUDFLARE_WORKER_URL) return;
   isCloudSyncing = true;
@@ -92,6 +97,7 @@ async function syncWithCloudflareWorker() {
     const payload = {
       whatsapp: whatsappService.getStatus(),
       qrDataUrl: whatsappService.currentQrDataUrl || null,
+      pairingCode: currentPairingCode,
       stats: senderService.getStats(),
       messages: senderService.getMessages()
     };
@@ -106,10 +112,14 @@ async function syncWithCloudflareWorker() {
       for (const act of pendingActions) {
         try {
           if (act.type === 'disconnect_wa') {
+            currentPairingCode = null;
             await whatsappService.clearAuthAndRestart();
           } else if (act.type === 'reconnect_wa') {
             whatsappService.isInitializing = false;
             whatsappService.init();
+          } else if (act.type === 'request_pairing_code' && act.payload?.phone) {
+            const code = await whatsappService.requestPairingCode(act.payload.phone);
+            currentPairingCode = code;
           } else if (act.type === 'add_message' && act.payload) {
             const created = senderService.addMessage(act.payload);
             if (act.payload.fileName && act.payload.fileBase64) {
@@ -528,8 +538,20 @@ app.get('/api/sender/status', (req, res) => {
     whatsapp: whatsappService.getStatus(),
     hasQr: Boolean(whatsappService.currentQrDataUrl),
     qrDataUrl: whatsappService.currentQrDataUrl,
+    pairingCode: currentPairingCode,
     stats: senderService.getStats()
   });
+});
+
+app.post('/api/sender/pairing-code', async (req, res) => {
+  try {
+    const code = await whatsappService.requestPairingCode(req.body?.phone);
+    currentPairingCode = code;
+    syncWithCloudflareWorker();
+    res.json({ success: true, pairingCode: code });
+  } catch (err) {
+    res.status(400).json({ success: false, error: err.message });
+  }
 });
 
 app.get('/api/sender/qr', (req, res) => {

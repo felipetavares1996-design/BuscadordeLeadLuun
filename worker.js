@@ -485,25 +485,43 @@ async function saveStoredLeads(env, leadsBatch) {
 }
 
 let memWaState = null;
+let lastKvStateSig = '';
 let memPendingActions = [];
 
+function sanitizeExpiredQr(stateObj) {
+  if (!stateObj) return stateObj;
+  const ageMs = Date.now() - (stateObj.updatedAtMs || 0);
+  // Se o servidor local não sincronizou nos últimos 55s, o QR Code expirou no WhatsApp
+  if (ageMs > 55000 && stateObj.qrDataUrl) {
+    return {
+      ...stateObj,
+      qrDataUrl: null,
+      whatsapp: { ...(stateObj.whatsapp || {}), status: 'connecting', hasQr: false }
+    };
+  }
+  return stateObj;
+}
+
 async function getWaLiveState(env) {
-  if (memWaState && Date.now() - (memWaState.updatedAtMs || 0) < 15000) {
-    return memWaState;
+  if (memWaState && Date.now() - (memWaState.updatedAtMs || 0) < 25000) {
+    return sanitizeExpiredQr(memWaState);
   }
   if (env.LEADS_KV) {
     try {
       const kvState = await env.LEADS_KV.get('wa_live_state', 'json');
       if (kvState) {
-        memWaState = kvState;
-        return kvState;
+        if (!memWaState || (kvState.updatedAtMs || 0) > (memWaState.updatedAtMs || 0)) {
+          memWaState = kvState;
+        }
+        return sanitizeExpiredQr(memWaState);
       }
     } catch {}
   }
-  return (
+  return sanitizeExpiredQr(
     memWaState || {
       whatsapp: { status: 'connecting', user: null, hasQr: false },
       qrDataUrl: null,
+      pairingCode: null,
       stats: { total: 0, sent: 0, pending: 0, failed: 0, isBatchRunning: false },
       messages: [],
       updatedAtMs: 0
@@ -511,10 +529,14 @@ async function getWaLiveState(env) {
   );
 }
 
-async function saveWaLiveState(env, stateObj) {
+async function saveWaLiveState(env, stateObj, forceKv = false) {
   stateObj.updatedAtMs = Date.now();
   memWaState = stateObj;
-  if (env.LEADS_KV) {
+
+  // Só grava no Cloudflare KV quando o QR Code, código de pareamento, status ou contadores mudarem (evita estourar limite diário do KV!)
+  const sig = `${stateObj.whatsapp?.status || ''}|${(stateObj.qrDataUrl || '').slice(-32)}|${stateObj.pairingCode || ''}|${stateObj.stats?.total || 0}|${stateObj.stats?.sent || 0}|${stateObj.stats?.pending || 0}`;
+  if ((forceKv || sig !== lastKvStateSig) && env.LEADS_KV) {
+    lastKvStateSig = sig;
     try {
       await env.LEADS_KV.put('wa_live_state', JSON.stringify(stateObj));
     } catch {}
@@ -573,6 +595,7 @@ export default {
         await saveWaLiveState(env, {
           whatsapp: body.whatsapp || { status: 'disconnected', user: null, hasQr: false },
           qrDataUrl: body.qrDataUrl || null,
+          pairingCode: body.pairingCode || null,
           stats: body.stats || { total: 0, sent: 0, pending: 0, failed: 0, isBatchRunning: false },
           messages: Array.isArray(body.messages) ? body.messages : [],
           updatedAt: new Date().toISOString()
@@ -785,7 +808,23 @@ export default {
         whatsapp: state.whatsapp || { status: 'connecting', user: null, hasQr: false },
         hasQr: Boolean(state.qrDataUrl),
         qrDataUrl: state.qrDataUrl || null,
+        pairingCode: state.pairingCode || null,
         stats: state.stats || { total: 0, sent: 0, pending: 0, failed: 0, isBatchRunning: false }
+      });
+    }
+
+    if (url.pathname === '/api/sender/pairing-code' && request.method === 'POST') {
+      const body = await request.json();
+      const phone = String(body.phone || '').trim();
+      await enqueueWaAction(env, {
+        actionId: `act_${Date.now()}_pair_${phone}`,
+        type: 'request_pairing_code',
+        payload: { phone }
+      });
+      return jsonResponse({
+        success: true,
+        queued: true,
+        message: 'Solicitando código de 8 dígitos ao WhatsApp (aguarde ~3 segundos)...'
       });
     }
 

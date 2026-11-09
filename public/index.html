@@ -543,6 +543,32 @@
                 <p><strong class="text-emerald-400">2.</strong> Toque em <strong>Aparelhos Conectados</strong> &gt; <strong>Conectar um aparelho</strong></p>
                 <p><strong class="text-emerald-400">3.</strong> Aponte a câmera para o <strong>QR Code</strong> acima</p>
               </div>
+
+              <!-- Opção Alternativa: Conectar com Número de Telefone (Código de 8 dígitos) -->
+              <div class="w-full bg-slate-900/90 border border-slate-800 rounded-xl p-3.5 text-left space-y-2.5">
+                <span class="text-[11px] font-bold text-cyan-400 uppercase tracking-wider flex items-center gap-1.5">
+                  <i class="fa-solid fa-mobile-screen-button"></i> Ou conecte pelo Número (Código de 8 dígitos):
+                </span>
+                <div class="flex gap-2">
+                  <input
+                    type="text"
+                    id="waPairingPhoneInput"
+                    placeholder="DDD + Número (ex: 11 99999-8888)"
+                    class="flex-1 px-3 py-2 bg-slate-950 border border-slate-700/80 rounded-lg text-xs text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 font-mono"
+                  >
+                  <button
+                    type="button"
+                    id="btnRequestPairingCode"
+                    class="px-3 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-bold transition shrink-0"
+                  >
+                    Gerar Código
+                  </button>
+                </div>
+                <div id="waPairingCodeBox" class="hidden p-2.5 rounded-lg bg-emerald-950/60 border border-emerald-500/40 text-center">
+                  <p class="text-[10px] text-emerald-300 uppercase font-semibold mb-1">Digite este código no seu WhatsApp:</p>
+                  <p id="waPairingCodeValue" class="text-lg font-mono font-black tracking-widest text-white select-all">----</p>
+                </div>
+              </div>
             </div>
 
             <!-- Estado: Conectado -->
@@ -2728,12 +2754,57 @@
         });
       }
 
-      // Controles WhatsApp QR Code / Disconnect
+      // Controles WhatsApp QR Code / Código de 8 dígitos / Disconnect
       const btnRefreshWa = document.getElementById('btnRefreshWaStatus');
       if (btnRefreshWa) {
         btnRefreshWa.addEventListener('click', async () => {
-          showToast('Atualizando conexão do WhatsApp...', 'info');
-          await fetchSenderStatus();
+          showToast('Gerando novo QR Code do WhatsApp...', 'info');
+          try {
+            await fetch('/api/sender/disconnect', { method: 'POST' });
+          } catch {}
+          setTimeout(fetchSenderStatus, 1800);
+        });
+      }
+
+      const btnRequestPairingCode = document.getElementById('btnRequestPairingCode');
+      const waPairingPhoneInput = document.getElementById('waPairingPhoneInput');
+      if (btnRequestPairingCode && waPairingPhoneInput) {
+        btnRequestPairingCode.addEventListener('click', async () => {
+          const phone = waPairingPhoneInput.value.trim();
+          if (!phone) {
+            showToast('Digite seu número de WhatsApp com DDD (ex: 11 99999-8888).', 'warning');
+            waPairingPhoneInput.focus();
+            return;
+          }
+          btnRequestPairingCode.disabled = true;
+          btnRequestPairingCode.textContent = 'Gerando...';
+          try {
+            const res = await fetch('/api/sender/pairing-code', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ phone })
+            });
+            const data = await res.json();
+            if (data.pairingCode) {
+              const box = document.getElementById('waPairingCodeBox');
+              const val = document.getElementById('waPairingCodeValue');
+              if (box && val) {
+                val.textContent = data.pairingCode;
+                box.classList.remove('hidden');
+              }
+              showToast('Código de 8 dígitos gerado! Digite no seu WhatsApp.', 'success');
+            } else if (data.queued) {
+              showToast('Gerando código de 8 dígitos... Aguarde 3 segundos!', 'info');
+              setTimeout(fetchSenderStatus, 2800);
+            } else {
+              showToast(data.error || 'Erro ao gerar código.', 'error');
+            }
+          } catch (err) {
+            showToast('Erro ao solicitar código: ' + err.message, 'error');
+          } finally {
+            btnRequestPairingCode.disabled = false;
+            btnRequestPairingCode.textContent = 'Gerar Código';
+          }
         });
       }
 
@@ -3000,6 +3071,14 @@
         const res = await fetch('/api/sender/status');
         const data = await res.json();
         senderState.qrDataUrl = data.qrDataUrl || null;
+        if (data.pairingCode) {
+          const box = document.getElementById('waPairingCodeBox');
+          const val = document.getElementById('waPairingCodeValue');
+          if (box && val) {
+            val.textContent = data.pairingCode;
+            box.classList.remove('hidden');
+          }
+        }
         if (data.whatsapp) updateWaUiState(data.whatsapp, data.qrDataUrl);
         if (data.stats) {
           senderState.stats = data.stats;
