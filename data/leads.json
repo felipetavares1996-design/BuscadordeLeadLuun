@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2026-11-06T19:45:42.011Z",
-  "total": 181,
+  "lastUpdated": "2026-11-12T21:29:26.558Z",
+  "total": 184,
   "leads": [
     {
       "id": "ChIJd1FCN0NXzpQR-I8OCE_Nuss",
@@ -10,14 +10,14 @@
       "waNumber": "",
       "address": "R. dos Pinheiros, 877 - Pinheiros, São Paulo - SP, 05422-011",
       "rating": 4.5,
-      "userRatingCount": 2998,
+      "userRatingCount": 3047,
       "website": "https://www.cabanaburger.com.br/",
       "mapsUri": "https://maps.google.com/?cid=14680271674688835576&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
       "isHighOpportunity": false,
       "opportunityReason": "Consolidado: foco em expansão e otimização de margens",
       "badgeColor": "emerald",
       "pitchMessage": "Olá, equipe do *Cabana Burger (Pinheiros)*! Tudo bem? Me chamo Felipe e sou especialista em crescimento de vendas e otimização operacional para restaurantes no iFood.\n\nNotei seu estabelecimento no Google e percebi oportunidades imediatas para aumentar seu volume de pedidos diários (otimização de cardápio com fotos conversivas, estratégias para conquistar o selo Super Restaurante e redução de cancelamentos).\n\nVocê teria 5 minutinhos para eu te mostrar 3 pontos que podem alavancar o faturamento do delivery de vocês ainda este mês?",
-      "updatedAt": "2026-11-06T19:45:42.005Z",
+      "updatedAt": "2026-11-12T21:29:26.548Z",
       "createdAt": "2026-11-03T16:49:08.071Z",
       "razaoSocial": null,
       "email": "dpo@cabanaburger.com.br",
@@ -31,7 +31,19 @@
       "menuPlatform": null,
       "status": "pending",
       "notes": "",
-      "lastContactedAt": null
+      "lastContactedAt": null,
+      "openingHours": {
+        "openNow": true,
+        "weekdayDescriptions": [
+          "segunda-feira: 11:00 – 23:00",
+          "terça-feira: 11:00 – 23:00",
+          "quarta-feira: 11:00 – 03:00",
+          "quinta-feira: 11:00 – 03:00",
+          "sexta-feira: 11:00 – 03:00",
+          "sábado: 11:00 – 03:00",
+          "domingo: 11:00 – 03:00"
+        ]
+      }
     },
     {
       "id": "ChIJLVGYDXhXzpQRxzPJGIE03rA",
@@ -41,14 +53,14 @@
       "waNumber": "",
       "address": "R. Francisco Leitão, 16 - Pinheiros, São Paulo - SP, 05414-020",
       "rating": 4.5,
-      "userRatingCount": 10872,
+      "userRatingCount": 10882,
       "website": "https://www.zdeli.com.br/",
       "mapsUri": "https://maps.google.com/?cid=12744681724576347079&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
       "isHighOpportunity": false,
       "opportunityReason": "Consolidado: foco em expansão e otimização de margens",
       "badgeColor": "emerald",
       "pitchMessage": "Olá, equipe do *Z Deli Sandwiches*! Tudo bem? Me chamo Felipe e sou especialista em crescimento de vendas e otimização operacional para restaurantes no iFood.\n\nNotei seu estabelecimento no Google e percebi oportunidades imediatas para aumentar seu volume de pedidos diários (otimização de cardápio com fotos conversivas, estratégias para conquistar o selo Super Restaurante e redução de cancelamentos).\n\nVocê teria 5 minutinhos para eu te mostrar 3 pontos que podem alavancar o faturamento do delivery de vocês ainda este mês?",
-      "updatedAt": "2026-11-06T19:45:42.005Z",
+      "updatedAt": "2026-11-12T21:29:26.548Z",
       "createdAt": "2026-11-03T16:49:08.071Z",
       "razaoSocial": "MESTER RAW RESTAURANTE LTDA",
       "email": "compras@zdeli.com.br",
@@ -94,7 +106,19 @@
       "menuPlatform": null,
       "status": "pending",
       "notes": "",
-      "lastContactedAt": null
+      "lastContactedAt": null,
+      "openingHours": {
+        "openNow": true,
+        "weekdayDescriptions": [
+          "segunda-feira: 12:00 – 00:00",
+          "terça-feira: 12:00 – 00:00",
+          "quarta-feira: 12:00 – 00:00",
+          "quinta-feira: 12:00 – 00:00",
+          "sexta-feira: 12:00 – 01:00",
+          "sábado: 12:00 – 01:00",
+          "domingo: 12:00 – 00:00"
+        ]
+      }
     },
     {
       "id": "ChIJ_4FPfaFXzpQRDUBHeWNZBNM",
@@ -104,14 +128,14 @@
       "waNumber": "5511988457550",
       "address": "R. Padre Carvalho, 30 - Pinheiros, São Paulo - SP, 05429-040",
       "rating": 4.6,
-      "userRatingCount": 3919,
+      "userRatingCount": 3929,
       "website": "https://buzinaburgers.com/",
       "mapsUri": "https://maps.google.com/?cid=15205376525680984077&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
       "isHighOpportunity": false,
       "opportunityReason": "Consolidado: foco em expansão e otimização de margens",
       "badgeColor": "emerald",
       "pitchMessage": "Olá, equipe do *Buzina Burgers*! Tudo bem? Me chamo Felipe e sou especialista em crescimento de vendas e otimização operacional para restaurantes no iFood.\n\nNotei seu estabelecimento no Google e percebi oportunidades imediatas para aumentar seu volume de pedidos diários (otimização de cardápio com fotos conversivas, estratégias para conquistar o selo Super Restaurante e redução de cancelamentos).\n\nVocê teria 5 minutinhos para eu te mostrar 3 pontos que podem alavancar o faturamento do delivery de vocês ainda este mês?",
-      "updatedAt": "2026-11-06T19:45:42.005Z",
+      "updatedAt": "2026-11-12T21:29:26.548Z",
       "createdAt": "2026-11-03T16:49:08.071Z",
       "razaoSocial": "BUZINA GASTRONOMIA E EVENTOS LTDA.",
       "email": "buzina@buzinaburgers.com",
@@ -142,7 +166,19 @@
       "menuPlatform": null,
       "status": "pending",
       "notes": "",
-      "lastContactedAt": null
+      "lastContactedAt": null,
+      "openingHours": {
+        "openNow": true,
+        "weekdayDescriptions": [
+          "segunda-feira: 11:50 – 15:30, 17:30 – 23:30",
+          "terça-feira: 11:50 – 15:30, 17:30 – 23:30",
+          "quarta-feira: 11:50 – 15:30, 17:30 – 23:30",
+          "quinta-feira: 11:50 – 15:30, 17:30 – 23:30",
+          "sexta-feira: 11:50 – 15:30, 17:30 – 00:00",
+          "sábado: 11:50 – 00:00",
+          "domingo: 11:50 – 22:30"
+        ]
+      }
     },
     {
       "id": "ChIJuf-kLLtXzpQRqBnHKaTUOpE",
@@ -152,14 +188,14 @@
       "waNumber": "551138131487",
       "address": "R. Padre Carvalho, 18 - Pinheiros, São Paulo - SP, 05427-020",
       "rating": 4.3,
-      "userRatingCount": 3599,
+      "userRatingCount": 3615,
       "website": "http://www.vinilburger.com.br/",
       "mapsUri": "https://maps.google.com/?cid=10464910485689407912&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
       "isHighOpportunity": true,
       "opportunityReason": "Oportunidade de Ouro: Nota < 4.5. Potencial imediato para conquistar selo Super Restaurante.",
       "badgeColor": "amber",
       "pitchMessage": "Olá, equipe do *Vinil Burger | Pinheiros*! Tudo bem? Me chamo Felipe e sou especialista em crescimento de vendas e otimização operacional para restaurantes no iFood.\n\nNotei seu estabelecimento no Google e percebi oportunidades imediatas para aumentar seu volume de pedidos diários (otimização de cardápio com fotos conversivas, estratégias para conquistar o selo Super Restaurante e redução de cancelamentos).\n\nVocê teria 5 minutinhos para eu te mostrar 3 pontos que podem alavancar o faturamento do delivery de vocês ainda este mês?",
-      "updatedAt": "2026-11-06T19:45:42.005Z",
+      "updatedAt": "2026-11-12T21:29:26.548Z",
       "createdAt": "2026-11-03T16:49:08.071Z",
       "razaoSocial": "VBD COMERCIO E SERVICOS LTDA",
       "email": "contato@contabilpassos.com.br",
@@ -211,26 +247,38 @@
       "menuPlatform": null,
       "status": "pending",
       "notes": "",
-      "lastContactedAt": null
+      "lastContactedAt": null,
+      "openingHours": {
+        "openNow": true,
+        "weekdayDescriptions": [
+          "segunda-feira: 12:00 – 23:00",
+          "terça-feira: 12:00 – 23:00",
+          "quarta-feira: 12:00 – 23:00",
+          "quinta-feira: 12:00 – 00:00",
+          "sexta-feira: 12:00 – 00:50",
+          "sábado: 12:00 – 00:50",
+          "domingo: 12:00 – 23:00"
+        ]
+      }
     },
     {
       "id": "ChIJ_f45bnVXzpQR-CJX8_0agKY",
       "name": "Burg e Ponto",
-      "cnpj": null,
+      "cnpj": "41.931.103/0001-52",
       "phone": "(11) 99583-1072",
       "waNumber": "5511995831072",
       "address": "R. dos Pinheiros, 1072 - Pinheiros, São Paulo - SP, 05422-002",
       "rating": 4.9,
-      "userRatingCount": 183,
+      "userRatingCount": 187,
       "website": "https://instagram.com/burgeponto/",
       "mapsUri": "https://maps.google.com/?cid=11997619085326623480&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
       "isHighOpportunity": false,
       "opportunityReason": "Consolidado: foco em expansão e otimização de margens",
       "badgeColor": "emerald",
       "pitchMessage": "Olá, equipe do *Burg e Ponto*! Tudo bem? Me chamo Felipe e sou especialista em crescimento de vendas e otimização operacional para restaurantes no iFood.\n\nNotei seu estabelecimento no Google e percebi oportunidades imediatas para aumentar seu volume de pedidos diários (otimização de cardápio com fotos conversivas, estratégias para conquistar o selo Super Restaurante e redução de cancelamentos).\n\nVocê teria 5 minutinhos para eu te mostrar 3 pontos que podem alavancar o faturamento do delivery de vocês ainda este mês?",
-      "updatedAt": "2026-11-06T19:45:42.005Z",
+      "updatedAt": "2026-11-12T21:29:26.548Z",
       "createdAt": "2026-11-03T16:49:08.071Z",
-      "razaoSocial": null,
+      "razaoSocial": "HAMBURGUERIA BURGUER S LTDA",
       "email": null,
       "allEmails": [],
       "allPhones": [
@@ -240,44 +288,99 @@
           "waNumber": "5511995831072",
           "isMobile": true,
           "source": "Google"
+        },
+        {
+          "digits": "1156672871",
+          "phone": "(11) 5667-2871",
+          "waNumber": "551156672871",
+          "isMobile": false,
+          "source": "CNPJ"
+        },
+        {
+          "digits": "1156675961",
+          "phone": "(11) 5667-5961",
+          "waNumber": "551156675961",
+          "isMobile": false,
+          "source": "CNPJ"
         }
       ],
-      "socios": [],
+      "socios": [
+        "Matheus Ramalho de Oliveira Lucas",
+        "Sidney Jota Carneiro"
+      ],
       "instagramUrl": "https://www.instagram.com/burgeponto",
       "ifoodUrl": null,
       "menuPlatform": null,
       "status": "pending",
       "notes": "",
-      "lastContactedAt": null
+      "lastContactedAt": null,
+      "openingHours": {
+        "openNow": true,
+        "weekdayDescriptions": [
+          "segunda-feira: 11:45 – 23:00",
+          "terça-feira: 11:45 – 23:00",
+          "quarta-feira: 11:45 – 23:00",
+          "quinta-feira: 11:45 – 00:00",
+          "sexta-feira: 00:45 – 01:00, 11:45 – 00:00",
+          "sábado: 14:00 – 02:00",
+          "domingo: 11:45 – 23:00"
+        ]
+      }
     },
     {
       "id": "ChIJN9wcq4NXzpQRB6kYkCPqkQA",
       "name": "La Borratxeria Parrilla",
-      "cnpj": null,
-      "phone": "",
-      "waNumber": "",
+      "cnpj": "20.434.872/0001-75",
+      "phone": "(11) 3771-9669",
+      "waNumber": "551137719669",
       "address": "R. João Moura, 541 - Pinheiros, São Paulo - SP, 05412-001",
       "rating": 4.4,
-      "userRatingCount": 7946,
+      "userRatingCount": 7952,
       "website": "",
       "mapsUri": "https://maps.google.com/?cid=41071310085335303&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
       "isHighOpportunity": true,
       "opportunityReason": "Oportunidade de Ouro: Nota < 4.5. Potencial imediato para conquistar selo Super Restaurante.",
       "badgeColor": "amber",
       "pitchMessage": "Olá, equipe do *La Borratxeria Parrilla*! Tudo bem? Me chamo Felipe e sou especialista em crescimento de vendas e otimização operacional para restaurantes no iFood.\n\nNotei seu estabelecimento no Google e percebi oportunidades imediatas para aumentar seu volume de pedidos diários (otimização de cardápio com fotos conversivas, estratégias para conquistar o selo Super Restaurante e redução de cancelamentos).\n\nVocê teria 5 minutinhos para eu te mostrar 3 pontos que podem alavancar o faturamento do delivery de vocês ainda este mês?",
-      "updatedAt": "2026-11-06T19:45:42.005Z",
+      "updatedAt": "2026-11-12T21:29:26.548Z",
       "createdAt": "2026-11-03T16:49:08.071Z",
-      "razaoSocial": null,
-      "email": null,
-      "allEmails": [],
-      "allPhones": [],
-      "socios": [],
+      "razaoSocial": "LA BORRATXERIA BAR Y PARRILLA LTDA",
+      "email": "contato@underdogbar.com.br",
+      "allEmails": [
+        "contato@underdogbar.com.br"
+      ],
+      "allPhones": [
+        {
+          "digits": "1137719669",
+          "phone": "(11) 3771-9669",
+          "waNumber": "551137719669",
+          "isMobile": false,
+          "source": "CNPJ"
+        }
+      ],
+      "socios": [
+        "Carlos Eduardo da Silva Se",
+        "Guilherme Ribeiro Leite",
+        "Joao Carlos Molina Esteves"
+      ],
       "instagramUrl": null,
       "ifoodUrl": null,
       "menuPlatform": null,
       "status": "pending",
       "notes": "",
-      "lastContactedAt": null
+      "lastContactedAt": null,
+      "openingHours": {
+        "openNow": true,
+        "weekdayDescriptions": [
+          "segunda-feira: Fechado",
+          "terça-feira: 12:00 – 15:30, 18:00 – 22:30",
+          "quarta-feira: 12:00 – 15:30, 18:00 – 22:30",
+          "quinta-feira: 12:00 – 15:30, 18:00 – 22:30",
+          "sexta-feira: 12:00 – 23:00",
+          "sábado: 12:00 – 23:00",
+          "domingo: 12:00 – 22:00"
+        ]
+      }
     },
     {
       "id": "ChIJPRm_I1xXzpQRyhYhYx89jo4",
@@ -319,14 +422,14 @@
       "waNumber": "551130864334",
       "address": "Av. Rebouças, 2636 - Loja A - Pinheiros, São Paulo - SP, 05402-300",
       "rating": 4.6,
-      "userRatingCount": 645,
+      "userRatingCount": 649,
       "website": "https://www.hamburgueriatradi.com.br/tradipinheiros/",
       "mapsUri": "https://maps.google.com/?cid=15110737945311255953&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
       "isHighOpportunity": false,
       "opportunityReason": "Consolidado: foco em expansão e otimização de margens",
       "badgeColor": "emerald",
       "pitchMessage": "Olá, equipe do *Tradi Hamburgueria Pinheiros*! Tudo bem? Me chamo Felipe e sou especialista em crescimento de vendas e otimização operacional para restaurantes no iFood.\n\nNotei seu estabelecimento no Google e percebi oportunidades imediatas para aumentar seu volume de pedidos diários (otimização de cardápio com fotos conversivas, estratégias para conquistar o selo Super Restaurante e redução de cancelamentos).\n\nVocê teria 5 minutinhos para eu te mostrar 3 pontos que podem alavancar o faturamento do delivery de vocês ainda este mês?",
-      "updatedAt": "2026-11-06T19:45:42.005Z",
+      "updatedAt": "2026-11-12T21:29:26.548Z",
       "createdAt": "2026-11-03T16:49:08.071Z",
       "razaoSocial": null,
       "email": null,
@@ -346,26 +449,38 @@
       "menuPlatform": null,
       "status": "pending",
       "notes": "",
-      "lastContactedAt": null
+      "lastContactedAt": null,
+      "openingHours": {
+        "openNow": true,
+        "weekdayDescriptions": [
+          "segunda-feira: 11:00 – 23:00",
+          "terça-feira: 11:00 – 23:00",
+          "quarta-feira: 11:00 – 23:00",
+          "quinta-feira: 11:00 – 23:00",
+          "sexta-feira: 11:00 – 23:00",
+          "sábado: 11:00 – 23:00",
+          "domingo: 11:00 – 23:00"
+        ]
+      }
     },
     {
       "id": "ChIJx47KvZ1XzpQRtRT1QMIHT4s",
       "name": "Borger Burger (Hamburgueria)",
-      "cnpj": null,
+      "cnpj": "28.644.301/0001-77",
       "phone": "(11) 2768-3200",
       "waNumber": "551127683200",
       "address": "R. Dr. Virgílio de Carvalho Pinto, 211 - Pinheiros, São Paulo - SP, 05415-030",
       "rating": 4.4,
-      "userRatingCount": 2128,
+      "userRatingCount": 2129,
       "website": "https://www.borgerburger.com.br/menu",
       "mapsUri": "https://maps.google.com/?cid=10038250625326978229&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
       "isHighOpportunity": true,
       "opportunityReason": "Oportunidade de Ouro: Nota < 4.5. Potencial imediato para conquistar selo Super Restaurante.",
       "badgeColor": "amber",
       "pitchMessage": "Olá, equipe do *Borger Burger (Hamburgueria)*! Tudo bem? Me chamo Felipe e sou especialista em crescimento de vendas e otimização operacional para restaurantes no iFood.\n\nNotei seu estabelecimento no Google e percebi oportunidades imediatas para aumentar seu volume de pedidos diários (otimização de cardápio com fotos conversivas, estratégias para conquistar o selo Super Restaurante e redução de cancelamentos).\n\nVocê teria 5 minutinhos para eu te mostrar 3 pontos que podem alavancar o faturamento do delivery de vocês ainda este mês?",
-      "updatedAt": "2026-11-06T19:45:42.005Z",
+      "updatedAt": "2026-11-12T21:29:26.548Z",
       "createdAt": "2026-11-03T16:49:08.071Z",
-      "razaoSocial": null,
+      "razaoSocial": "BORGER BURGER LTDA",
       "email": null,
       "allEmails": [],
       "allPhones": [
@@ -375,15 +490,36 @@
           "waNumber": "551127683200",
           "isMobile": false,
           "source": "Google"
+        },
+        {
+          "digits": "1150705580",
+          "phone": "(11) 5070-5580",
+          "waNumber": "551150705580",
+          "isMobile": false,
+          "source": "CNPJ"
         }
       ],
-      "socios": [],
+      "socios": [
+        "Eduardo Borger"
+      ],
       "instagramUrl": null,
       "ifoodUrl": null,
       "menuPlatform": null,
       "status": "pending",
       "notes": "",
-      "lastContactedAt": null
+      "lastContactedAt": null,
+      "openingHours": {
+        "openNow": true,
+        "weekdayDescriptions": [
+          "segunda-feira: 12:00 – 23:00",
+          "terça-feira: 12:00 – 23:00",
+          "quarta-feira: 12:00 – 23:00",
+          "quinta-feira: 12:00 – 23:00",
+          "sexta-feira: 12:00 – 00:00",
+          "sábado: 12:00 – 00:00",
+          "domingo: 12:00 – 00:00"
+        ]
+      }
     },
     {
       "id": "ChIJnfymUb1XzpQRdFMp8E1lulg",
@@ -393,14 +529,14 @@
       "waNumber": "",
       "address": "R. Fradique Coutinho, 1136 - Vila Madalena, São Paulo - SP, 05416-001",
       "rating": 4.4,
-      "userRatingCount": 5036,
+      "userRatingCount": 5037,
       "website": "https://bullguer.com/unidades/vila-madalena?utm_source=google&utm_medium=perfil",
       "mapsUri": "https://maps.google.com/?cid=6393534006421967732&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
       "isHighOpportunity": true,
       "opportunityReason": "Oportunidade de Ouro: Nota < 4.5. Potencial imediato para conquistar selo Super Restaurante.",
       "badgeColor": "amber",
       "pitchMessage": "Olá, equipe do *Hamburgueria Bullguer*! Tudo bem? Me chamo Felipe e sou especialista em crescimento de vendas e otimização operacional para restaurantes no iFood.\n\nNotei seu estabelecimento no Google e percebi oportunidades imediatas para aumentar seu volume de pedidos diários (otimização de cardápio com fotos conversivas, estratégias para conquistar o selo Super Restaurante e redução de cancelamentos).\n\nVocê teria 5 minutinhos para eu te mostrar 3 pontos que podem alavancar o faturamento do delivery de vocês ainda este mês?",
-      "updatedAt": "2026-11-06T19:45:42.005Z",
+      "updatedAt": "2026-11-12T21:29:26.548Z",
       "createdAt": "2026-11-03T16:49:08.071Z",
       "razaoSocial": "BULLGUER ALIMENTACOES S.A. EM RECUPERACAO JUDICIAL",
       "email": "sac@bullguer.com",
@@ -432,7 +568,19 @@
       "menuPlatform": null,
       "status": "pending",
       "notes": "",
-      "lastContactedAt": null
+      "lastContactedAt": null,
+      "openingHours": {
+        "openNow": true,
+        "weekdayDescriptions": [
+          "segunda-feira: 11:30 – 23:00",
+          "terça-feira: 11:30 – 23:00",
+          "quarta-feira: 11:30 – 03:00",
+          "quinta-feira: 11:30 – 03:00",
+          "sexta-feira: 11:30 – 03:00",
+          "sábado: 11:30 – 03:00",
+          "domingo: 11:30 – 03:00"
+        ]
+      }
     },
     {
       "id": "ChIJt8LcqedXzpQR3Uyl3SvN3jk",
@@ -442,14 +590,14 @@
       "waNumber": "",
       "address": "R. dos Pinheiros, 476 - Pinheiros, São Paulo - SP, 05422-001",
       "rating": 4.4,
-      "userRatingCount": 1721,
+      "userRatingCount": 1725,
       "website": "https://pattiesburger.com/unidades/",
       "mapsUri": "https://maps.google.com/?cid=4169995893277543645&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
       "isHighOpportunity": true,
       "opportunityReason": "Oportunidade de Ouro: Nota < 4.5. Potencial imediato para conquistar selo Super Restaurante.",
       "badgeColor": "amber",
       "pitchMessage": "Olá, equipe do *Patties*! Tudo bem? Me chamo Felipe e sou especialista em crescimento de vendas e otimização operacional para restaurantes no iFood.\n\nNotei seu estabelecimento no Google e percebi oportunidades imediatas para aumentar seu volume de pedidos diários (otimização de cardápio com fotos conversivas, estratégias para conquistar o selo Super Restaurante e redução de cancelamentos).\n\nVocê teria 5 minutinhos para eu te mostrar 3 pontos que podem alavancar o faturamento do delivery de vocês ainda este mês?",
-      "updatedAt": "2026-11-06T19:45:42.005Z",
+      "updatedAt": "2026-11-12T21:29:26.548Z",
       "createdAt": "2026-11-03T16:49:08.071Z",
       "razaoSocial": "DOOR ONE HAMBURGUERIA E CAFETERIA LTDA",
       "email": "rh@pattiesburger.com",
@@ -467,7 +615,19 @@
       "menuPlatform": null,
       "status": "pending",
       "notes": "",
-      "lastContactedAt": null
+      "lastContactedAt": null,
+      "openingHours": {
+        "openNow": true,
+        "weekdayDescriptions": [
+          "segunda-feira: 12:00 – 22:00",
+          "terça-feira: 12:00 – 22:00",
+          "quarta-feira: 12:00 – 22:00",
+          "quinta-feira: 12:00 – 22:00",
+          "sexta-feira: 12:00 – 23:00",
+          "sábado: 12:00 – 23:00",
+          "domingo: 12:00 – 23:00"
+        ]
+      }
     },
     {
       "id": "ChIJZX02bPtXzpQR4Al_m88wYZg",
@@ -477,14 +637,14 @@
       "waNumber": "5511940654348",
       "address": "R. Luís Murat, 240 - Pinheiros, São Paulo - SP, 05436-050",
       "rating": 4.7,
-      "userRatingCount": 1353,
+      "userRatingCount": 1356,
       "website": "http://linktr.ee/hamburguinho.oficial",
       "mapsUri": "https://maps.google.com/?cid=10980111034731137504&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
       "isHighOpportunity": false,
       "opportunityReason": "Consolidado: foco em expansão e otimização de margens",
       "badgeColor": "emerald",
       "pitchMessage": "Olá, equipe do *Hamburguinho*! Tudo bem? Me chamo Felipe e sou especialista em crescimento de vendas e otimização operacional para restaurantes no iFood.\n\nNotei seu estabelecimento no Google e percebi oportunidades imediatas para aumentar seu volume de pedidos diários (otimização de cardápio com fotos conversivas, estratégias para conquistar o selo Super Restaurante e redução de cancelamentos).\n\nVocê teria 5 minutinhos para eu te mostrar 3 pontos que podem alavancar o faturamento do delivery de vocês ainda este mês?",
-      "updatedAt": "2026-11-06T19:45:42.005Z",
+      "updatedAt": "2026-11-12T21:29:26.548Z",
       "createdAt": "2026-11-03T16:49:08.071Z",
       "razaoSocial": "HAMBURGUINHO ORIGINAL COMERCIO DE ALIMENTOS LTDA",
       "email": null,
@@ -513,7 +673,19 @@
       "menuPlatform": "Linktree",
       "status": "pending",
       "notes": "",
-      "lastContactedAt": null
+      "lastContactedAt": null,
+      "openingHours": {
+        "openNow": true,
+        "weekdayDescriptions": [
+          "segunda-feira: 12:00 – 23:00",
+          "terça-feira: 12:00 – 23:00",
+          "quarta-feira: 12:00 – 23:00",
+          "quinta-feira: 12:00 – 23:00",
+          "sexta-feira: 12:00 – 00:00",
+          "sábado: 12:00 – 00:00",
+          "domingo: 12:00 – 23:00"
+        ]
+      }
     },
     {
       "id": "ChIJ84hkbAlXzpQRD0HUE1M6IFA",
@@ -560,21 +732,21 @@
     {
       "id": "ChIJofzrisFZzpQRqsg7TDOS9kc",
       "name": "Big Kahuna",
-      "cnpj": null,
+      "cnpj": "17.269.809/0001-16",
       "phone": "(11) 3051-6268",
       "waNumber": "551130516268",
       "address": "Alameda Lorena, 53 - Jardim Paulista, São Paulo - SP, 01424-001",
       "rating": 4.6,
-      "userRatingCount": 12064,
+      "userRatingCount": 12068,
       "website": "http://bigkahunaburger.com.br/",
       "mapsUri": "https://maps.google.com/?cid=5185492769983678634&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
       "isHighOpportunity": false,
       "opportunityReason": "Consolidado: foco em expansão e otimização de margens",
       "badgeColor": "emerald",
       "pitchMessage": "Olá, equipe do *Big Kahuna*! Tudo bem? Me chamo Felipe e sou especialista em crescimento de vendas e otimização operacional para restaurantes no iFood.\n\nNotei seu estabelecimento no Google e percebi oportunidades imediatas para aumentar seu volume de pedidos diários (otimização de cardápio com fotos conversivas, estratégias para conquistar o selo Super Restaurante e redução de cancelamentos).\n\nVocê teria 5 minutinhos para eu te mostrar 3 pontos que podem alavancar o faturamento do delivery de vocês ainda este mês?",
-      "updatedAt": "2026-11-06T19:45:42.005Z",
+      "updatedAt": "2026-11-12T21:29:26.548Z",
       "createdAt": "2026-11-03T16:49:08.071Z",
-      "razaoSocial": null,
+      "razaoSocial": "BIG KAHUNA RESTAURANTE E LANCHONETE LTDA",
       "email": null,
       "allEmails": [],
       "allPhones": [
@@ -605,20 +777,42 @@
           "waNumber": "551130517566",
           "isMobile": false,
           "source": "Site"
+        },
+        {
+          "digits": "1156706010",
+          "phone": "(11) 5670-6010",
+          "waNumber": "551156706010",
+          "isMobile": false,
+          "source": "CNPJ"
         }
       ],
-      "socios": [],
+      "socios": [
+        "Emelisa Sebastiana de Castro Monteiro",
+        "Renato de Carvalho Veras Junior"
+      ],
       "instagramUrl": "https://www.instagram.com/bigkahunaburgerr",
       "ifoodUrl": "https://www.ifood.com.br/delivery/sao-paulo-sp/big-kahuna-burger-jardim-paulista/6bddae64-a73d-4b99-bd63-98218f9423d8",
       "menuPlatform": null,
       "status": "pending",
       "notes": "",
-      "lastContactedAt": null
+      "lastContactedAt": null,
+      "openingHours": {
+        "openNow": true,
+        "weekdayDescriptions": [
+          "segunda-feira: 18:00 – 23:00",
+          "terça-feira: 18:00 – 23:00",
+          "quarta-feira: 18:00 – 23:00",
+          "quinta-feira: 18:00 – 23:00",
+          "sexta-feira: 12:00 – 23:45",
+          "sábado: 12:00 – 00:00",
+          "domingo: 12:00 – 23:00"
+        ]
+      }
     },
     {
       "id": "ChIJ1TVqmwZXzpQRABs9JBMF95k",
       "name": "Fat Guys São Paulo",
-      "cnpj": null,
+      "cnpj": "49.852.628/0001-04",
       "phone": "(11) 96178-9353",
       "waNumber": "5511961789353",
       "address": "R. dos Pinheiros, 623 - Loja 3 - Pinheiros, São Paulo - SP, 05422-011",
@@ -630,9 +824,9 @@
       "opportunityReason": "Baixa tração online: poucas avaliações (< 60). Ideal para escala de pedidos e tráfego.",
       "badgeColor": "sky",
       "pitchMessage": "Olá, equipe do *Fat Guys São Paulo*! Tudo bem? Me chamo Felipe e sou especialista em crescimento de vendas e otimização operacional para restaurantes no iFood.\n\nNotei seu estabelecimento no Google e percebi oportunidades imediatas para aumentar seu volume de pedidos diários (otimização de cardápio com fotos conversivas, estratégias para conquistar o selo Super Restaurante e redução de cancelamentos).\n\nVocê teria 5 minutinhos para eu te mostrar 3 pontos que podem alavancar o faturamento do delivery de vocês ainda este mês?",
-      "updatedAt": "2026-11-06T19:45:42.005Z",
+      "updatedAt": "2026-11-12T21:29:26.548Z",
       "createdAt": "2026-11-03T16:49:08.071Z",
-      "razaoSocial": null,
+      "razaoSocial": "FAT BOYZ BURGER LTDA",
       "email": null,
       "allEmails": [],
       "allPhones": [
@@ -642,15 +836,36 @@
           "waNumber": "5511961789353",
           "isMobile": true,
           "source": "Google"
+        },
+        {
+          "digits": "1140004157",
+          "phone": "(11) 4000-4157",
+          "waNumber": "551140004157",
+          "isMobile": false,
+          "source": "CNPJ"
         }
       ],
-      "socios": [],
+      "socios": [
+        "Kelly Cristina Buchivieser"
+      ],
       "instagramUrl": "https://www.instagram.com/fatguys_saopaulo",
       "ifoodUrl": null,
       "menuPlatform": null,
       "status": "pending",
       "notes": "",
-      "lastContactedAt": null
+      "lastContactedAt": null,
+      "openingHours": {
+        "openNow": true,
+        "weekdayDescriptions": [
+          "segunda-feira: Fechado",
+          "terça-feira: 12:00 – 21:00",
+          "quarta-feira: 12:00 – 21:00",
+          "quinta-feira: 12:00 – 21:00",
+          "sexta-feira: 12:00 – 22:00",
+          "sábado: 12:00 – 22:00",
+          "domingo: 12:00 – 22:00"
+        ]
+      }
     },
     {
       "id": "ChIJJVyE9ZxXzpQRR75BdV0Vvpw",
@@ -660,14 +875,14 @@
       "waNumber": "551130377273",
       "address": "R. Cunha Gago, 854 - Pinheiros, São Paulo - SP, 05421-001",
       "rating": 4.3,
-      "userRatingCount": 1819,
+      "userRatingCount": 1825,
       "website": "https://instagram.com/fatzdelicias?igshid=NzZlODBkYWE4Ng==",
       "mapsUri": "https://maps.google.com/?cid=11294488406635167303&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
       "isHighOpportunity": true,
       "opportunityReason": "Oportunidade de Ouro: Nota < 4.5. Potencial imediato para conquistar selo Super Restaurante.",
       "badgeColor": "amber",
       "pitchMessage": "Olá, equipe do *Fatz Delícias*! Tudo bem? Me chamo Felipe e sou especialista em crescimento de vendas e otimização operacional para restaurantes no iFood.\n\nNotei seu estabelecimento no Google e percebi oportunidades imediatas para aumentar seu volume de pedidos diários (otimização de cardápio com fotos conversivas, estratégias para conquistar o selo Super Restaurante e redução de cancelamentos).\n\nVocê teria 5 minutinhos para eu te mostrar 3 pontos que podem alavancar o faturamento do delivery de vocês ainda este mês?",
-      "updatedAt": "2026-11-06T19:45:42.005Z",
+      "updatedAt": "2026-11-12T21:29:26.548Z",
       "createdAt": "2026-11-03T16:49:08.071Z",
       "razaoSocial": null,
       "email": null,
@@ -687,7 +902,19 @@
       "menuPlatform": null,
       "status": "pending",
       "notes": "",
-      "lastContactedAt": null
+      "lastContactedAt": null,
+      "openingHours": {
+        "openNow": true,
+        "weekdayDescriptions": [
+          "segunda-feira: 11:30 – 00:00",
+          "terça-feira: 11:30 – 00:00",
+          "quarta-feira: 11:30 – 00:00",
+          "quinta-feira: 11:30 – 04:00",
+          "sexta-feira: 11:30 – 04:00",
+          "sábado: 11:30 – 04:00",
+          "domingo: 11:30 – 00:00"
+        ]
+      }
     },
     {
       "id": "ChIJsVs5B8JQzpQRkcHxLylPpDw",
@@ -736,14 +963,14 @@
       "waNumber": "551138174241",
       "address": "R. Aspicuelta, 663 - Alto de Pinheiros, São Paulo - SP, 05433-011",
       "rating": 4.8,
-      "userRatingCount": 510,
+      "userRatingCount": 511,
       "website": "https://www.ifood.com.br/delivery/sao-paulo-sp/burgerin-vila-madalena/e4427d85-2ba7-4424-9f59-2f24a2b68792",
       "mapsUri": "https://maps.google.com/?cid=3892673079901392222&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
       "isHighOpportunity": false,
       "opportunityReason": "Consolidado: foco em expansão e otimização de margens",
       "badgeColor": "emerald",
       "pitchMessage": "Olá, equipe do *Burger In*! Tudo bem? Me chamo Felipe e sou especialista em crescimento de vendas e otimização operacional para restaurantes no iFood.\n\nNotei seu estabelecimento no Google e percebi oportunidades imediatas para aumentar seu volume de pedidos diários (otimização de cardápio com fotos conversivas, estratégias para conquistar o selo Super Restaurante e redução de cancelamentos).\n\nVocê teria 5 minutinhos para eu te mostrar 3 pontos que podem alavancar o faturamento do delivery de vocês ainda este mês?",
-      "updatedAt": "2026-11-06T19:45:42.005Z",
+      "updatedAt": "2026-11-12T21:29:26.548Z",
       "createdAt": "2026-11-03T16:49:08.071Z",
       "razaoSocial": "BURGER IN SANDWICH HOUSE LTDA",
       "email": null,
@@ -768,7 +995,19 @@
       "menuPlatform": null,
       "status": "pending",
       "notes": "",
-      "lastContactedAt": null
+      "lastContactedAt": null,
+      "openingHours": {
+        "openNow": true,
+        "weekdayDescriptions": [
+          "segunda-feira: Fechado",
+          "terça-feira: Fechado",
+          "quarta-feira: 11:00 – 01:00",
+          "quinta-feira: 11:00 – 01:00",
+          "sexta-feira: 11:00 – 02:00",
+          "sábado: 11:00 – 02:00",
+          "domingo: 11:00 – 00:00"
+        ]
+      }
     },
     {
       "id": "ChIJE5QN7p9XzpQRypYMFJf8l5E",
@@ -778,14 +1017,14 @@
       "waNumber": "5511972377047",
       "address": "Rua Benjamim Egas, 301 - Pinheiros, São Paulo - SP, 05418-030",
       "rating": 4.4,
-      "userRatingCount": 1292,
+      "userRatingCount": 1294,
       "website": "https://linktr.ee/nagaragem.hamburgueria",
       "mapsUri": "https://maps.google.com/?cid=10491131582789490378&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
       "isHighOpportunity": true,
       "opportunityReason": "Oportunidade de Ouro: Nota < 4.5. Potencial imediato para conquistar selo Super Restaurante.",
       "badgeColor": "amber",
       "pitchMessage": "Olá, equipe do *Na Garagem*! Tudo bem? Me chamo Felipe e sou especialista em crescimento de vendas e otimização operacional para restaurantes no iFood.\n\nNotei seu estabelecimento no Google e percebi oportunidades imediatas para aumentar seu volume de pedidos diários (otimização de cardápio com fotos conversivas, estratégias para conquistar o selo Super Restaurante e redução de cancelamentos).\n\nVocê teria 5 minutinhos para eu te mostrar 3 pontos que podem alavancar o faturamento do delivery de vocês ainda este mês?",
-      "updatedAt": "2026-11-06T19:45:42.005Z",
+      "updatedAt": "2026-11-12T21:29:26.548Z",
       "createdAt": "2026-11-03T16:49:08.071Z",
       "razaoSocial": "C A A JUNIOR SOM E ACESSORIOS AUTOMOTIVOS",
       "email": "juninhoa.p.t@hotmail.com",
@@ -814,7 +1053,19 @@
       "menuPlatform": "Linktree",
       "status": "pending",
       "notes": "",
-      "lastContactedAt": null
+      "lastContactedAt": null,
+      "openingHours": {
+        "openNow": true,
+        "weekdayDescriptions": [
+          "segunda-feira: Fechado",
+          "terça-feira: Fechado",
+          "quarta-feira: 11:45 – 14:30, 18:00 – 22:45",
+          "quinta-feira: 11:45 – 14:30, 18:00 – 22:45",
+          "sexta-feira: 11:45 – 02:45",
+          "sábado: 11:45 – 02:45",
+          "domingo: 11:45 – 22:45"
+        ]
+      }
     },
     {
       "id": "ChIJk4b5jGNXzpQRAzTsDJokxeg",
@@ -1505,7 +1756,7 @@
           "source": "Google + Site (WhatsApp) + Site"
         }
       ],
-      "address": "Av. Pedroso de Morais, 777 - Pinheiros, São Paulo - SP, 05419-000, Brasil",
+      "address": "Av. Pedroso de Morais, 777 - Pinheiros, São Paulo - SP, 05419-000",
       "rating": 4.7,
       "userRatingCount": 67,
       "website": "https://burgercue.com.br/",
@@ -1513,8 +1764,8 @@
       "isHighOpportunity": false,
       "opportunityReason": "Consolidado: foco em expansão e otimização de margens",
       "badgeColor": "emerald",
-      "pitchMessage": "Olá, equipe do *Burgercue Pinheiros*! Tudo bem? Me chamo Felipe e sou especialista em crescimento de vendas e otimização operacional para restaurantes no iFood aqui na Grande SP.\n\nNotei seu estabelecimento no Google e percebi oportunidades imediatas para aumentar seu volume de pedidos diários (otimização de cardápio com fotos conversivas, estratégias para conquistar o selo Super Restaurante e redução de cancelamentos).\n\nVocê teria 5 minutinhos para eu te mostrar 3 pontos que podem alavancar o faturamento do delivery de vocês ainda este mês?",
-      "updatedAt": "2026-11-06T15:45:22.250Z",
+      "pitchMessage": "Olá, equipe do *Burgercue Pinheiros*! Tudo bem? Me chamo Felipe e sou especialista em crescimento de vendas e otimização operacional para restaurantes no iFood.\n\nNotei seu estabelecimento no Google e percebi oportunidades imediatas para aumentar seu volume de pedidos diários (otimização de cardápio com fotos conversivas, estratégias para conquistar o selo Super Restaurante e redução de cancelamentos).\n\nVocê teria 5 minutinhos para eu te mostrar 3 pontos que podem alavancar o faturamento do delivery de vocês ainda este mês?",
+      "updatedAt": "2026-11-12T21:29:26.548Z",
       "createdAt": "2026-11-05T15:44:36.374Z",
       "socios": [
         "Paulo Cesar Tavora Gallindo Filho"
@@ -1524,7 +1775,19 @@
       "menuPlatform": null,
       "status": "pending",
       "notes": "",
-      "lastContactedAt": null
+      "lastContactedAt": null,
+      "openingHours": {
+        "openNow": true,
+        "weekdayDescriptions": [
+          "segunda-feira: Fechado",
+          "terça-feira: Fechado",
+          "quarta-feira: 18:00 – 23:00",
+          "quinta-feira: 18:00 – 23:00",
+          "sexta-feira: 18:00 – 23:00",
+          "sábado: 18:00 – 23:00",
+          "domingo: 18:00 – 23:00"
+        ]
+      }
     },
     {
       "id": "ChIJQfJinZdXzpQREUPENUNbCdo",
@@ -6811,6 +7074,152 @@
       "lastContactedAt": null,
       "updatedAt": "2026-11-06T19:45:42.005Z",
       "createdAt": "2026-11-06T19:45:42.005Z"
+    },
+    {
+      "id": "ChIJFxBagdtXzpQRlu6XzWagI7k",
+      "name": "Senhor Madalena",
+      "cnpj": "47.488.586/0001-49",
+      "razaoSocial": "SR MADALENA FOOD TRUCKS LIMITADA",
+      "socios": [
+        "Rodrigo de Mello Matheus"
+      ],
+      "instagramUrl": null,
+      "ifoodUrl": null,
+      "menuPlatform": null,
+      "email": null,
+      "allEmails": [],
+      "phone": "",
+      "waNumber": "",
+      "allPhones": [],
+      "openingHours": {
+        "openNow": true,
+        "weekdayDescriptions": [
+          "segunda-feira: Fechado",
+          "terça-feira: 16:00 – 23:30",
+          "quarta-feira: 15:00 – 00:00",
+          "quinta-feira: 15:00 – 00:00",
+          "sexta-feira: 15:00 – 02:00",
+          "sábado: 12:00 – 02:00",
+          "domingo: 12:00 – 00:00"
+        ]
+      },
+      "address": "R. Aspicuelta, 242 - Pinheiros, São Paulo - SP, 05433-010",
+      "rating": 4.7,
+      "userRatingCount": 178,
+      "website": "",
+      "mapsUri": "https://maps.google.com/?cid=13340682884597935766&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
+      "isHighOpportunity": false,
+      "opportunityReason": "Consolidado: foco em expansão e otimização de margens",
+      "badgeColor": "emerald",
+      "pitchMessage": "Olá, equipe do *Senhor Madalena*! Tudo bem? Me chamo Felipe e sou especialista em crescimento de vendas e otimização operacional para restaurantes no iFood.\n\nNotei seu estabelecimento no Google e percebi oportunidades imediatas para aumentar seu volume de pedidos diários (otimização de cardápio com fotos conversivas, estratégias para conquistar o selo Super Restaurante e redução de cancelamentos).\n\nVocê teria 5 minutinhos para eu te mostrar 3 pontos que podem alavancar o faturamento do delivery de vocês ainda este mês?",
+      "status": "pending",
+      "notes": "",
+      "lastContactedAt": null,
+      "updatedAt": "2026-11-12T21:29:26.548Z",
+      "createdAt": "2026-11-12T21:29:26.548Z"
+    },
+    {
+      "id": "ChIJaZTx-G5XzpQRjHzKGmV2Q78",
+      "name": "Mitche's Burgers & Fries",
+      "cnpj": "60.925.749/0001-71",
+      "razaoSocial": "MITCHE'S BURGERS FRANCHISING LTDA",
+      "socios": [
+        "Fabio Antonio Barbosa Junior"
+      ],
+      "instagramUrl": null,
+      "ifoodUrl": null,
+      "menuPlatform": null,
+      "email": null,
+      "allEmails": [],
+      "phone": "(11) 91141-1752",
+      "waNumber": "5511911411752",
+      "allPhones": [
+        {
+          "digits": "11911411752",
+          "phone": "(11) 91141-1752",
+          "waNumber": "5511911411752",
+          "isMobile": true,
+          "source": "Google"
+        },
+        {
+          "digits": "1150411170",
+          "phone": "(11) 5041-1170",
+          "waNumber": "551150411170",
+          "isMobile": false,
+          "source": "CNPJ"
+        }
+      ],
+      "openingHours": {
+        "openNow": true,
+        "weekdayDescriptions": [
+          "segunda-feira: 11:30 – 23:00",
+          "terça-feira: 11:30 – 23:00",
+          "quarta-feira: 11:30 – 23:00",
+          "quinta-feira: 11:30 – 23:00",
+          "sexta-feira: 11:30 – 23:00",
+          "sábado: 11:30 – 23:00",
+          "domingo: 17:00 – 23:00"
+        ]
+      },
+      "address": "Av. Brig. Faria Lima, 1616 - Pinheiros, São Paulo - SP, 01451-001",
+      "rating": 4.6,
+      "userRatingCount": 111,
+      "website": "",
+      "mapsUri": "https://maps.google.com/?cid=13781989461297101964&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
+      "isHighOpportunity": false,
+      "opportunityReason": "Consolidado: foco em expansão e otimização de margens",
+      "badgeColor": "emerald",
+      "pitchMessage": "Olá, equipe do *Mitche's Burgers & Fries*! Tudo bem? Me chamo Felipe e sou especialista em crescimento de vendas e otimização operacional para restaurantes no iFood.\n\nNotei seu estabelecimento no Google e percebi oportunidades imediatas para aumentar seu volume de pedidos diários (otimização de cardápio com fotos conversivas, estratégias para conquistar o selo Super Restaurante e redução de cancelamentos).\n\nVocê teria 5 minutinhos para eu te mostrar 3 pontos que podem alavancar o faturamento do delivery de vocês ainda este mês?",
+      "status": "pending",
+      "notes": "",
+      "lastContactedAt": null,
+      "updatedAt": "2026-11-12T21:29:26.548Z",
+      "createdAt": "2026-11-12T21:29:26.548Z"
+    },
+    {
+      "id": "ChIJsVNaAABXzpQRCV272MsSN58",
+      "name": "Gaba Burger",
+      "cnpj": "51.168.619/0001-40",
+      "razaoSocial": "GABA BURGER LTDA",
+      "socios": [
+        "Gabriel Bruno Della Libera",
+        "Pedro Henrique Benvenuti Martins",
+        "Roberto Martins Fugita"
+      ],
+      "instagramUrl": "https://www.instagram.com/gababurger",
+      "ifoodUrl": null,
+      "menuPlatform": null,
+      "email": null,
+      "allEmails": [],
+      "phone": "",
+      "waNumber": "",
+      "allPhones": [],
+      "openingHours": {
+        "openNow": true,
+        "weekdayDescriptions": [
+          "segunda-feira: Fechado",
+          "terça-feira: Fechado",
+          "quarta-feira: 18:00 – 23:30",
+          "quinta-feira: 18:00 – 23:30",
+          "sexta-feira: 18:00 – 23:30",
+          "sábado: 12:00 – 23:30",
+          "domingo: 12:00 – 23:00"
+        ]
+      },
+      "address": "R. Mourato Coelho, 833 - Pinheiros, São Paulo - SP, 05417-011",
+      "rating": 4.7,
+      "userRatingCount": 299,
+      "website": "https://www.instagram.com/gababurger/",
+      "mapsUri": "https://maps.google.com/?cid=11472659242473446665&g_mp=Cidnb29nbGUubWFwcy5wbGFjZXMudjEuUGxhY2VzLlNlYXJjaFRleHQQAhgEIAA",
+      "isHighOpportunity": false,
+      "opportunityReason": "Consolidado: foco em expansão e otimização de margens",
+      "badgeColor": "emerald",
+      "pitchMessage": "Olá, equipe do *Gaba Burger*! Tudo bem? Me chamo Felipe e sou especialista em crescimento de vendas e otimização operacional para restaurantes no iFood.\n\nNotei seu estabelecimento no Google e percebi oportunidades imediatas para aumentar seu volume de pedidos diários (otimização de cardápio com fotos conversivas, estratégias para conquistar o selo Super Restaurante e redução de cancelamentos).\n\nVocê teria 5 minutinhos para eu te mostrar 3 pontos que podem alavancar o faturamento do delivery de vocês ainda este mês?",
+      "status": "pending",
+      "notes": "",
+      "lastContactedAt": null,
+      "updatedAt": "2026-11-12T21:29:26.548Z",
+      "createdAt": "2026-11-12T21:29:26.548Z"
     }
   ]
 }

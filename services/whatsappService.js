@@ -48,6 +48,7 @@ class WhatsAppService extends EventEmitter {
     this.userProfile = null;
     this.reconnectTimeout = null;
     this.isInitializing = false;
+    this.sentMessagesCache = new Map();
   }
 
   async init() {
@@ -80,31 +81,38 @@ class WhatsAppService extends EventEmitter {
       const silentLogger = pino({ level: 'silent' });
       console.log(`[WhatsApp Sender] Versão WhatsApp Web: ${version.join('.')} (Última: ${isLatest})`);
 
-      const authPayload =
-        typeof makeCacheableSignalKeyStore === 'function'
-          ? {
-              creds: state.creds,
-              keys: makeCacheableSignalKeyStore(state.keys, silentLogger)
-            }
-          : state;
-
       const sock = makeWASocket({
         version,
-        auth: authPayload,
+        auth: state,
         logger: silentLogger,
         printQRInTerminal: false,
         browser: Browsers && typeof Browsers.ubuntu === 'function' ? Browsers.ubuntu('Chrome') : ['Ubuntu', 'Chrome', '20.0.04'],
         syncFullHistory: false,
-        markOnlineOnConnect: false,
-        generateHighQualityLinkPreview: false,
         connectTimeoutMs: 60000,
         defaultQueryTimeoutMs: 60000,
-        keepAliveIntervalMs: 25000
+        keepAliveIntervalMs: 25000,
+        qrTimeout: 120000,
+        enableRecentMessageCache: true,
+        getMessage: async (key) => {
+          if (key && key.id && this.sentMessagesCache.has(key.id)) {
+            return this.sentMessagesCache.get(key.id);
+          }
+          return undefined;
+        }
       });
 
       this.sock = sock;
+      this.socketCreatedAt = Date.now();
 
       sock.ev.on('creds.update', saveCreds);
+
+      sock.ev.on('messages.update', (updates) => {
+        for (const u of updates || []) {
+          if (u?.key?.fromMe && u?.update?.status) {
+            console.log(`[WhatsApp ACK] Msg ${u.key.id} para ${u.key.remoteJid} -> Status ACK: ${u.update.status}`);
+          }
+        }
+      });
 
       sock.ev.on('connection.update', async (update) => {
         const { connection, lastDisconnect, qr } = update;
@@ -227,19 +235,42 @@ class WhatsAppService extends EventEmitter {
       throw new Error('Número inválido. Digite DDD + Número (ex: 11 99999-8888).');
     }
 
-    if (!this.sock || this.status === 'connected') {
-      throw new Error('Aguarde o gerador de conexão iniciar ou desconecte a sessão atual.');
+    if (this.status === 'connected') {
+      throw new Error('O WhatsApp já está conectado.');
+    }
+
+    // Se o socket atual estiver antigo (>45s) ou indisponível, reinicia limpo para garantir 2 minutos completos de validade do código
+    if (!this.sock || Date.now() - (this.socketCreatedAt || 0) > 45000) {
+      this.isInitializing = false;
+      await this.init();
+    }
+
+    // Aguarda o handshake inicial (evento qr_ready) caso ainda esteja conectando
+    for (let i = 0; i < 25; i++) {
+      if (this.sock && this.status === 'qr_ready') break;
+      await new Promise((r) => setTimeout(r, 250));
+    }
+
+    if (!this.sock) {
+      throw new Error('Iniciando conexão com WhatsApp Web, tente novamente em 2 segundos.');
     }
 
     const code = await this.sock.requestPairingCode(clean);
     const formattedCode = code && code.length === 8 ? `${code.slice(0, 4)}-${code.slice(4)}` : code;
+    console.log(`[WhatsApp Sender] Código de pareamento gerado para +${clean}: ${formattedCode}`);
     return formattedCode;
   }
 
   async resolveJid(phone) {
-    let clean = (phone || '').replace(/\D/g, '');
-    if (!clean) {
-      throw new Error('Número de telefone inválido ou vazio.');
+    let clean = String(phone || '').replace(/\D/g, '');
+    // Remove zeros à esquerda (ex: 011999998888 -> 11999998888)
+    clean = clean.replace(/^0+/, '');
+    // Corrige prefixo 550 (ex: 55011999998888 -> 5511999998888)
+    if (clean.startsWith('550') && clean.length >= 13) {
+      clean = '55' + clean.slice(3).replace(/^0+/, '');
+    }
+    if (!clean || clean.length < 8) {
+      throw new Error(`Número de telefone inválido ou vazio: "${phone}"`);
     }
     if (!clean.startsWith('55') && clean.length <= 11) {
       clean = '55' + clean;
@@ -247,9 +278,20 @@ class WhatsAppService extends EventEmitter {
 
     if (this.sock && this.status === 'connected') {
       try {
-        const results = await this.sock.onWhatsApp(clean);
-        if (results && results.length > 0 && results[0].exists) {
-          return results[0].jid;
+        // Testa variações com e sem o 9º dígito para garantir localização exata do JID no WhatsApp Brasil
+        const candidates = [clean];
+        if (clean.startsWith('55') && clean.length === 13 && clean[4] === '9') {
+          candidates.push(clean.slice(0, 4) + clean.slice(5));
+        } else if (clean.startsWith('55') && clean.length === 12) {
+          candidates.push(clean.slice(0, 4) + '9' + clean.slice(4));
+        }
+
+        const results = await this.sock.onWhatsApp(...candidates);
+        if (Array.isArray(results) && results.length > 0) {
+          const found = results.find((r) => r && r.exists && r.jid);
+          if (found) {
+            return found.jid;
+          }
         }
       } catch (err) {
         console.warn(`[WhatsApp Sender] Consulta onWhatsApp para [${clean}] falhou: ${err.message}. Usando JID padrão.`);
@@ -286,12 +328,30 @@ class WhatsAppService extends EventEmitter {
     return { connected: true, results };
   }
 
+  cacheSentMessage(result) {
+    if (result && result.key && result.key.id && result.message) {
+      this.sentMessagesCache.set(result.key.id, result.message);
+      if (this.sentMessagesCache.size > 500) {
+        const oldestKey = this.sentMessagesCache.keys().next().value;
+        this.sentMessagesCache.delete(oldestKey);
+      }
+    }
+  }
+
   async sendMessage(jid, text) {
     if (!this.sock || this.status !== 'connected') {
       throw new Error('WhatsApp não está conectado. Escaneie o QR Code antes de enviar.');
     }
 
+    try {
+      await this.sock.presenceSubscribe(jid);
+      await this.sock.sendPresenceUpdate('composing', jid);
+      await new Promise((r) => setTimeout(r, 300));
+      await this.sock.sendPresenceUpdate('paused', jid);
+    } catch {}
+
     const result = await this.sock.sendMessage(jid, { text: text || '' });
+    this.cacheSentMessage(result);
     return result;
   }
 
@@ -327,7 +387,15 @@ class WhatsAppService extends EventEmitter {
       };
     }
 
+    try {
+      await this.sock.presenceSubscribe(jid);
+      await this.sock.sendPresenceUpdate('composing', jid);
+      await new Promise((r) => setTimeout(r, 300));
+      await this.sock.sendPresenceUpdate('paused', jid);
+    } catch {}
+
     const result = await this.sock.sendMessage(jid, payload);
+    this.cacheSentMessage(result);
     return result;
   }
 

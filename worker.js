@@ -447,6 +447,37 @@ async function getStoredLeads(env) {
   }
 }
 
+function extractOpeningHours(place, cachedOpeningHours = null) {
+  const current = place?.currentOpeningHours || null;
+  const regular = place?.regularOpeningHours || null;
+  const source = current || regular;
+  if (!source && cachedOpeningHours) return cachedOpeningHours;
+  if (!source) return null;
+
+  const openNow =
+    typeof current?.openNow === 'boolean'
+      ? current.openNow
+      : typeof regular?.openNow === 'boolean'
+      ? regular.openNow
+      : null;
+
+  const weekdayDescriptions =
+    Array.isArray(regular?.weekdayDescriptions) && regular.weekdayDescriptions.length > 0
+      ? regular.weekdayDescriptions
+      : Array.isArray(current?.weekdayDescriptions)
+      ? current.weekdayDescriptions
+      : [];
+
+  if (openNow === null && weekdayDescriptions.length === 0) {
+    return cachedOpeningHours || null;
+  }
+
+  return {
+    openNow,
+    weekdayDescriptions
+  };
+}
+
 async function saveStoredLeads(env, leadsBatch) {
   if (!env.LEADS_KV) return leadsBatch;
   try {
@@ -468,6 +499,7 @@ async function saveStoredLeads(env, leadsBatch) {
         email: lead.email || prev?.email || null,
         allEmails: lead.allEmails?.length ? lead.allEmails : (prev?.allEmails || []),
         allPhones: lead.allPhones?.length ? lead.allPhones : (prev?.allPhones || []),
+        openingHours: lead.openingHours || prev?.openingHours || null,
         status: lead.status || prev?.status || 'pending',
         notes: lead.notes !== undefined ? lead.notes : (prev?.notes || ''),
         updatedAt: now
@@ -488,36 +520,53 @@ let memWaState = null;
 let lastKvStateSig = '';
 let memPendingActions = [];
 
-function sanitizeExpiredQr(stateObj) {
-  if (!stateObj) return stateObj;
-  const ageMs = Date.now() - (stateObj.updatedAtMs || 0);
-  // Se o servidor local não sincronizou nos últimos 55s, o QR Code expirou no WhatsApp
-  if (ageMs > 55000 && stateObj.qrDataUrl) {
-    return {
-      ...stateObj,
-      qrDataUrl: null,
-      whatsapp: { ...(stateObj.whatsapp || {}), status: 'connecting', hasQr: false }
-    };
-  }
-  return stateObj;
+const CACHE_STATE_URL = 'https://internal.luun.local/wa_live_state';
+const CACHE_ACTIONS_URL = 'https://internal.luun.local/wa_pending_actions';
+
+async function readCacheJson(urlStr) {
+  try {
+    if (typeof caches !== 'undefined' && caches.default) {
+      const res = await caches.default.match(new Request(urlStr));
+      if (res) return await res.json();
+    }
+  } catch {}
+  return null;
+}
+
+async function writeCacheJson(urlStr, data, ttlSec = 86400) {
+  try {
+    if (typeof caches !== 'undefined' && caches.default) {
+      const resp = new Response(JSON.stringify(data), {
+        headers: {
+          'Content-Type': 'application/json',
+          'Cache-Control': `public, max-age=${ttlSec}`
+        }
+      });
+      await caches.default.put(new Request(urlStr), resp);
+    }
+  } catch {}
 }
 
 async function getWaLiveState(env) {
-  if (memWaState && Date.now() - (memWaState.updatedAtMs || 0) < 25000) {
-    return sanitizeExpiredQr(memWaState);
+  const cachedState = await readCacheJson(CACHE_STATE_URL);
+  if (cachedState && (!memWaState || (cachedState.updatedAtMs || 0) >= (memWaState.updatedAtMs || 0))) {
+    memWaState = cachedState;
+  }
+  if (memWaState && Date.now() - (memWaState.updatedAtMs || 0) < 15000) {
+    return memWaState;
   }
   if (env.LEADS_KV) {
     try {
       const kvState = await env.LEADS_KV.get('wa_live_state', 'json');
       if (kvState) {
-        if (!memWaState || (kvState.updatedAtMs || 0) > (memWaState.updatedAtMs || 0)) {
+        if (!memWaState || (kvState.updatedAtMs || 0) >= (memWaState.updatedAtMs || 0) || (!memWaState.qrDataUrl && kvState.qrDataUrl)) {
           memWaState = kvState;
         }
-        return sanitizeExpiredQr(memWaState);
+        return memWaState;
       }
     } catch {}
   }
-  return sanitizeExpiredQr(
+  return (
     memWaState || {
       whatsapp: { status: 'connecting', user: null, hasQr: false },
       qrDataUrl: null,
@@ -532,9 +581,12 @@ async function getWaLiveState(env) {
 async function saveWaLiveState(env, stateObj, forceKv = false) {
   stateObj.updatedAtMs = Date.now();
   memWaState = stateObj;
+  await writeCacheJson(CACHE_STATE_URL, stateObj, 86400);
 
-  // Só grava no Cloudflare KV quando o QR Code, código de pareamento, status ou contadores mudarem (evita estourar limite diário do KV!)
-  const sig = `${stateObj.whatsapp?.status || ''}|${(stateObj.qrDataUrl || '').slice(-32)}|${stateObj.pairingCode || ''}|${stateObj.stats?.total || 0}|${stateObj.stats?.sent || 0}|${stateObj.stats?.pending || 0}`;
+  // Usa os bytes intermediários do PNG base64 (pois o final .slice(-32) de todo PNG é sempre o chunk IEND idêntico!)
+  const qrMidSlice = (stateObj.qrDataUrl || '').slice(120, 200);
+  const msgSig = (stateObj.messages || []).map((m) => `${m.id}:${m.status}:${m.phone}`).join(',');
+  const sig = `${stateObj.whatsapp?.status || ''}|${qrMidSlice}|${stateObj.pairingCode || ''}|${msgSig}`;
   if ((forceKv || sig !== lastKvStateSig) && env.LEADS_KV) {
     lastKvStateSig = sig;
     try {
@@ -545,6 +597,10 @@ async function saveWaLiveState(env, stateObj, forceKv = false) {
 
 async function enqueueWaAction(env, action) {
   memPendingActions.push(action);
+  const existingCache = (await readCacheJson(CACHE_ACTIONS_URL)) || [];
+  existingCache.push(action);
+  await writeCacheJson(CACHE_ACTIONS_URL, existingCache, 3600);
+
   if (env.LEADS_KV) {
     try {
       const existing = (await env.LEADS_KV.get('wa_pending_actions', 'json')) || [];
@@ -557,6 +613,10 @@ async function enqueueWaAction(env, action) {
 async function drainWaActions(env) {
   const fromMem = [...memPendingActions];
   memPendingActions = [];
+  const fromCache = (await readCacheJson(CACHE_ACTIONS_URL)) || [];
+  if (fromCache.length > 0) {
+    await writeCacheJson(CACHE_ACTIONS_URL, [], 3600);
+  }
   let fromKv = [];
   if (env.LEADS_KV) {
     try {
@@ -568,7 +628,7 @@ async function drainWaActions(env) {
   }
   const seenIds = new Set();
   const merged = [];
-  for (const act of [...fromMem, ...fromKv]) {
+  for (const act of [...fromMem, ...fromCache, ...fromKv]) {
     if (!act) continue;
     const aid = act.actionId || JSON.stringify(act);
     if (!seenIds.has(aid)) {
@@ -680,6 +740,24 @@ export default {
       const leads = await getStoredLeads(env);
       const target = leads.find((l) => l.id === id);
       if (!target) return jsonResponse({ success: false, error: 'Lead não encontrado.' }, 404);
+      if (env.GOOGLE_PLACES_API_KEY && String(target.id).startsWith('ChIJ') && !target.openingHours?.weekdayDescriptions?.length) {
+        try {
+          const pRes = await fetchWithTimeout(
+            `https://places.googleapis.com/v1/places/${encodeURIComponent(target.id)}?languageCode=pt-BR`,
+            {
+              headers: {
+                'X-Goog-Api-Key': env.GOOGLE_PLACES_API_KEY,
+                'X-Goog-FieldMask': 'regularOpeningHours,currentOpeningHours'
+              }
+            },
+            5000
+          );
+          if (pRes.ok) {
+            const pData = await pRes.json();
+            target.openingHours = extractOpeningHours(pData, target.openingHours);
+          }
+        } catch {}
+      }
       const enriched = await enrichSingleLeadEdge(target);
       const [saved] = await saveStoredLeads(env, [enriched]);
       return jsonResponse({ success: true, lead: saved || enriched });
@@ -708,6 +786,8 @@ export default {
           'places.rating',
           'places.userRatingCount',
           'places.googleMapsUri',
+          'places.regularOpeningHours',
+          'places.currentOpeningHours',
           'nextPageToken'
         ].join(',');
 
@@ -751,6 +831,7 @@ export default {
           const mapsUri = place.googleMapsUri || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${name} ${address}`)}`;
           const normPhone = normalizeBrazilianPhone(phone, 'Google');
           const waNumber = normPhone ? normPhone.waNumber : '';
+          const openingHours = extractOpeningHours(place, cached?.openingHours);
           const opportunity = evaluateOpportunity(rating, userRatingCount);
 
           return {
@@ -767,6 +848,7 @@ export default {
             phone,
             waNumber,
             allPhones: cached?.allPhones || [],
+            openingHours,
             address,
             rating,
             userRatingCount,
@@ -880,16 +962,17 @@ export default {
 
     if (url.pathname === '/api/direct-messages' && request.method === 'POST') {
       const body = await request.json();
+      const newId = body.id || `dm_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
       await enqueueWaAction(env, {
         actionId: `act_${Date.now()}_add_${Math.random().toString(36).slice(2, 6)}`,
         type: 'add_message',
-        payload: body
+        payload: { ...body, id: newId }
       });
       // Atualização otimista para resposta imediata na UI
       const state = await getWaLiveState(env);
       const norm = normalizeBrazilianPhone(body.phone || '', 'Manual');
       const newMsg = {
-        id: `dm_${Date.now()}`,
+        id: newId,
         name: body.name || 'Cliente',
         phone: norm ? norm.digits : stripNonDigits(body.phone || ''),
         message: body.message || '',
@@ -897,7 +980,7 @@ export default {
         fileName: body.fileName || null,
         createdAt: new Date().toISOString()
       };
-      state.messages = [...(state.messages || []), newMsg];
+      state.messages = [...(state.messages || []).filter((m) => m.id !== newId), newMsg];
       state.stats = {
         ...(state.stats || {}),
         total: state.messages.length,
@@ -909,12 +992,38 @@ export default {
 
     if (url.pathname === '/api/direct-messages/bulk-import' && request.method === 'POST') {
       const body = await request.json();
-      const contacts = Array.isArray(body.contacts) ? body.contacts : [];
+      const rawContacts = Array.isArray(body.contacts) ? body.contacts : [];
+      const contacts = rawContacts.map((c, idx) => ({
+        ...c,
+        id: c.id || `dm_${Date.now()}_${idx}_${Math.random().toString(36).slice(2, 6)}`
+      }));
       await enqueueWaAction(env, {
         actionId: `act_${Date.now()}_bulk_${Math.random().toString(36).slice(2, 6)}`,
         type: 'bulk_import',
         payload: { contacts }
       });
+      const state = await getWaLiveState(env);
+      const existingByPhone = new Map((state.messages || []).map((m) => [stripNonDigits(m.phone || ''), m]));
+      for (const c of contacts) {
+        const cp = stripNonDigits(c.phone || '');
+        if (!cp) continue;
+        if (existingByPhone.has(cp)) {
+          const ex = existingByPhone.get(cp);
+          ex.status = 'pending';
+          ex.phone = c.phone;
+        } else {
+          const created = {
+            id: c.id,
+            name: c.name || 'Estabelecimento',
+            phone: c.phone,
+            message: c.message || '',
+            status: 'pending'
+          };
+          state.messages = [...(state.messages || []), created];
+          existingByPhone.set(cp, created);
+        }
+      }
+      await saveWaLiveState(env, state);
       return jsonResponse({ success: true, addedCount: contacts.length });
     }
 
@@ -931,16 +1040,21 @@ export default {
     }
 
     if (url.pathname === '/api/direct-messages/start-batch' && request.method === 'POST') {
+      let body = {};
+      try {
+        body = await request.json();
+      } catch {}
       const state = await getWaLiveState(env);
-      const pendingCount = (state.messages || []).filter((m) => m.status === 'pending' || m.status === 'failed').length;
-      if (pendingCount === 0) {
+      const clientMsgs = Array.isArray(body.messages) && body.messages.length > 0 ? body.messages : (state.messages || []);
+      if (clientMsgs.length === 0) {
         return jsonResponse({ success: true, noPending: true, total: 0 });
       }
       await enqueueWaAction(env, {
         actionId: `act_${Date.now()}_start_batch`,
-        type: 'start_batch'
+        type: 'start_batch',
+        payload: { messages: clientMsgs }
       });
-      return jsonResponse({ success: true, total: pendingCount });
+      return jsonResponse({ success: true, total: clientMsgs.length });
     }
 
     if (url.pathname === '/api/direct-messages/pause-batch' && request.method === 'POST') {
@@ -956,17 +1070,61 @@ export default {
         actionId: `act_${Date.now()}_reset`,
         type: 'reset_status'
       });
+      const state = await getWaLiveState(env);
+      state.messages = (state.messages || []).map((m) => ({ ...m, status: 'pending', error: null }));
+      await saveWaLiveState(env, state);
       return jsonResponse({ success: true });
     }
 
     const sendSingleMatch = url.pathname.match(/^\/api\/direct-messages\/send-single\/([^/]+)$/);
     if (sendSingleMatch && request.method === 'POST') {
       const id = decodeURIComponent(sendSingleMatch[1]);
+      let body = {};
+      try {
+        body = await request.json();
+      } catch {}
+
+      const state = await getWaLiveState(env);
+      const msgs = Array.isArray(state.messages) ? state.messages : [];
+      const targetIdx = msgs.findIndex((m) => m.id === id);
+      if (targetIdx !== -1) {
+        if (body.phone) msgs[targetIdx].phone = body.phone;
+        if (body.name) msgs[targetIdx].name = body.name;
+        if (body.message) msgs[targetIdx].message = body.message;
+        msgs[targetIdx].status = 'sending';
+      } else if (body.phone) {
+        msgs.push({
+          id,
+          name: body.name || 'Cliente',
+          phone: body.phone,
+          message: body.message || '',
+          status: 'sending',
+          createdAt: new Date().toISOString()
+        });
+      }
+      state.messages = msgs;
+      await saveWaLiveState(env, state);
+
       await enqueueWaAction(env, {
         actionId: `act_${Date.now()}_send_${id}`,
         type: 'send_single',
-        payload: { id }
+        payload: { id, data: body }
       });
+
+      // Aguarda até 4.5s para o motor local (server.js) confirmar o envio em tempo real
+      for (let i = 0; i < 9; i++) {
+        await new Promise((r) => setTimeout(r, 500));
+        const latest = await readCacheJson(CACHE_STATE_URL);
+        const found = (latest?.messages || []).find((m) => m.id === id);
+        if (found && (found.status === 'sent' || found.status === 'failed')) {
+          if (found.status === 'sent') {
+            return jsonResponse({ success: true, message: found });
+          } else {
+            return jsonResponse({ success: false, error: found.error || 'Falha ao enviar pelo WhatsApp.' }, 400);
+          }
+        }
+      }
+
       return jsonResponse({ success: true, queued: true });
     }
 
@@ -1002,6 +1160,11 @@ export default {
           type: 'update_message',
           payload: { id, data: body }
         });
+        const state = await getWaLiveState(env);
+        state.messages = (state.messages || []).map((m) =>
+          m.id === id ? { ...m, ...body, status: 'pending' } : m
+        );
+        await saveWaLiveState(env, state);
         return jsonResponse({ success: true });
       }
       if (request.method === 'DELETE') {
@@ -1010,6 +1173,9 @@ export default {
           type: 'delete_message',
           payload: { id }
         });
+        const state = await getWaLiveState(env);
+        state.messages = (state.messages || []).filter((m) => m.id !== id);
+        await saveWaLiveState(env, state);
         return jsonResponse({ success: true });
       }
     }

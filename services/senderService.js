@@ -102,7 +102,21 @@ class SenderService extends EventEmitter {
   }
 
   addMessage(data) {
-    const newId = 'dm_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6);
+    const newId = data.id || ('dm_' + Date.now() + '_' + Math.random().toString(36).substring(2, 6));
+    const existing = this.getMessages().find((m) => m.id === newId);
+    if (existing) {
+      if (data.name !== undefined) existing.name = String(data.name || 'Cliente').trim();
+      if (data.socio !== undefined) existing.socio = String(data.socio || '').trim();
+      if (data.phone !== undefined) existing.phone = String(data.phone || '').trim();
+      if (data.message !== undefined) existing.message = String(data.message || '').trim();
+      existing.status = 'pending';
+      existing.sentAt = null;
+      existing.error = null;
+      this.save();
+      this.emit('stats_update', this.getStats());
+      return existing;
+    }
+
     const newMsg = {
       id: newId,
       name: (data.name || 'Cliente').trim(),
@@ -126,19 +140,34 @@ class SenderService extends EventEmitter {
   bulkImportContacts(contacts = []) {
     if (!Array.isArray(contacts)) return { addedCount: 0, total: this.getMessages().length };
 
-    const existingPhones = new Set(
-      this.getMessages().map((m) => (m.phone || '').replace(/\D/g, '')).filter(Boolean)
-    );
+    const byCleanPhone = new Map();
+    for (const m of this.getMessages()) {
+      const cp = (m.phone || '').replace(/\D/g, '');
+      if (cp) byCleanPhone.set(cp, m);
+    }
 
     let addedCount = 0;
     for (const item of contacts) {
       const cleanPhone = (item.phone || '').replace(/\D/g, '');
       if (!cleanPhone) continue;
-      if (existingPhones.has(cleanPhone)) continue;
 
-      existingPhones.add(cleanPhone);
-      const newId = 'dm_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7);
-      this.data.messages.push({
+      const existing = byCleanPhone.get(cleanPhone);
+      if (existing) {
+        existing.phone = (item.phone || existing.phone || '').trim();
+        if (item.name) existing.name = item.name.trim();
+        if (item.socio !== undefined) existing.socio = (item.socio || '').trim();
+        if (item.message) existing.message = item.message.trim();
+        if (existing.status !== 'pending') {
+          existing.status = 'pending';
+          existing.sentAt = null;
+          existing.error = null;
+          addedCount++;
+        }
+        continue;
+      }
+
+      const newId = item.id || ('dm_' + Date.now() + '_' + Math.random().toString(36).substring(2, 7));
+      const created = {
         id: newId,
         name: (item.name || 'Estabelecimento').trim(),
         socio: (item.socio || '').trim(),
@@ -148,26 +177,45 @@ class SenderService extends EventEmitter {
         status: 'pending',
         sentAt: null,
         error: null
-      });
+      };
+      this.data.messages.push(created);
+      byCleanPhone.set(cleanPhone, created);
       addedCount++;
     }
 
-    if (addedCount > 0) {
-      this.save();
-      this.emit('stats_update', this.getStats());
-    }
+    this.save();
+    this.emit('stats_update', this.getStats());
 
     return { addedCount, total: this.getMessages().length };
   }
 
   updateMessage(id, data) {
-    const msg = this.getMessages().find((m) => m.id === id);
-    if (!msg) return null;
+    let msg = this.getMessages().find((m) => m.id === id);
+    if (!msg) {
+      if (data && data.phone) {
+        return this.addMessage({ id, ...data });
+      }
+      return null;
+    }
+
+    const phoneChanged = data.phone !== undefined && data.phone.trim() !== msg.phone;
+    const contentChanged =
+      phoneChanged ||
+      (data.name !== undefined && data.name.trim() !== msg.name) ||
+      (data.message !== undefined && data.message.trim() !== msg.message);
 
     if (data.name !== undefined) msg.name = data.name.trim();
     if (data.phone !== undefined) msg.phone = data.phone.trim();
     if (data.message !== undefined) msg.message = data.message.trim();
-    if (data.status !== undefined) msg.status = data.status;
+
+    if (data.status !== undefined) {
+      msg.status = data.status;
+    } else if (contentChanged) {
+      // Sempre que o número ou mensagem for alterado, volta o status para 'pending' para disparar para o novo número
+      msg.status = 'pending';
+      msg.sentAt = null;
+      msg.error = null;
+    }
 
     this.save();
     this.emit('stats_update', this.getStats());
@@ -281,10 +329,26 @@ class SenderService extends EventEmitter {
     return { success: true };
   }
 
-  async sendSingle(id) {
-    const msg = this.getMessages().find((m) => m.id === id);
+  async sendSingle(id, overrideData = {}) {
+    let msg = this.getMessages().find((m) => m.id === id);
+    if (!msg && overrideData && overrideData.phone) {
+      msg = this.addMessage({ id, ...overrideData });
+    }
     if (!msg) {
       throw new Error(`Contato com ID "${id}" não encontrado.`);
+    }
+
+    if (overrideData && typeof overrideData === 'object') {
+      if (overrideData.phone && String(overrideData.phone).trim()) {
+        msg.phone = String(overrideData.phone).trim();
+      }
+      if (overrideData.name && String(overrideData.name).trim()) {
+        msg.name = String(overrideData.name).trim();
+      }
+      if (overrideData.message && String(overrideData.message).trim()) {
+        msg.message = String(overrideData.message).trim();
+      }
+      this.save();
     }
 
     if (whatsappService.status !== 'connected') {
@@ -292,10 +356,11 @@ class SenderService extends EventEmitter {
     }
 
     msg.status = 'sending';
-    this.emit('message_status', { id, status: 'sending', msg });
+    this.emit('message_status', { id: msg.id, status: 'sending', msg });
 
     try {
       const jid = await whatsappService.resolveJid(msg.phone);
+      console.log(`[Sender 1a1] Disparando para "${msg.name}" | Número: [${msg.phone}] -> JID: [${jid}]`);
       const resolvedText = (msg.message || '')
         .replace(/\{nome\}/gi, msg.name || '')
         .replace(/\{socio\}/gi, msg.socio || msg.name || 'parceiro');
@@ -336,8 +401,8 @@ class SenderService extends EventEmitter {
         this.emit('lead_contacted', updatedLead);
       }
 
-      console.log(`[Sender 1a1] ✅ Disparo enviado para ${msg.name} (${msg.phone})`);
-      this.emit('message_status', { id, status: 'sent', msg });
+      console.log(`[Sender 1a1] ✅ Disparo enviado para ${msg.name} (${msg.phone} -> ${jid})`);
+      this.emit('message_status', { id: msg.id, status: 'sent', msg });
       this.emit('stats_update', this.getStats());
       return { success: true, msg };
     } catch (err) {
@@ -345,14 +410,14 @@ class SenderService extends EventEmitter {
       msg.error = err.message || 'Erro ao enviar no WhatsApp';
       this.save();
 
-      console.error(`[Sender 1a1] ❌ Falha ao enviar para ${msg.name}:`, err.message);
-      this.emit('message_status', { id, status: 'failed', msg });
+      console.error(`[Sender 1a1] ❌ Falha ao enviar para ${msg.name} (${msg.phone}):`, err.message);
+      this.emit('message_status', { id: msg.id, status: 'failed', msg });
       this.emit('stats_update', this.getStats());
       throw err;
     }
   }
 
-  async startBatchSend() {
+  async startBatchSend(clientMessages = null) {
     if (this.isBatchRunning) {
       return { alreadyRunning: true, stats: this.getStats() };
     }
@@ -361,7 +426,40 @@ class SenderService extends EventEmitter {
       throw new Error('WhatsApp não está conectado. Escaneie o QR Code primeiro.');
     }
 
-    const pending = this.getMessages().filter((m) => m.status === 'pending' || m.status === 'failed');
+    // Sincroniza os números e contatos que estão na tela do usuário antes de disparar o lote
+    if (Array.isArray(clientMessages) && clientMessages.length > 0) {
+      for (const cm of clientMessages) {
+        if (!cm || !cm.phone) continue;
+        const existing = this.getMessages().find((m) => m.id === cm.id);
+        if (existing) {
+          const phoneChanged = String(cm.phone).trim() !== existing.phone;
+          existing.phone = String(cm.phone).trim();
+          if (cm.name) existing.name = String(cm.name).trim();
+          if (cm.message) existing.message = String(cm.message).trim();
+          if (phoneChanged) {
+            existing.status = 'pending';
+            existing.sentAt = null;
+            existing.error = null;
+          }
+        } else {
+          this.addMessage(cm);
+        }
+      }
+      this.save();
+    }
+
+    let pending = this.getMessages().filter((m) => m.status === 'pending' || m.status === 'failed');
+    if (pending.length === 0 && this.getMessages().length > 0) {
+      // Se todos já estavam como 'sent' e o usuário clicou em Disparar Lote novamente, reseta para enviar aos números atuais
+      for (const m of this.getMessages()) {
+        m.status = 'pending';
+        m.sentAt = null;
+        m.error = null;
+      }
+      this.save();
+      pending = this.getMessages();
+    }
+
     if (pending.length === 0) {
       return { noPending: true, stats: this.getStats() };
     }

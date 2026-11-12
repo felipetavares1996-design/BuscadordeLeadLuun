@@ -3,5 +3,72 @@
     "delayMinSeconds": 6,
     "delayMaxSeconds": 12
   },
-  "messages": []
+  "messages": [
+    {
+      "id": "dm_1794515723447_q60q",
+      "name": "Felipe Silva",
+      "socio": "",
+      "phone": "11981667497",
+      "message": "Vendas",
+      "attachment": null,
+      "status": "sent",
+      "sentAt": "12/11/2026, 18:01:04",
+      "error": null
+    },
+    {
+      "id": "dm_1794511499252_tkgk",
+      "name": "Restaurante",
+      "socio": "",
+      "phone": "5511937628695",
+      "message": "Olá , tudo bem? Me chamo Genildo Malta, da Luun (especialistas em gestão e performance para delivery). Dando uma olhada no cardápio de vocês no iFood, queria te fazer uma pergunta rápida: hoje vocês mesmos que cuidam das estratégias, campanhas e do posicionamento da loja no app, ou têm uma equipe/agência cuidando disso?\"",
+      "attachment": null,
+      "status": "sent",
+      "sentAt": "12/11/2026, 17:58:08",
+      "error": null
+    },
+    {
+      "id": "dm_1794442664315_uqc2",
+      "name": "Felipéra",
+      "socio": "",
+      "phone": "11984667497",
+      "message": "Olá, equipe do *{nome}*! Tudo bem? Me chamo Felipe e sou especialista em crescimento de vendas e otimização operacional para restaurantes no iFood.\n\nNotei seu estabelecimento no Google e percebi oportunidades imediatas para aumentar seu volume de pedidos diários (otimização de cardápio com fotos conversivas, estratégias para conquistar o selo Super Restaurante e redução de cancelamentos).\n\nVocê teria 5 minutinhos para eu te mostrar 3 pontos que podem alavancar o faturamento do delivery de vocês ainda este mês?",
+      "attachment": null,
+      "status": "sent",
+      "sentAt": "12/11/2026, 17:58:12",
+      "error": null
+    },
+    {
+      "id": "dm_1794442664294_nl75",
+      "name": "Alex Lima",
+      "socio": "",
+      "phone": "11 98481-8644",
+      "message": "Olá, equipe do *{nome}*! Tudo bem? Me chamo Felipe e sou especialista em crescimento de vendas e otimização operacional para restaurantes no iFood.\n\nNotei seu estabelecimento no Google e percebi oportunidades imediatas para aumentar seu volume de pedidos diários (otimização de cardápio com fotos conversivas, estratégias para conquistar o selo Super Restaurante e redução de cancelamentos).\n\nVocê teria 5 minutinhos para eu te mostrar 3 pontos que podem alavancar o faturamento do delivery de vocês ainda este mês?",
+      "attachment": null,
+      "status": "sent",
+      "sentAt": "12/11/2026, 18:00:10",
+      "error": null
+    },
+    {
+      "id": "dm_1794442664297_bv1n",
+      "name": "Genildo Lima",
+      "socio": "",
+      "phone": "11 93762-8695",
+      "message": "Vai lula",
+      "attachment": null,
+      "status": "sent",
+      "sentAt": "12/11/2026, 18:00:38",
+      "error": null
+    },
+    {
+      "id": "dm_1794442664301_7a0y",
+      "name": "Alex Lima",
+      "socio": "",
+      "phone": "11 94103-5349",
+      "message": "Olá, equipe do *{nome}*! Tudo bem? Me chamo Felipe e sou especialista em crescimento de vendas e otimização operacional para restaurantes no iFood.\n\nNotei seu estabelecimento no Google e percebi oportunidades imediatas para aumentar seu volume de pedidos diários (otimização de cardápio com fotos conversivas, estratégias para conquistar o selo Super Restaurante e redução de cancelamentos).\n\nVocê teria 5 minutinhos para eu te mostrar 3 pontos que podem alavancar o faturamento do delivery de vocês ainda este mês?",
+      "attachment": null,
+      "status": "sent",
+      "sentAt": "12/11/2026, 18:00:15",
+      "error": null
+    }
+  ]
 }

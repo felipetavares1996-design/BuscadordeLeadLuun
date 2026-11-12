@@ -142,9 +142,9 @@ async function syncWithCloudflareWorker() {
           } else if (act.type === 'remove_file' && act.payload) {
             senderService.removeFile(act.payload.id);
           } else if (act.type === 'send_single' && act.payload) {
-            senderService.sendSingle(act.payload.id).catch(() => {});
+            await senderService.sendSingle(act.payload.id, act.payload.data || {}).catch(() => {});
           } else if (act.type === 'start_batch') {
-            senderService.startBatchSend().catch(() => {});
+            senderService.startBatchSend(act.payload?.messages || null).catch(() => {});
           } else if (act.type === 'pause_batch') {
             senderService.pauseBatchSend();
           } else if (act.type === 'reset_status') {
@@ -156,7 +156,7 @@ async function syncWithCloudflareWorker() {
       }
       // Envia estado atualizado após processar ações remotas
       isCloudSyncing = false;
-      setTimeout(syncWithCloudflareWorker, 200);
+      setTimeout(syncWithCloudflareWorker, 150);
       return;
     }
   } catch {
@@ -165,7 +165,7 @@ async function syncWithCloudflareWorker() {
     isCloudSyncing = false;
   }
 }
-setInterval(syncWithCloudflareWorker, 2500);
+setInterval(syncWithCloudflareWorker, 1200);
 
 // Helpers para tratamento de leads
 function formatPhoneForWhatsApp(phone) {
@@ -340,6 +340,37 @@ app.get('/api/brazil/municipalities', async (req, res) => {
   }
 });
 
+function extractOpeningHours(place, cachedOpeningHours = null) {
+  const current = place?.currentOpeningHours || null;
+  const regular = place?.regularOpeningHours || null;
+  const source = current || regular;
+  if (!source && cachedOpeningHours) return cachedOpeningHours;
+  if (!source) return null;
+
+  const openNow =
+    typeof current?.openNow === 'boolean'
+      ? current.openNow
+      : typeof regular?.openNow === 'boolean'
+      ? regular.openNow
+      : null;
+
+  const weekdayDescriptions =
+    Array.isArray(regular?.weekdayDescriptions) && regular.weekdayDescriptions.length > 0
+      ? regular.weekdayDescriptions
+      : Array.isArray(current?.weekdayDescriptions)
+      ? current.weekdayDescriptions
+      : [];
+
+  if (openNow === null && weekdayDescriptions.length === 0) {
+    return cachedOpeningHours || null;
+  }
+
+  return {
+    openNow,
+    weekdayDescriptions
+  };
+}
+
 // Rota POST /api/leads/:id/enrich para re-enriquecer um card individualmente sob demanda
 app.post('/api/leads/:id/enrich', async (req, res) => {
   try {
@@ -347,6 +378,20 @@ app.post('/api/leads/:id/enrich', async (req, res) => {
     const target = allLeads.find((l) => l.id === req.params.id);
     if (!target) {
       return res.status(404).json({ success: false, error: 'Lead não encontrado.' });
+    }
+
+    if (GOOGLE_PLACES_API_KEY && String(target.id).startsWith('ChIJ') && !target.openingHours?.weekdayDescriptions?.length) {
+      try {
+        const placeRes = await axios.get(`https://places.googleapis.com/v1/places/${encodeURIComponent(target.id)}`, {
+          params: { languageCode: 'pt-BR' },
+          headers: {
+            'X-Goog-Api-Key': GOOGLE_PLACES_API_KEY,
+            'X-Goog-FieldMask': 'regularOpeningHours,currentOpeningHours'
+          },
+          timeout: 6000
+        });
+        target.openingHours = extractOpeningHours(placeRes.data, target.openingHours);
+      } catch {}
     }
 
     const enriched = await enrichLeadWithCnpj(target);
@@ -386,6 +431,8 @@ app.post('/api/search', async (req, res) => {
       'places.rating',
       'places.userRatingCount',
       'places.googleMapsUri',
+      'places.regularOpeningHours',
+      'places.currentOpeningHours',
       'nextPageToken'
     ].join(',');
 
@@ -425,6 +472,7 @@ app.post('/api/search', async (req, res) => {
       const website = place.websiteUri || '';
       const mapsUri = place.googleMapsUri || `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${name} ${address}`)}`;
       const waNumber = formatPhoneForWhatsApp(phone);
+      const openingHours = extractOpeningHours(place, cached?.openingHours);
       
       const opportunity = evaluateOpportunity(rating, userRatingCount);
 
@@ -444,6 +492,7 @@ app.post('/api/search', async (req, res) => {
         phone,
         waNumber,
         allPhones: cached?.allPhones || [],
+        openingHours,
         address,
         rating,
         userRatingCount,
@@ -667,7 +716,7 @@ app.delete('/api/direct-messages/:id/attachment', (req, res) => {
 
 app.post('/api/direct-messages/send-single/:id', async (req, res) => {
   try {
-    const result = await senderService.sendSingle(req.params.id);
+    const result = await senderService.sendSingle(req.params.id, req.body || {});
     res.json(result);
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -676,7 +725,7 @@ app.post('/api/direct-messages/send-single/:id', async (req, res) => {
 
 app.post('/api/direct-messages/start-batch', async (req, res) => {
   try {
-    const result = await senderService.startBatchSend();
+    const result = await senderService.startBatchSend(req.body?.messages || null);
     res.json({ success: true, ...result });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });

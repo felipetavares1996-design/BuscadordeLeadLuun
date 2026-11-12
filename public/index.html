@@ -386,6 +386,7 @@
           <button type="button" class="filter-tab px-2.5 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition" data-filter="phone">📱 Com WhatsApp</button>
           <button type="button" class="filter-tab px-2.5 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition" data-filter="cnpj">🏢 Com CNPJ</button>
           <button type="button" class="filter-tab px-2.5 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition" data-filter="email">✉️ Com E-mail</button>
+          <button type="button" class="filter-tab px-2.5 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition" data-filter="open-now">🕒 Abertos Agora</button>
         </div>
 
         <!-- Sort Select -->
@@ -1611,6 +1612,8 @@
         result = result.filter(l => l.cnpj && l.cnpj.trim().length > 0);
       } else if (state.activeFilter === 'email') {
         result = result.filter(l => (l.email && l.email.trim().length > 0) || (Array.isArray(l.allEmails) && l.allEmails.length > 0));
+      } else if (state.activeFilter === 'open-now') {
+        result = result.filter(l => l.openingHours && l.openingHours.openNow === true);
       }
 
       // Ordenação
@@ -1740,6 +1743,100 @@
         });
       }
       return Array.from(set);
+    }
+
+    // Helper para formatar e renderizar o Horário de Funcionamento do Google Places
+    function getOpeningHoursInfo(lead) {
+      const oh = lead.openingHours;
+      if (!oh || (oh.openNow === null && (!Array.isArray(oh.weekdayDescriptions) || oh.weekdayDescriptions.length === 0))) {
+        return null;
+      }
+      const descriptions = Array.isArray(oh.weekdayDescriptions) ? oh.weekdayDescriptions : [];
+      const dayKeys = ['domingo', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'];
+      const todayKey = dayKeys[new Date().getDay()];
+      const normalize = (str) => String(str || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+      let todayLine = descriptions.find(d => normalize(d).startsWith(todayKey)) || '';
+      if (!todayLine && descriptions.length === 7) {
+        const idx = (new Date().getDay() + 6) % 7; // Google Places: 0=Segunda ... 6=Domingo
+        todayLine = descriptions[idx] || '';
+      }
+
+      let todayHoursOnly = todayLine;
+      const colonIdx = todayLine.indexOf(':');
+      if (colonIdx !== -1) {
+        todayHoursOnly = todayLine.slice(colonIdx + 1).trim();
+      }
+
+      return {
+        openNow: oh.openNow,
+        todayLine,
+        todayHoursOnly,
+        todayKey,
+        descriptions
+      };
+    }
+
+    function renderOpeningHoursHtml(lead, isCompact = false) {
+      const info = getOpeningHoursInfo(lead);
+      if (!info) {
+        if (isCompact) return `<span class="text-slate-600 italic text-[10px]">Horário não informado</span>`;
+        return `
+          <div class="flex items-center gap-2 text-slate-500 italic py-0.5 text-[11px]">
+            <i class="fa-regular fa-clock text-slate-600 w-4 text-center"></i>
+            <span>Horário não informado no Google</span>
+          </div>
+        `;
+      }
+
+      const statusBadge = info.openNow === true
+        ? `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shrink-0"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>Aberto agora</span>`
+        : info.openNow === false
+        ? `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40 shrink-0"><span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>Fechado</span>`
+        : '';
+
+      if (isCompact) {
+        return `
+          <div class="mt-1 flex flex-wrap items-center gap-1.5 text-[10px]">
+            ${statusBadge}
+            ${info.todayHoursOnly ? `<span class="text-slate-300 font-medium truncate max-w-[180px]" title="${escapeHtml(info.descriptions.join('\n'))}">Hoje: ${escapeHtml(info.todayHoursOnly)}</span>` : ''}
+          </div>
+        `;
+      }
+
+      const normalize = (str) => String(str || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const weekListHtml = info.descriptions.length > 0
+        ? `
+          <details class="group/hours mt-1">
+            <summary class="cursor-pointer list-none text-[10px] font-bold text-cyan-400 hover:text-cyan-300 inline-flex items-center gap-1 select-none">
+              <i class="fa-solid fa-calendar-week text-[10px]"></i>
+              <span>Ver horários da semana (Seg a Dom)</span>
+              <i class="fa-solid fa-chevron-down text-[9px] transition-transform group-open/hours:rotate-180"></i>
+            </summary>
+            <div class="mt-1.5 p-2 rounded-lg bg-slate-950/90 border border-slate-800 space-y-1 text-[10px]">
+              ${info.descriptions.map(line => {
+                const isToday = normalize(line).startsWith(info.todayKey);
+                return `<div class="${isToday ? 'text-emerald-300 font-bold bg-emerald-950/40 px-1.5 py-0.5 rounded border border-emerald-500/20' : 'text-slate-400 px-1'}">${escapeHtml(line)}</div>`;
+              }).join('')}
+            </div>
+          </details>
+        `
+        : '';
+
+      return `
+        <div class="p-2 rounded-xl bg-slate-950/60 border border-slate-800/80 space-y-1">
+          <div class="flex flex-wrap items-center justify-between gap-1.5">
+            <div class="flex items-center gap-1.5 min-w-0">
+              <i class="fa-regular fa-clock text-cyan-400 w-3.5 text-center text-[11px]"></i>
+              <span class="text-[11px] font-semibold text-slate-200 truncate">
+                ${info.todayHoursOnly ? `Hoje: ${escapeHtml(info.todayHoursOnly)}` : 'Horário de Funcionamento'}
+              </span>
+            </div>
+            ${statusBadge}
+          </div>
+          ${weekListHtml}
+        </div>
+      `;
     }
 
     // Renderizar Modo Grade / Cards
@@ -1927,6 +2024,9 @@
                 </div>
               </div>
 
+              <!-- Horário de Funcionamento (Google Places) -->
+              ${renderOpeningHoursHtml(lead, false)}
+
               <!-- Endereço -->
               <div class="flex items-start gap-2 text-slate-400">
                 <i class="fa-solid fa-location-dot text-slate-500 w-4 text-center mt-0.5"></i>
@@ -2077,7 +2177,8 @@
             <div class="font-bold text-white">${escapeHtml(lead.name)}</div>
             ${lead.razaoSocial ? `<div class="text-[10px] text-slate-400 truncate max-w-[220px]">${escapeHtml(lead.razaoSocial)}</div>` : ''}
             ${sociosList.length > 0 ? `<div class="text-[10px] text-cyan-300 font-semibold truncate max-w-[220px]"><i class="fa-solid fa-user-tie mr-1"></i>${escapeHtml(sociosList.join(', '))}</div>` : ''}
-            <div class="text-[11px] text-slate-500 truncate max-w-[220px]">${escapeHtml(lead.address)}</div>
+            ${renderOpeningHoursHtml(lead, true)}
+            <div class="text-[11px] text-slate-500 truncate max-w-[220px] mt-0.5">${escapeHtml(lead.address)}</div>
           </td>
           <td class="py-3.5 px-3">
             <div class="font-mono">
@@ -2331,7 +2432,7 @@
           }));
 
           try {
-            const res = await fetch('/api/direct-messages/bulk-import', {
+            const res = await apiFetchSender('/api/direct-messages/bulk-import', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ contacts })
@@ -2369,6 +2470,8 @@
         'Instagram',
         'Loja iFood',
         'Plataforma Cardápio',
+        'Aberto Agora',
+        'Horário de Funcionamento (Semana)',
         'Endereço Completo',
         'Nota Google',
         'Total Avaliações',
@@ -2404,6 +2507,8 @@
           lead.instagramUrl || '',
           lead.ifoodUrl || '',
           lead.menuPlatform || '',
+          lead.openingHours && typeof lead.openingHours.openNow === 'boolean' ? (lead.openingHours.openNow ? 'Aberto' : 'Fechado') : '',
+          lead.openingHours && Array.isArray(lead.openingHours.weekdayDescriptions) ? lead.openingHours.weekdayDescriptions.join(' | ') : '',
           lead.address || '',
           lead.rating !== null ? lead.rating.toString().replace('.', ',') : '',
           lead.userRatingCount || 0,
@@ -2571,6 +2676,21 @@
       uploadingRowId: null
     };
 
+    async function apiFetchSender(path, options = {}) {
+      if (window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+        try {
+          const method = (options.method || 'GET').toUpperCase();
+          const timeoutMs = method === 'GET' ? 2200 : 15000;
+          const ctrl = new AbortController();
+          const tid = setTimeout(() => ctrl.abort(), timeoutMs);
+          const localRes = await fetch(`http://localhost:3000${path}`, { ...options, signal: ctrl.signal });
+          clearTimeout(tid);
+          return localRes;
+        } catch {}
+      }
+      return fetch(path, options);
+    }
+
     function switchMainTab(targetTab) {
       const btnSearch = document.getElementById('mainTabSearch');
       const btnSender = document.getElementById('mainTabSender');
@@ -2642,7 +2762,7 @@
           }
 
           try {
-            const res = await fetch('/api/direct-messages/bulk-import', {
+            const res = await apiFetchSender('/api/direct-messages/bulk-import', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ contacts })
@@ -2729,7 +2849,7 @@
           const btnSubmit = document.getElementById('btnSubmitAddDm');
           btnSubmit.disabled = true;
           try {
-            const res = await fetch('/api/direct-messages', {
+            const res = await apiFetchSender('/api/direct-messages', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(payload)
@@ -2741,7 +2861,7 @@
               senderState.pendingNewAttachment = null;
               if (dmInputFile) dmInputFile.value = '';
               renderNewAttachmentPreview();
-              showToast(`Contato "${name}" adicionado ao Disparo 1 a 1!`, 'success');
+              showToast(`Contato "${name}" (${phone}) adicionado ao Disparo 1 a 1!`, 'success');
               fetchDirectMessages();
             } else {
               showToast(data.error || 'Erro ao adicionar contato.', 'error');
@@ -2760,7 +2880,7 @@
         btnRefreshWa.addEventListener('click', async () => {
           showToast('Gerando novo QR Code do WhatsApp...', 'info');
           try {
-            await fetch('/api/sender/disconnect', { method: 'POST' });
+            await apiFetchSender('/api/sender/disconnect', { method: 'POST' });
           } catch {}
           setTimeout(fetchSenderStatus, 1800);
         });
@@ -2779,7 +2899,7 @@
           btnRequestPairingCode.disabled = true;
           btnRequestPairingCode.textContent = 'Gerando...';
           try {
-            const res = await fetch('/api/sender/pairing-code', {
+            const res = await apiFetchSender('/api/sender/pairing-code', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ phone })
@@ -2813,7 +2933,7 @@
         btnDisconnectWa.addEventListener('click', async () => {
           if (!confirm('Deseja desconectar a sessão atual do WhatsApp e gerar um novo QR Code?')) return;
           try {
-            await fetch('/api/sender/disconnect', { method: 'POST' });
+            await apiFetchSender('/api/sender/disconnect', { method: 'POST' });
             showToast('WhatsApp desconectado. Gerando novo QR Code...', 'info');
             setTimeout(fetchSenderStatus, 1500);
           } catch (err) {
@@ -2827,14 +2947,29 @@
       if (btnStartBatch) {
         btnStartBatch.addEventListener('click', async () => {
           try {
-            const res = await fetch('/api/direct-messages/start-batch', { method: 'POST' });
+            // Sincroniza quaisquer números editados diretamente na tabela antes de iniciar o lote
+            document.querySelectorAll('.dm-inline-phone-input').forEach((inp) => {
+              const rowId = inp.getAttribute('data-id');
+              const val = inp.value.trim();
+              const item = senderState.messages.find((m) => m.id === rowId);
+              if (item && val && val !== item.phone) {
+                item.phone = val;
+                item.status = 'pending';
+              }
+            });
+
+            const res = await apiFetchSender('/api/direct-messages/start-batch', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ messages: senderState.messages })
+            });
             const data = await res.json();
             if (!res.ok || data.error) {
               showToast(data.error || 'Erro ao iniciar disparo.', 'error');
               return;
             }
             if (data.noPending) {
-              showToast('Nenhum contato pendente! Use "Resetar Status" se quiser reenviar.', 'warning');
+              showToast('Nenhum contato na fila! Adicione um número primeiro.', 'warning');
               return;
             }
             showToast(`Disparo 1 a 1 iniciado para ${data.total} contato(s)!`, 'success');
@@ -2848,7 +2983,7 @@
       const btnPauseBatch = document.getElementById('btnDmPauseBatch');
       if (btnPauseBatch) {
         btnPauseBatch.addEventListener('click', async () => {
-          await fetch('/api/direct-messages/pause-batch', { method: 'POST' });
+          await apiFetchSender('/api/direct-messages/pause-batch', { method: 'POST' });
           showToast('Disparo 1 a 1 pausado.', 'warning');
           fetchDirectMessages();
         });
@@ -2857,7 +2992,7 @@
       const btnResetStatus = document.getElementById('btnDmResetStatus');
       if (btnResetStatus) {
         btnResetStatus.addEventListener('click', async () => {
-          await fetch('/api/direct-messages/reset-status', { method: 'POST' });
+          await apiFetchSender('/api/direct-messages/reset-status', { method: 'POST' });
           showToast('Todos os status foram resetados para Pendente!', 'info');
           fetchDirectMessages();
         });
@@ -2868,7 +3003,7 @@
         btnClearAll.addEventListener('click', async () => {
           if (senderState.messages.length === 0) return;
           if (!confirm('Tem certeza que deseja remover TODOS os contatos da fila 1 a 1?')) return;
-          await fetch('/api/direct-messages', { method: 'DELETE' });
+          await apiFetchSender('/api/direct-messages', { method: 'DELETE' });
           showToast('Fila de Disparo 1 a 1 limpa.', 'info');
           fetchDirectMessages();
         });
@@ -2894,7 +3029,7 @@
           readSelectedAttachment(file, async (att) => {
             try {
               showToast(`Anexando "${att.fileName}"...`, 'info');
-              const res = await fetch(`/api/direct-messages/${targetId}/attachment`, {
+              const res = await apiFetchSender(`/api/direct-messages/${targetId}/attachment`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(att)
@@ -3068,7 +3203,7 @@
 
     async function fetchSenderStatus() {
       try {
-        const res = await fetch('/api/sender/status');
+        const res = await apiFetchSender('/api/sender/status');
         const data = await res.json();
         senderState.qrDataUrl = data.qrDataUrl || null;
         if (data.pairingCode) {
@@ -3150,8 +3285,12 @@
     }
 
     async function fetchDirectMessages() {
+      // Não sobrescreve a tabela se o usuário estiver digitando o número diretamente em uma linha
+      if (document.activeElement && document.activeElement.classList && document.activeElement.classList.contains('dm-inline-phone-input')) {
+        return;
+      }
       try {
-        const res = await fetch('/api/direct-messages');
+        const res = await apiFetchSender('/api/direct-messages');
         const data = await res.json();
         senderState.messages = data.messages || [];
         senderState.stats = data.stats || senderState.stats;
@@ -3260,7 +3399,16 @@
           <tr class="hover:bg-slate-900/60 transition">
             <td class="py-3.5 px-4 text-center text-xs text-slate-500 font-mono">${idx + 1}</td>
             <td class="py-3.5 px-4 font-bold text-white">${escapeHtml(m.name)}</td>
-            <td class="py-3.5 px-3 font-mono text-emerald-400 text-xs">${escapeHtml(m.phone)}</td>
+            <td class="py-3.5 px-3">
+              <input
+                type="text"
+                data-id="${escapeHtml(m.id)}"
+                value="${escapeHtml(m.phone)}"
+                onchange="window.updateDmPhoneInline('${m.id}', this.value)"
+                class="dm-inline-phone-input w-36 px-2.5 py-1 rounded-lg bg-slate-950/90 border border-slate-700 hover:border-emerald-500/60 focus:border-emerald-400 focus:outline-none font-mono text-emerald-400 text-xs transition"
+                title="Você pode editar o número de WhatsApp diretamente aqui"
+              />
+            </td>
             <td class="py-3.5 px-4">
               <div class="text-xs text-slate-300 line-clamp-2 max-w-xs" title="${escapeHtml(m.message)}">
                 ${escapeHtml(m.message)}
@@ -3287,6 +3435,31 @@
     }
 
     // Ações globais da tabela 1 a 1
+    window.updateDmPhoneInline = async function(id, newPhone) {
+      const cleanVal = (newPhone || '').trim();
+      if (!cleanVal) return;
+      const item = senderState.messages.find(m => m.id === id);
+      if (item) {
+        item.phone = cleanVal;
+        item.status = 'pending';
+      }
+      try {
+        await apiFetchSender(`/api/direct-messages/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: item?.name || 'Cliente',
+            phone: cleanVal,
+            message: item?.message || ''
+          })
+        });
+        showToast(`Número atualizado para ${cleanVal}!`, 'success');
+        fetchDirectMessages();
+      } catch (err) {
+        showToast('Erro ao atualizar número.', 'error');
+      }
+    };
+
     window.triggerDmRowUpload = function(id) {
       senderState.uploadingRowId = id;
       const input = document.getElementById('dmRowFileInput');
@@ -3298,7 +3471,7 @@
 
     window.removeDmAttachment = async function(id) {
       try {
-        const res = await fetch(`/api/direct-messages/${id}/attachment`, { method: 'DELETE' });
+        const res = await apiFetchSender(`/api/direct-messages/${id}/attachment`, { method: 'DELETE' });
         const data = await res.json();
         if (data.success) {
           showToast('Arquivo removido do contato.', 'info');
@@ -3313,28 +3486,51 @@
       const item = senderState.messages.find(m => m.id === id);
       if (!item) return;
 
-      showToast(`Enviando disparo 1 a 1 para "${item.name}"...`, 'info');
+      // Lê o número atual diretamente do campo da linha (caso o usuário tenha acabado de editar)
+      const inlineInput = document.querySelector(`.dm-inline-phone-input[data-id="${id}"]`);
+      const currentPhone = inlineInput && inlineInput.value.trim() ? inlineInput.value.trim() : item.phone;
+      item.phone = currentPhone;
+
+      showToast(`Enviando disparo 1 a 1 para "${item.name}" (${currentPhone})...`, 'info');
       item.status = 'sending';
       renderDmTable();
 
       try {
-        const res = await fetch(`/api/direct-messages/send-single/${id}`, { method: 'POST' });
+        const res = await apiFetchSender(`/api/direct-messages/send-single/${id}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            phone: currentPhone,
+            name: item.name,
+            message: item.message
+          })
+        });
         const data = await res.json();
         if (res.ok && data.success) {
-          showToast(`Mensagem enviada com sucesso para "${item.name}"!`, 'success');
+          if (data.queued) {
+            showToast(`Processando envio para "${item.name}" (${currentPhone})...`, 'info');
+            setTimeout(fetchDirectMessages, 1800);
+            setTimeout(fetchDirectMessages, 3800);
+          } else {
+            item.status = 'sent';
+            renderDmTable();
+            showToast(`Mensagem enviada com sucesso para "${item.name}" (${currentPhone})!`, 'success');
+          }
         } else {
+          item.status = 'failed';
+          renderDmTable();
           showToast(data.error || 'Falha ao enviar mensagem.', 'error');
         }
       } catch (err) {
         showToast('Erro ao disparar: ' + err.message, 'error');
       } finally {
-        fetchDirectMessages();
+        setTimeout(fetchDirectMessages, 600);
       }
     };
 
     window.deleteDm = async function(id) {
       try {
-        await fetch(`/api/direct-messages/${id}`, { method: 'DELETE' });
+        await apiFetchSender(`/api/direct-messages/${id}`, { method: 'DELETE' });
         showToast('Contato removido da fila 1 a 1.', 'info');
         fetchDirectMessages();
       } catch (err) {
@@ -3346,9 +3542,12 @@
       const item = senderState.messages.find(m => m.id === id);
       if (!item) return;
 
+      const inlineInput = document.querySelector(`.dm-inline-phone-input[data-id="${id}"]`);
+      const currentPhone = inlineInput && inlineInput.value.trim() ? inlineInput.value.trim() : (item.phone || '');
+
       document.getElementById('editDmId').value = item.id;
       document.getElementById('editDmName').value = item.name || '';
-      document.getElementById('editDmPhone').value = item.phone || '';
+      document.getElementById('editDmPhone').value = currentPhone;
       document.getElementById('editDmMessage').value = item.message || '';
 
       renderEditModalAttachmentState(item.attachment);
@@ -3400,7 +3599,7 @@
 
           readSelectedAttachment(file, async (att) => {
             try {
-              const res = await fetch(`/api/direct-messages/${id}/attachment`, {
+              const res = await apiFetchSender(`/api/direct-messages/${id}/attachment`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(att)
@@ -3424,7 +3623,7 @@
         btnRemoveFile.addEventListener('click', async () => {
           const id = document.getElementById('editDmId').value;
           if (!id) return;
-          const res = await fetch(`/api/direct-messages/${id}/attachment`, { method: 'DELETE' });
+          const res = await apiFetchSender(`/api/direct-messages/${id}/attachment`, { method: 'DELETE' });
           const data = await res.json();
           if (data.success) {
             renderEditModalAttachmentState(null);
@@ -3447,7 +3646,7 @@
           }
 
           try {
-            const res = await fetch(`/api/direct-messages/${id}`, {
+            const res = await apiFetchSender(`/api/direct-messages/${id}`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ name, phone, message })
@@ -3455,7 +3654,7 @@
             const data = await res.json();
             if (data.success) {
               closeModal();
-              showToast('Contato atualizado com sucesso!', 'success');
+              showToast(`Contato atualizado (${phone}) e pronto para disparo!`, 'success');
               fetchDirectMessages();
             }
           } catch (err) {
