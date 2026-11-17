@@ -827,21 +827,35 @@
           </div>
         </div>
 
-        <!-- Barra de Busca da Tabela 1 a 1 -->
-        <div class="px-5 py-3 bg-slate-950/40 border-b border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div class="relative flex-1 max-w-md">
-            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
-            <input
-              type="text"
-              id="dmSearchInput"
-              placeholder="Buscar contato por nome, número ou mensagem..."
-              class="w-full pl-9 pr-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-slate-600"
-            >
+        <!-- Barra de Busca e Abas de Visão (Pendentes vs Enviados) -->
+        <div class="px-5 py-3 bg-slate-950/40 border-b border-slate-800/80 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+          <div class="flex flex-wrap items-center gap-2">
+            <div class="flex items-center bg-slate-900 border border-slate-800 rounded-xl p-1 text-xs">
+              <button type="button" class="dm-view-tab px-3 py-1.5 rounded-lg font-bold bg-brand-red text-white transition" data-view="both">
+                📋 As 2 Listas Separadas
+              </button>
+              <button type="button" class="dm-view-tab px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition" data-view="pending">
+                ⏳ Só Lista de Pendentes (<span id="dmTabPendingCount">0</span>)
+              </button>
+              <button type="button" class="dm-view-tab px-3 py-1.5 rounded-lg font-semibold text-slate-400 hover:text-white transition" data-view="sent">
+                ✅ Só Lista de Enviados (<span id="dmTabSentCount">0</span>)
+              </button>
+            </div>
           </div>
 
-          <div class="flex items-center gap-2 text-xs text-slate-400">
-            <span class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 font-mono text-[11px]">
-              ⏱️ Delay Anti-Ban: <strong class="text-emerald-400">6s a 12s</strong>
+          <div class="flex flex-wrap items-center gap-2 flex-1 max-w-lg justify-end">
+            <div class="relative flex-1 min-w-[200px]">
+              <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-500 text-xs"></i>
+              <input
+                type="text"
+                id="dmSearchInput"
+                placeholder="Buscar contato por nome, número ou mensagem..."
+                class="w-full pl-9 pr-4 py-2 bg-slate-900 border border-slate-800 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-slate-600"
+              >
+            </div>
+
+            <span class="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 font-mono text-[11px] text-slate-400 shrink-0">
+              ⏱️ Delay: <strong class="text-emerald-400">6s a 12s</strong>
             </span>
           </div>
         </div>
@@ -849,24 +863,74 @@
         <!-- Input oculto para anexar PDF/PNG/Imagem direto na linha -->
         <input type="file" id="dmRowFileInput" accept=".pdf,.png,.jpg,.jpeg,.webp,.gif,application/pdf,image/*" class="hidden">
 
-        <!-- Tabela de Disparos 1 a 1 -->
-        <div class="overflow-x-auto">
-          <table class="w-full text-left text-xs sm:text-sm">
-            <thead class="bg-slate-900/90 text-slate-400 uppercase tracking-wider text-[11px] font-bold border-b border-slate-800">
-              <tr>
-                <th class="py-3.5 px-4 w-10 text-center">#</th>
-                <th class="py-3.5 px-4">Nome</th>
-                <th class="py-3.5 px-3">Número (WhatsApp)</th>
-                <th class="py-3.5 px-4">Mensagem</th>
-                <th class="py-3.5 px-3">Arquivo (PDF / PNG / Imagem)</th>
-                <th class="py-3.5 px-3">Status</th>
-                <th class="py-3.5 px-4 text-right">Ações</th>
-              </tr>
-            </thead>
-            <tbody id="dmTableBody" class="divide-y divide-slate-800/80 text-slate-300 font-medium">
-              <!-- Renderizado via JS -->
-            </tbody>
-          </table>
+        <!-- LISTA 1: PENDENTES DE ENVIO -->
+        <div id="dmPendingListWrapper" class="border-b border-slate-800">
+          <div class="px-5 py-3 bg-amber-500/5 border-b border-slate-800/80 flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
+              <h4 class="text-xs sm:text-sm font-extrabold text-amber-300 uppercase tracking-wide">
+                ⏳ Lista de Pendentes para Disparo (<span id="dmPendingListCountBadge">0</span>)
+              </h4>
+            </div>
+            <span id="dmSelectionHelperText" class="text-[11px] text-slate-400">
+              Marque os contatos abaixo para disparar apenas os selecionados ou clique em Iniciar Disparo para enviar todos os pendentes
+            </span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs sm:text-sm">
+              <thead class="bg-slate-900/90 text-slate-400 uppercase tracking-wider text-[11px] font-bold border-b border-slate-800">
+                <tr>
+                  <th class="py-3.5 px-4 w-12 text-center">
+                    <input type="checkbox" id="chkSelectAllDmPending" class="w-4 h-4 rounded accent-brand-red cursor-pointer" title="Selecionar todos os pendentes">
+                  </th>
+                  <th class="py-3.5 px-4">Nome</th>
+                  <th class="py-3.5 px-3">Número (WhatsApp)</th>
+                  <th class="py-3.5 px-4">Mensagem</th>
+                  <th class="py-3.5 px-3">Arquivo (PDF / PNG / Imagem)</th>
+                  <th class="py-3.5 px-3">Status</th>
+                  <th class="py-3.5 px-4 text-right">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="dmTableBody" class="divide-y divide-slate-800/80 text-slate-300 font-medium">
+                <!-- Renderizado via JS (Apenas Pendentes / Enviando / Falhas) -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- LISTA 2: ENVIADOS COM SUCESSO -->
+        <div id="dmSentListWrapper">
+          <div class="px-5 py-3 bg-emerald-500/10 border-b border-slate-800/80 flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+              <h4 class="text-xs sm:text-sm font-extrabold text-emerald-400 uppercase tracking-wide">
+                ✅ Lista de Enviados com Sucesso (<span id="dmSentListCountBadge">0</span>)
+              </h4>
+            </div>
+            <span class="text-[11px] text-emerald-300/80">
+              Contatos que já receberam o disparo 1 a 1 são movidos automaticamente para esta lista
+            </span>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs sm:text-sm">
+              <thead class="bg-slate-900/90 text-slate-400 uppercase tracking-wider text-[11px] font-bold border-b border-slate-800">
+                <tr>
+                  <th class="py-3.5 px-4 w-12 text-center">#</th>
+                  <th class="py-3.5 px-4">Nome</th>
+                  <th class="py-3.5 px-3">Número (WhatsApp)</th>
+                  <th class="py-3.5 px-4">Mensagem Enviada</th>
+                  <th class="py-3.5 px-3">Arquivo</th>
+                  <th class="py-3.5 px-3">Status / Data de Envio</th>
+                  <th class="py-3.5 px-4 text-right">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="dmSentTableBody" class="divide-y divide-slate-800/80 text-slate-300 font-medium">
+                <!-- Renderizado via JS (Apenas Enviados) -->
+              </tbody>
+            </table>
+          </div>
         </div>
       </section>
 
@@ -2670,6 +2734,8 @@
       waUser: null,
       qrDataUrl: null,
       messages: [],
+      selectedDmIds: new Set(),
+      viewMode: 'both', // 'both', 'pending', 'sent'
       stats: { total: 0, sent: 0, pending: 0, failed: 0, isBatchRunning: false },
       searchQuery: '',
       pendingNewAttachment: null, // { fileName, fileBase64, mimeType, size }
@@ -2958,10 +3024,17 @@
               }
             });
 
+            const selectedIds = senderState.selectedDmIds.size > 0
+              ? Array.from(senderState.selectedDmIds)
+              : null;
+
             const res = await apiFetchSender('/api/direct-messages/start-batch', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ messages: senderState.messages })
+              body: JSON.stringify({
+                messages: senderState.messages,
+                selectedIds
+              })
             });
             const data = await res.json();
             if (!res.ok || data.error) {
@@ -2969,14 +3042,44 @@
               return;
             }
             if (data.noPending) {
-              showToast('Nenhum contato na fila! Adicione um número primeiro.', 'warning');
+              showToast('Nenhum contato pendente na fila! Adicione um contato ou clique em Resetar Status.', 'warning');
               return;
             }
+            senderState.selectedDmIds.clear();
+            updateDmSelectionUi();
             showToast(`Disparo 1 a 1 iniciado para ${data.total} contato(s)!`, 'success');
             fetchDirectMessages();
           } catch (err) {
             showToast('Erro ao iniciar lote: ' + err.message, 'error');
           }
+        });
+      }
+
+      // Abas de visualização (As 2 Listas Separadas | Só Pendentes | Só Enviados)
+      document.querySelectorAll('.dm-view-tab').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.dm-view-tab').forEach((b) => {
+            b.classList.remove('bg-brand-red', 'text-white', 'font-bold');
+            b.classList.add('text-slate-400', 'font-semibold');
+          });
+          btn.classList.add('bg-brand-red', 'text-white', 'font-bold');
+          btn.classList.remove('text-slate-400', 'font-semibold');
+          senderState.viewMode = btn.getAttribute('data-view') || 'both';
+          renderDmTable();
+        });
+      });
+
+      const chkSelectAllDmPending = document.getElementById('chkSelectAllDmPending');
+      if (chkSelectAllDmPending) {
+        chkSelectAllDmPending.addEventListener('change', (e) => {
+          const pendingList = senderState.messages.filter((m) => m.status !== 'sent');
+          if (e.target.checked) {
+            pendingList.forEach((m) => senderState.selectedDmIds.add(m.id));
+          } else {
+            pendingList.forEach((m) => senderState.selectedDmIds.delete(m.id));
+          }
+          updateDmSelectionUi();
+          renderDmTable();
         });
       }
 
@@ -3335,12 +3438,109 @@
       }
     }
 
+    function updateDmSelectionUi() {
+      const btnStart = document.getElementById('btnDmStartBatch');
+      const count = senderState.selectedDmIds.size;
+      if (btnStart) {
+        const span = btnStart.querySelector('span');
+        if (span) {
+          span.textContent = count > 0
+            ? `Disparar Selecionados (${count})`
+            : 'Iniciar Disparo 1 a 1';
+        }
+      }
+      const chkAll = document.getElementById('chkSelectAllDmPending');
+      if (chkAll) {
+        const pendingList = senderState.messages.filter((m) => m.status !== 'sent');
+        chkAll.checked = pendingList.length > 0 && pendingList.every((m) => senderState.selectedDmIds.has(m.id));
+      }
+    }
+
+    window.toggleSelectDmRow = function(id, checked) {
+      if (checked) {
+        senderState.selectedDmIds.add(id);
+      } else {
+        senderState.selectedDmIds.delete(id);
+      }
+      updateDmSelectionUi();
+    };
+
+    window.moveDmToPending = async function(id) {
+      const item = senderState.messages.find((m) => m.id === id);
+      if (!item) return;
+      item.status = 'pending';
+      item.sentAt = null;
+      item.error = null;
+      renderDmTable();
+      try {
+        await apiFetchSender(`/api/direct-messages/${id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: item.name,
+            phone: item.phone,
+            message: item.message,
+            status: 'pending'
+          })
+        });
+        showToast(`"${item.name}" voltou para a Lista de Pendentes!`, 'info');
+        fetchDirectMessages();
+      } catch {}
+    };
+
+    function renderAttachmentCellHtml(m) {
+      if (m.attachment && m.attachment.fileName) {
+        const isImg = m.attachment.fileType === 'image' || (m.attachment.mimeType || '').startsWith('image/');
+        const iconHtml = isImg
+          ? `<i class="fa-solid fa-file-image text-cyan-400"></i>`
+          : `<i class="fa-solid fa-file-pdf text-rose-400"></i>`;
+
+        return `
+          <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 max-w-[190px]">
+            ${iconHtml}
+            <span class="text-[11px] text-slate-200 truncate" title="${escapeHtml(m.attachment.fileName)}">${escapeHtml(m.attachment.fileName)}</span>
+            <button type="button" onclick="window.removeDmAttachment('${m.id}')" class="text-slate-400 hover:text-rose-400 font-bold ml-1" title="Remover anexo">&times;</button>
+          </div>
+        `;
+      }
+      return `
+        <button type="button" onclick="window.triggerDmRowUpload('${m.id}')" class="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700 text-[11px] font-semibold inline-flex items-center gap-1.5 transition">
+          <i class="fa-solid fa-paperclip text-emerald-400"></i>
+          <span>Anexar PDF / Imagem</span>
+        </button>
+      `;
+    }
+
     function renderDmTable() {
-      const tbody = document.getElementById('dmTableBody');
-      if (!tbody) return;
+      const tbodyPending = document.getElementById('dmTableBody');
+      const tbodySent = document.getElementById('dmSentTableBody');
+      const pendingWrapper = document.getElementById('dmPendingListWrapper');
+      const sentWrapper = document.getElementById('dmSentListWrapper');
+      if (!tbodyPending || !tbodySent) return;
+
+      // Remove IDs que já foram enviados da seleção de pendentes
+      senderState.messages.forEach((m) => {
+        if (m.status === 'sent' && senderState.selectedDmIds.has(m.id)) {
+          senderState.selectedDmIds.delete(m.id);
+        }
+      });
+      updateDmSelectionUi();
+
+      if (pendingWrapper && sentWrapper) {
+        if (senderState.viewMode === 'pending') {
+          pendingWrapper.classList.remove('hidden');
+          sentWrapper.classList.add('hidden');
+        } else if (senderState.viewMode === 'sent') {
+          pendingWrapper.classList.add('hidden');
+          sentWrapper.classList.remove('hidden');
+        } else {
+          pendingWrapper.classList.remove('hidden');
+          sentWrapper.classList.remove('hidden');
+        }
+      }
 
       const q = (senderState.searchQuery || '').toLowerCase().trim();
-      const filtered = senderState.messages.filter(m => {
+      const filtered = senderState.messages.filter((m) => {
         if (!q) return true;
         return (
           (m.name || '').toLowerCase().includes(q) ||
@@ -3349,89 +3549,151 @@
         );
       });
 
-      if (filtered.length === 0) {
-        tbody.innerHTML = `
+      const pendingItems = filtered.filter((m) => m.status !== 'sent');
+      const sentItems = filtered.filter((m) => m.status === 'sent');
+
+      const totalPendingAll = senderState.messages.filter((m) => m.status !== 'sent').length;
+      const totalSentAll = senderState.messages.filter((m) => m.status === 'sent').length;
+
+      const elPendingBadge = document.getElementById('dmPendingListCountBadge');
+      const elSentBadge = document.getElementById('dmSentListCountBadge');
+      const elTabPending = document.getElementById('dmTabPendingCount');
+      const elTabSent = document.getElementById('dmTabSentCount');
+
+      if (elPendingBadge) elPendingBadge.textContent = totalPendingAll;
+      if (elSentBadge) elSentBadge.textContent = totalSentAll;
+      if (elTabPending) elTabPending.textContent = totalPendingAll;
+      if (elTabSent) elTabSent.textContent = totalSentAll;
+
+      // 1. Renderiza Lista de Pendentes
+      if (pendingItems.length === 0) {
+        tbodyPending.innerHTML = `
           <tr>
-            <td colspan="7" class="py-10 px-4 text-center text-slate-400">
-              <i class="fa-regular fa-paper-plane text-2xl mb-2 text-slate-500 block"></i>
-              <span class="font-bold text-slate-300">Nenhum contato na fila de Disparo 1 a 1.</span>
-              <p class="text-xs text-slate-500 mt-1">Cadastre um contato no formulário acima ou importe os leads encontrados no Buscador.</p>
+            <td colspan="7" class="py-8 px-4 text-center text-slate-400">
+              <i class="fa-solid fa-circle-check text-xl mb-1.5 text-emerald-500/70 block"></i>
+              <span class="font-bold text-slate-300">Nenhum contato pendente de envio no momento!</span>
+              <p class="text-xs text-slate-500 mt-0.5">Adicione novos contatos acima, importe leads do Buscador ou veja os disparos concluídos na Lista de Enviados abaixo.</p>
             </td>
           </tr>
         `;
-        return;
+      } else {
+        tbodyPending.innerHTML = pendingItems.map((m) => {
+          const isChecked = senderState.selectedDmIds.has(m.id);
+          let statusHtml = `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">⏳ Pendente</span>`;
+          if (m.status === 'sending') {
+            statusHtml = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30"><i class="fa-solid fa-spinner animate-spin"></i> Enviando...</span>`;
+          } else if (m.status === 'failed') {
+            statusHtml = `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30" title="${escapeHtml(m.error || 'Falha no envio')}">❌ Falhou</span>`;
+          }
+
+          return `
+            <tr class="hover:bg-slate-900/60 transition ${isChecked ? 'bg-amber-500/5' : ''}">
+              <td class="py-3.5 px-4 text-center">
+                <input
+                  type="checkbox"
+                  class="chk-select-dm w-4 h-4 rounded accent-brand-red cursor-pointer"
+                  ${isChecked ? 'checked' : ''}
+                  onchange="window.toggleSelectDmRow('${m.id}', this.checked)"
+                  title="Selecionar para disparo"
+                >
+              </td>
+              <td class="py-3.5 px-4 font-bold text-white">${escapeHtml(m.name)}</td>
+              <td class="py-3.5 px-3">
+                <input
+                  type="text"
+                  data-id="${escapeHtml(m.id)}"
+                  value="${escapeHtml(m.phone)}"
+                  onchange="window.updateDmPhoneInline('${m.id}', this.value)"
+                  class="dm-inline-phone-input w-36 px-2.5 py-1 rounded-lg bg-slate-950/90 border border-slate-700 hover:border-emerald-500/60 focus:border-emerald-400 focus:outline-none font-mono text-emerald-400 text-xs transition"
+                  title="Você pode editar o número de WhatsApp diretamente aqui"
+                />
+              </td>
+              <td class="py-3.5 px-4">
+                <div class="text-xs text-slate-300 line-clamp-2 max-w-xs" title="${escapeHtml(m.message)}">
+                  ${escapeHtml(m.message)}
+                </div>
+              </td>
+              <td class="py-3.5 px-3">${renderAttachmentCellHtml(m)}</td>
+              <td class="py-3.5 px-3">${statusHtml}</td>
+              <td class="py-3.5 px-4 text-right">
+                <div class="flex items-center justify-end gap-1.5">
+                  <button type="button" onclick="window.sendDmSingle('${m.id}')" class="p-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition shadow" title="Disparar 1 a 1 Agora">
+                    <i class="fa-solid fa-paper-plane"></i>
+                  </button>
+                  <button type="button" onclick="window.openEditDmModal('${m.id}')" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs border border-slate-700 transition" title="Editar contato / mensagem / anexo">
+                    <i class="fa-solid fa-pen"></i>
+                  </button>
+                  <button type="button" onclick="window.deleteDm('${m.id}')" class="p-2 rounded-lg bg-slate-800 hover:bg-rose-950 text-rose-400 text-xs border border-slate-700 transition" title="Excluir">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
       }
 
-      tbody.innerHTML = filtered.map((m, idx) => {
-        let statusHtml = `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">⏳ Pendente</span>`;
-        if (m.status === 'sending') {
-          statusHtml = `<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[11px] font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30"><i class="fa-solid fa-spinner animate-spin"></i> Enviando...</span>`;
-        } else if (m.status === 'sent') {
-          statusHtml = `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" title="Enviado em ${escapeHtml(m.sentAt || '')}">✅ Enviado</span>`;
-        } else if (m.status === 'failed') {
-          statusHtml = `<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-[11px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30" title="${escapeHtml(m.error || 'Falha no envio')}">❌ Falhou</span>`;
-        }
-
-        let attachmentHtml = '';
-        if (m.attachment && m.attachment.fileName) {
-          const isImg = m.attachment.fileType === 'image' || (m.attachment.mimeType || '').startsWith('image/');
-          const iconHtml = isImg
-            ? `<i class="fa-solid fa-file-image text-cyan-400"></i>`
-            : `<i class="fa-solid fa-file-pdf text-rose-400"></i>`;
-
-          attachmentHtml = `
-            <div class="inline-flex items-center gap-2 px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 max-w-[190px]">
-              ${iconHtml}
-              <span class="text-[11px] text-slate-200 truncate" title="${escapeHtml(m.attachment.fileName)}">${escapeHtml(m.attachment.fileName)}</span>
-              <button type="button" onclick="window.removeDmAttachment('${m.id}')" class="text-slate-400 hover:text-rose-400 font-bold ml-1" title="Remover anexo">&times;</button>
-            </div>
-          `;
-        } else {
-          attachmentHtml = `
-            <button type="button" onclick="window.triggerDmRowUpload('${m.id}')" class="px-2.5 py-1 rounded-lg bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-700 text-[11px] font-semibold inline-flex items-center gap-1.5 transition">
-              <i class="fa-solid fa-paperclip text-emerald-400"></i>
-              <span>Anexar PDF / Imagem</span>
-            </button>
-          `;
-        }
-
-        return `
-          <tr class="hover:bg-slate-900/60 transition">
-            <td class="py-3.5 px-4 text-center text-xs text-slate-500 font-mono">${idx + 1}</td>
-            <td class="py-3.5 px-4 font-bold text-white">${escapeHtml(m.name)}</td>
-            <td class="py-3.5 px-3">
-              <input
-                type="text"
-                data-id="${escapeHtml(m.id)}"
-                value="${escapeHtml(m.phone)}"
-                onchange="window.updateDmPhoneInline('${m.id}', this.value)"
-                class="dm-inline-phone-input w-36 px-2.5 py-1 rounded-lg bg-slate-950/90 border border-slate-700 hover:border-emerald-500/60 focus:border-emerald-400 focus:outline-none font-mono text-emerald-400 text-xs transition"
-                title="Você pode editar o número de WhatsApp diretamente aqui"
-              />
-            </td>
-            <td class="py-3.5 px-4">
-              <div class="text-xs text-slate-300 line-clamp-2 max-w-xs" title="${escapeHtml(m.message)}">
-                ${escapeHtml(m.message)}
-              </div>
-            </td>
-            <td class="py-3.5 px-3">${attachmentHtml}</td>
-            <td class="py-3.5 px-3">${statusHtml}</td>
-            <td class="py-3.5 px-4 text-right">
-              <div class="flex items-center justify-end gap-1.5">
-                <button type="button" onclick="window.sendDmSingle('${m.id}')" class="p-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition shadow" title="Disparar 1 a 1 Agora">
-                  <i class="fa-solid fa-paper-plane"></i>
-                </button>
-                <button type="button" onclick="window.openEditDmModal('${m.id}')" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs border border-slate-700 transition" title="Editar contato / mensagem / anexo">
-                  <i class="fa-solid fa-pen"></i>
-                </button>
-                <button type="button" onclick="window.deleteDm('${m.id}')" class="p-2 rounded-lg bg-slate-800 hover:bg-rose-950 text-rose-400 text-xs border border-slate-700 transition" title="Excluir">
-                  <i class="fa-solid fa-trash"></i>
-                </button>
-              </div>
+      // 2. Renderiza Lista de Enviados
+      if (sentItems.length === 0) {
+        tbodySent.innerHTML = `
+          <tr>
+            <td colspan="7" class="py-8 px-4 text-center text-slate-400">
+              <i class="fa-regular fa-paper-plane text-xl mb-1.5 text-slate-600 block"></i>
+              <span class="font-bold text-slate-400">Nenhum disparo enviado ainda.</span>
+              <p class="text-xs text-slate-500 mt-0.5">Assim que você enviar uma mensagem, o contato aparecerá automaticamente nesta Lista de Enviados.</p>
             </td>
           </tr>
         `;
-      }).join('');
+      } else {
+        tbodySent.innerHTML = sentItems.map((m, idx) => {
+          return `
+            <tr class="hover:bg-slate-900/60 transition bg-emerald-950/10">
+              <td class="py-3.5 px-4 text-center text-xs text-emerald-400 font-mono font-bold">${idx + 1}</td>
+              <td class="py-3.5 px-4 font-bold text-white">${escapeHtml(m.name)}</td>
+              <td class="py-3.5 px-3">
+                <input
+                  type="text"
+                  data-id="${escapeHtml(m.id)}"
+                  value="${escapeHtml(m.phone)}"
+                  onchange="window.updateDmPhoneInline('${m.id}', this.value)"
+                  class="dm-inline-phone-input w-36 px-2.5 py-1 rounded-lg bg-slate-950/90 border border-slate-700 hover:border-emerald-500/60 focus:border-emerald-400 focus:outline-none font-mono text-emerald-400 text-xs transition"
+                  title="Se você alterar o número, o contato volta automaticamente para a Lista de Pendentes"
+                />
+              </td>
+              <td class="py-3.5 px-4">
+                <div class="text-xs text-slate-300 line-clamp-2 max-w-xs" title="${escapeHtml(m.message)}">
+                  ${escapeHtml(m.message)}
+                </div>
+              </td>
+              <td class="py-3.5 px-3">${renderAttachmentCellHtml(m)}</td>
+              <td class="py-3.5 px-3">
+                <div class="flex flex-col gap-0.5">
+                  <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 w-fit">
+                    ✅ Enviado
+                  </span>
+                  ${m.sentAt ? `<span class="text-[10px] text-slate-400 font-mono">${escapeHtml(m.sentAt)}</span>` : ''}
+                </div>
+              </td>
+              <td class="py-3.5 px-4 text-right">
+                <div class="flex items-center justify-end gap-1.5">
+                  <button type="button" onclick="window.moveDmToPending('${m.id}')" class="px-2 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 text-[11px] font-semibold border border-slate-700 transition" title="Devolver para a Lista de Pendentes">
+                    <i class="fa-solid fa-rotate-left mr-1"></i>Pendente
+                  </button>
+                  <button type="button" onclick="window.sendDmSingle('${m.id}')" class="p-2 rounded-lg bg-emerald-600/80 hover:bg-emerald-500 text-white text-xs font-bold transition shadow" title="Reenviar Agora">
+                    <i class="fa-solid fa-paper-plane"></i>
+                  </button>
+                  <button type="button" onclick="window.openEditDmModal('${m.id}')" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-400 text-xs border border-slate-700 transition" title="Editar">
+                    <i class="fa-solid fa-pen"></i>
+                  </button>
+                  <button type="button" onclick="window.deleteDm('${m.id}')" class="p-2 rounded-lg bg-slate-800 hover:bg-rose-950 text-rose-400 text-xs border border-slate-700 transition" title="Excluir">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
     }
 
     // Ações globais da tabela 1 a 1

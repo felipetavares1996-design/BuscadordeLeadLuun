@@ -1046,15 +1046,19 @@ export default {
       } catch {}
       const state = await getWaLiveState(env);
       const clientMsgs = Array.isArray(body.messages) && body.messages.length > 0 ? body.messages : (state.messages || []);
-      if (clientMsgs.length === 0) {
+      const selectedIds = Array.isArray(body.selectedIds) && body.selectedIds.length > 0 ? body.selectedIds : null;
+      const targetCount = selectedIds
+        ? clientMsgs.filter((m) => selectedIds.includes(m.id)).length
+        : clientMsgs.filter((m) => m.status !== 'sent').length;
+      if (targetCount === 0) {
         return jsonResponse({ success: true, noPending: true, total: 0 });
       }
       await enqueueWaAction(env, {
         actionId: `act_${Date.now()}_start_batch`,
         type: 'start_batch',
-        payload: { messages: clientMsgs }
+        payload: { messages: clientMsgs, selectedIds }
       });
-      return jsonResponse({ success: true, total: clientMsgs.length });
+      return jsonResponse({ success: true, total: targetCount });
     }
 
     if (url.pathname === '/api/direct-messages/pause-batch' && request.method === 'POST') {

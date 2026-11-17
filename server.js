@@ -144,7 +144,7 @@ async function syncWithCloudflareWorker() {
           } else if (act.type === 'send_single' && act.payload) {
             await senderService.sendSingle(act.payload.id, act.payload.data || {}).catch(() => {});
           } else if (act.type === 'start_batch') {
-            senderService.startBatchSend(act.payload?.messages || null).catch(() => {});
+            senderService.startBatchSend(act.payload?.messages || null, act.payload?.selectedIds || null).catch(() => {});
           } else if (act.type === 'pause_batch') {
             senderService.pauseBatchSend();
           } else if (act.type === 'reset_status') {
@@ -725,7 +725,7 @@ app.post('/api/direct-messages/send-single/:id', async (req, res) => {
 
 app.post('/api/direct-messages/start-batch', async (req, res) => {
   try {
-    const result = await senderService.startBatchSend(req.body?.messages || null);
+    const result = await senderService.startBatchSend(req.body?.messages || null, req.body?.selectedIds || null);
     res.json({ success: true, ...result });
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });

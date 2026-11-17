@@ -417,7 +417,7 @@ class SenderService extends EventEmitter {
     }
   }
 
-  async startBatchSend(clientMessages = null) {
+  async startBatchSend(clientMessages = null, selectedIds = null) {
     if (this.isBatchRunning) {
       return { alreadyRunning: true, stats: this.getStats() };
     }
@@ -448,16 +448,21 @@ class SenderService extends EventEmitter {
       this.save();
     }
 
-    let pending = this.getMessages().filter((m) => m.status === 'pending' || m.status === 'failed');
-    if (pending.length === 0 && this.getMessages().length > 0) {
-      // Se todos já estavam como 'sent' e o usuário clicou em Disparar Lote novamente, reseta para enviar aos números atuais
-      for (const m of this.getMessages()) {
-        m.status = 'pending';
-        m.sentAt = null;
-        m.error = null;
+    const hasSelection = Array.isArray(selectedIds) && selectedIds.length > 0;
+    const selectedSet = hasSelection ? new Set(selectedIds) : null;
+
+    let pending;
+    if (selectedSet) {
+      pending = this.getMessages().filter((m) => selectedSet.has(m.id));
+      for (const m of pending) {
+        if (m.status === 'sent' || m.status === 'failed') {
+          m.status = 'pending';
+          m.error = null;
+        }
       }
       this.save();
-      pending = this.getMessages();
+    } else {
+      pending = this.getMessages().filter((m) => m.status === 'pending' || m.status === 'failed');
     }
 
     if (pending.length === 0) {
